@@ -1,0 +1,8 @@
+- hosts: thorondor
+  become: yes
+  vars_files:
+    - vars/vault.yaml
+  roles:
+    # - grog.package
+    # - docker
+    - docker-services

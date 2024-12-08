@@ -1,0 +1,81 @@
+---
+- name: Ensure docker-compose is installed
+  ansible.builtin.package:
+    name: docker-compose
+    state: present
+
+- name: Ensure Docker service is running
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Setup Proxy Folder 
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755" # Optional file permissions
+    owner: "{{ main_username }}" # Optional ownership
+    group: "{{ main_groupname }}" # Optional group ownership
+  loop:
+    - "{{ app_folder_root }}/traefik"
+  when: enable_proxy
+
+- name: Ensures acme.json file exists for proxy
+  ansible.builtin.file:
+    path: "{{ app_folder_root }}/traefik/acme.json"
+    state: touch
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    modification_time: preserve
+    access_time: preserve
+    mode: "0600"
+
+- name: Deploy traefik files 
+  ansible.builtin.template:
+    src: "{{item}}.j2"
+    dest: "{{ app_folder_root }}/{{ item }}"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: "0600"
+  loop:
+    - traefik/traefik.yml
+    - traefik/config.yml
+    - traefik/.env
+  when: enable_proxy
+
+- name: Allow tcp access to tcp port 443
+  community.general.ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+  when: enable_proxy
+
+- name: Allow tcp access to tcp port 80
+  community.general.ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+  when: enable_proxy
+
+- name: Allow all access to tcp port 5432 for postgres
+  community.general.ufw:
+    rule: allow
+    port: '5432'
+    proto: tcp
+  when: enable_db
+
+- name: Deploy Docker Compose file
+  ansible.builtin.template:
+    src: "templates/docker_compose.yaml.j2"
+    dest: "{{ app_folder_root }}/docker-compose.yaml"
+    mode: "0755" # Optional file permissions
+    owner: "{{ main_username }}" # Optional ownership
+    group: "{{ main_groupname }}" # Optional group ownership
+  # notify:
+  #   - Start Infra Services
+
+# - name: Run Infra Services docker-compose up
+#   community.docker.docker_compose_v2:
+#     project_src: "{{ app_folder_root }}/docker-compose/infra-services"
+#     state: present

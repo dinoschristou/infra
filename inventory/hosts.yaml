@@ -1,0 +1,7 @@
+all:
+  children:
+    proxmox_vms:
+      hosts:
+        thorondor:
+          ansible_host: 192.168.42.204
+          ansible_user: ubuntu

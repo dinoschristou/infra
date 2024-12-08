@@ -1,0 +1,51 @@
+package_list:
+  - name: apt-transport-https
+  - name: ca-certificates
+  - name: curl
+  - name: gnupg
+  - name: lsb-release
+    brew-ignore: yes
+  - name: software-properties-common
+  - name: python3-pip
+  - name: python3-setuptools
+  - name: nfs-common
+  - name: zsh
+
+enable_monitoring_server: no
+enable_db_server: no
+enable_monitoring_target: no
+enable_proxy: no
+enable_portainer: no
+
+# User and group settings
+main_username: "{{ ansible_user }}"
+main_groupname: "{{ main_username }}"
+main_uid: "1000"
+main_gid: "{{ main_uid }}"
+
+# Folder structure
+app_folder_root: /opt/knxcloud
+
+# Domain name settings
+hostname_root: "knxcloud.io"
+acme_provider: "cloudflare"
+
+# versions
+adminer_version: "4.8.1"
+alertmanager_version: "v0.27.0"
+cadvisor_version: "v0.49.1"
+grafana_version: "11.1.1"
+loki_version: "3.1.0"
+node_exporter_version: "v1.8.1"
+pihole_exporter_version: "v0.4.0"
+portainer_version: "2.19.5"
+postgres_version: "15-alpine"
+prometheus_version: "v2.53.1"
+promtail_version: "3.1.0"
+proxmox_exporter_version: "3.4.3"
+pushgateway_version: "v1.9.0"
+traefik_version: "v3.1"
+
+# Database settings
+postgres_user: dinos
+postgres_db: core

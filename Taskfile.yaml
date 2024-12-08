@@ -1,0 +1,22 @@
+version: "3"
+
+tasks:
+  encrypt:
+    cmds:
+      - ansible-vault encrypt vars/vault.yaml
+
+  decrypt:
+    cmds:
+      - ansible-vault decrypt vars/vault.yaml
+
+  ansible-reqs:
+    cmds:
+      - ansible-galaxy install -r requirements.yaml
+
+  python-reqs:
+    cmds:
+      - pip install -r requirements.txt --user
+
+  run:
+    cmds:
+      - ansible-playbook -i inventory/hosts.yaml site.yaml

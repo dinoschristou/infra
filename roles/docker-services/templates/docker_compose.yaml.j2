@@ -1,0 +1,170 @@
+services:
+{% if enable_portainer %}
+  portainer:
+    image: portainer/portainer-ce:{{ portainer_version }}
+    container_name: portainer
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - "9000:9000"
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.{{ full_domain }}`)"
+      - "traefik.http.routers.portainer.entrypoints=https"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+{% endif %}
+
+{% if enable_monitoring_target %}
+  node-exporter:
+    image: prom/node-exporter:{{ node_exporter_version }}
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - "9100:9100"
+    networks:
+      - proxy
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.node-exporter.rule=Host(`node-exporter.{{ full_domain }}`)"
+      - "traefik.http.routers.node-exporter.entrypoints=https"
+      - "traefik.http.routers.node-exporter.tls=true"
+      - "traefik.http.services.node-exporter.loadbalancer.server.port=9100"
+
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:{{ cadvisor_version }}
+    restart: unless-stopped
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - "8080:8080"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.{{ full_domain }}`)"
+      - "traefik.http.routers.cadvisor.entrypoints=https"
+      - "traefik.http.routers.cadvisor.tls=true"
+      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
+{% endif %}
+
+{% if enable_proxy %}
+  traefik:
+    image: traefik:{{ traefik_version }}
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    ports:
+      - 80:80
+      - 443:443
+      # - 443:443/tcp # Uncomment if you want HTTP3
+      # - 443:443/udp # Uncomment if you want HTTP3
+    environment:
+      CF_DNS_API_TOKEN: ${CF_DNS_API_TOKEN} # if using .env
+      TRAEFIK_DASHBOARD_CREDENTIALS: ${TRAEFIK_DASHBOARD_CREDENTIALS}
+      CF_API_EMAIL: ${CF_API_EMAIL}
+      PUID: 1000
+      PGID: 1000
+    env_file: traefik/.env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - {{ app_folder_root }}/traefik/traefik.yml:/traefik.yml:ro
+      - {{ app_folder_root }}/traefik/acme.json:/acme.json
+      - {{ app_folder_root }}/traefik/config.yml:/config.yml:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.routers.traefik.rule=Host(`traefik-dashboard.{{ full_domain }}`)"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_DASHBOARD_CREDENTIALS}"
+      - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
+      - "traefik.http.routers.traefik-secure.entrypoints=https"
+      - "traefik.http.routers.traefik-secure.rule=Host(`traefik-dashboard.{{ full_domain }}`)"
+      - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
+      - "traefik.http.routers.traefik-secure.tls=true"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].main={{ full_domain }}"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.{{ full_domain }}"
+      - "traefik.http.routers.traefik-secure.service=api@internal"
+{% endif %}
+{% if enable_db %}
+  postgres:
+    image: postgres:{{ postgres_version }}
+    container_name: postgres
+    networks:
+      - proxy
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data 
+    environment:
+      - POSTGRES_PASSWORD={{ postgres_password }}
+      - POSTGRES_USER={{ postgres_user }}
+      - POSTGRES_DB={{ postgres_db }}
+
+  adminer:
+    image: adminer:{{ adminer_version }}
+    container_name: adminer
+    restart: unless-stopped
+    networks:
+      - infra-proxy
+    ports:
+      - 8082:8080
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.adminer.rule=Host(`adminer.{{ acme_domain }}`)"
+      - "traefik.http.routers.adminer.entrypoints=https"
+      - "traefik.http.routers.adminer.tls=true"
+      - "traefik.http.services.adminer.loadbalancer.server.port=8080"
+{% endif %}
+
+volumes:
+  portainer_data:
+  pg_data: {}
+
+networks:
+  proxy:
+    external: true
