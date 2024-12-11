@@ -19,4 +19,8 @@ tasks:
 
   run:
     cmds:
-      - ansible-playbook -i inventory/hosts.yaml site.yaml
+      - ansible-playbook -i inventory/hosts.yaml site.yaml --skip-tags dns
+
+  update-dns:
+    cmds:
+      - ansible-playbook -i inventory/hosts.yaml site.yaml --tags dns --limit piholes

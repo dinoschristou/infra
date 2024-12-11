@@ -1,0 +1,3 @@
+dnsmasq_config_dir: /etc/dnsmasq.d
+dns_overrides:
+  - { ip: 192.168.42.204, custom_dns: "a.knxcloud.io" }

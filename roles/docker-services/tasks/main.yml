@@ -41,7 +41,15 @@
   loop:
     - traefik/traefik.yml
     - traefik/config.yml
-    - traefik/.env
+  when: enable_proxy
+
+- name: Deploy traefik files 
+  ansible.builtin.template:
+    src: ".env.j2"
+    dest: "{{ app_folder_root }}/.env"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: "0600"
   when: enable_proxy
 
 - name: Allow tcp access to tcp port 443
@@ -63,7 +71,7 @@
     rule: allow
     port: '5432'
     proto: tcp
-  when: enable_db
+  when: enable_db_server
 
 - name: Deploy Docker Compose file
   ansible.builtin.template:
@@ -72,10 +80,10 @@
     mode: "0755" # Optional file permissions
     owner: "{{ main_username }}" # Optional ownership
     group: "{{ main_groupname }}" # Optional group ownership
-  # notify:
-  #   - Start Infra Services
+  notify:
+    - Start Services
 
-# - name: Run Infra Services docker-compose up
-#   community.docker.docker_compose_v2:
-#     project_src: "{{ app_folder_root }}/docker-compose/infra-services"
-#     state: present
+- name: Run docker services
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_folder_root }}"
+    state: present
