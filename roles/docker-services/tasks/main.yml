@@ -10,7 +10,7 @@
     state: started
     enabled: true
 
-- name: Setup Proxy Folder 
+- name: Setup Proxy Folder
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -31,9 +31,9 @@
     access_time: preserve
     mode: "0600"
 
-- name: Deploy traefik files 
+- name: Deploy traefik files
   ansible.builtin.template:
-    src: "{{item}}.j2"
+    src: "{{ item }}.j2"
     dest: "{{ app_folder_root }}/{{ item }}"
     owner: "{{ main_uid }}"
     group: "{{ main_gid }}"
@@ -43,7 +43,7 @@
     - traefik/config.yml
   when: enable_proxy
 
-- name: Deploy traefik files 
+- name: Deploy traefik files
   ansible.builtin.template:
     src: ".env.j2"
     dest: "{{ app_folder_root }}/.env"

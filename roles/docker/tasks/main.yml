@@ -20,11 +20,11 @@
     enabled: true
     state: started
 
-- name: adding users to group docker
-  user:
+- name: Adding users to group docker
+  ansible.builtin.user:
     name: "{{ ansible_user }}"
     groups: docker
-    append: yes
+    append: true
 
 - name: Create a network
   docker_network:

@@ -16,6 +16,7 @@ enable_db_server: no
 enable_monitoring_target: no
 enable_proxy: no
 enable_portainer: no
+enable_linkding: no
 
 # User and group settings
 main_username: "{{ ansible_user }}"

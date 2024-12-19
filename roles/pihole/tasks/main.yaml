@@ -1,14 +1,16 @@
-- name: check dnsmasq director exists 
-  file:
+- name: Check Dnsmasq Directory Exists
+  ansible.builtin.file:
     path: "{{ dnsmasq_config_dir }}"
     state: directory
     owner: root
     group: root
+    mode: '0755'
 
-- name: write dns file
-  template:
-    src: ../templates/dns-overrides.conf.j2
+- name: Write DNS file
+  ansible.builtin.template:
+    src: dns-overrides.conf.j2
     dest: "{{ dnsmasq_config_dir }}/03-dns-overrides.conf"
     owner: root
     group: root
-  notify: restart pihole dns
+    mode: '0644'
+  notify: Restart pihole dns

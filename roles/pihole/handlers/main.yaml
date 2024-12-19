@@ -1,3 +1,3 @@
-- name: restart pihole dns
-  shell: pihole restartdns
-  listen: "restart pihole dns"
+- name: Restart pihole dns
+  ansible.builtin.command: pihole restartdns
+  listen: "Restart pihole dns"
