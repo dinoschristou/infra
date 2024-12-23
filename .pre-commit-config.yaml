@@ -1,11 +1,11 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v5.0.0
     hooks:
       - id: check-yaml
       - id: trailing-whitespace
   - repo: https://github.com/psf/black
-    rev: 22.10.0
+    rev: 24.10.0
     hooks:
       - id: black
   - repo: https://github.com/ansible/ansible-lint.git
@@ -16,3 +16,7 @@ repos:
         name: Ansible Lint
         description: Run configurations on .ansible-lint file
         verbose: true
+  - repo: https://github.com/dinoschristou/ansible-encyption-check.git
+    rev: v0.1.0
+    hooks:
+      - id: ansible-encryption-check
