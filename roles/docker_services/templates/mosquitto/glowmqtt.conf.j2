@@ -1,0 +1,8 @@
+connection glowmqtt
+address glowmqtt.energyhive.com:8883
+remote_username {{ glow_remote_username }}
+remote_password {{ glow_remote_password }}
+bridge_insecure false
+bridge_capath /etc/ssl/certs/
+topic SMART/HILD/78E36DD01680 in 0
+bridge_protocol_version mqttv311

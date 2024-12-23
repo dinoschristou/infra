@@ -52,6 +52,14 @@
     mode: "0600"
   when: enable_proxy
 
+- name: Include monitoring server tasks
+  ansible.builtin.include_tasks: monitoring_server.yml
+  when: enable_monitoring_server
+
+- name: Include Mosquitto tasks
+  ansible.builtin.include_tasks: mosquitto.yml
+  when: enable_mosquitto
+
 - name: Allow tcp access to tcp port 443
   community.general.ufw:
     rule: allow
@@ -71,7 +79,7 @@
     rule: allow
     port: '5432'
     proto: tcp
-  when: enable_db_server
+  when: enable_db_server or enable_linkding
 
 - name: Deploy Docker Compose file
   ansible.builtin.template:

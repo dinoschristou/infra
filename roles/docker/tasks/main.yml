@@ -27,5 +27,5 @@
     append: true
 
 - name: Create a network
-  docker_network:
+  community.docker.docker_network:
     name: proxy

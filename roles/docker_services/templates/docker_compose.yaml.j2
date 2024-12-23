@@ -1,0 +1,370 @@
+services:
+{% if enable_portainer %}
+  portainer:
+    image: portainer/portainer-ce:{{ portainer_version }}
+    container_name: portainer
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - "9000:9000"
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.{{ full_domain }}`)"
+      - "traefik.http.routers.portainer.entrypoints=https"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+{% endif %}
+
+{% if enable_monitoring_target %}
+  node-exporter:
+    image: prom/node-exporter:{{ node_exporter_version }}
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - "9100:9100"
+    networks:
+      - proxy
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.node-exporter.rule=Host(`node-exporter.{{ full_domain }}`)"
+      - "traefik.http.routers.node-exporter.entrypoints=https"
+      - "traefik.http.routers.node-exporter.tls=true"
+      - "traefik.http.services.node-exporter.loadbalancer.server.port=9100"
+
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:{{ cadvisor_version }}
+    restart: unless-stopped
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - "8080:8080"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.{{ full_domain }}`)"
+      - "traefik.http.routers.cadvisor.entrypoints=https"
+      - "traefik.http.routers.cadvisor.tls=true"
+      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
+{% endif %}
+
+{% if enable_proxy %}
+  traefik:
+    image: traefik:{{ traefik_version }}
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    ports:
+      - 80:80
+      - 443:443
+      # - 443:443/tcp # Uncomment if you want HTTP3
+      # - 443:443/udp # Uncomment if you want HTTP3
+    environment:
+      CF_DNS_API_TOKEN: ${CF_DNS_API_TOKEN} # if using .env
+      TRAEFIK_DASHBOARD_CREDENTIALS: ${TRAEFIK_DASHBOARD_CREDENTIALS}
+      CF_API_EMAIL: ${CF_API_EMAIL}
+      PUID: 1000
+      PGID: 1000
+    env_file: .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - {{ app_folder_root }}/traefik/traefik.yml:/traefik.yml:ro
+      - {{ app_folder_root }}/traefik/acme.json:/acme.json
+      - {{ app_folder_root }}/traefik/config.yml:/config.yml:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.routers.traefik.rule=Host(`traefik-dashboard.{{ full_domain }}`)"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_DASHBOARD_CREDENTIALS}"
+      - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
+      - "traefik.http.routers.traefik-secure.entrypoints=https"
+      - "traefik.http.routers.traefik-secure.rule=Host(`traefik-dashboard.{{ full_domain }}`)"
+      - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
+      - "traefik.http.routers.traefik-secure.tls=true"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].main={{ full_domain }}"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.{{ full_domain }}"
+      - "traefik.http.routers.traefik-secure.service=api@internal"
+{% endif %}
+
+{% if enable_db_server or enable_linkding %}
+  postgres:
+    image: postgres:{{ postgres_version }}
+    container_name: postgres
+    networks:
+      - proxy
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD={{ postgres_password }}
+      - POSTGRES_USER={{ postgres_user }}
+      - POSTGRES_DB={{ postgres_db }}
+
+  adminer:
+    image: adminer:{{ adminer_version }}
+    container_name: adminer
+    restart: unless-stopped
+    networks:
+      - proxy
+    ports:
+      - 8082:8080
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.adminer.rule=Host(`adminer.{{ full_domain }}`)"
+      - "traefik.http.routers.adminer.entrypoints=https"
+      - "traefik.http.routers.adminer.tls=true"
+      - "traefik.http.services.adminer.loadbalancer.server.port=8080"
+{% endif %}
+
+{% if enable_linkding %}
+  linkding:
+    container_name: linkding
+    image: sissbruecker/linkding:{{ linkding_version }}
+    networks:
+      - proxy
+    ports:
+      - "9042:9090"
+    volumes:
+      - linkding_data:/etc/linkding/data"
+    depends_on:
+      - postgres
+    environment:
+      - LD_DB_ENGINE=postgres
+      - LD_DB_USER={{ postgres_user }}
+      - LD_DB_PASSWORD={{ postgres_password }}
+      - LD_DB_HOST=postgres
+      - LD_DB_PORT=5432
+      - LD_DB_DATABASE={{ postgres_db }}
+      - LD_SUPERUSER_PASSWORD={{ linkding_superuser_password }}
+      - LD_SUPERUSER_NAME={{ linkding_superuser_name}}
+      - LD_HOST_PORT=9042
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.linkding.rule=Host(`ld.{{ full_domain }}`)"
+      - "traefik.http.routers.linkding.entrypoints=https"
+      - "traefik.http.routers.linkding.tls=true"
+      - "traefik.http.services.linkding.loadbalancer.server.port=9090"
+{% endif %}
+
+{% if enable_mosquitto %}
+  mosquitto:
+    image: eclipse-mosquitto:{{ mosquitto_version }}
+    restart: unless-stopped
+    networks:
+      - proxy
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - {{ app_folder_root }}/mosquitto/config:/mosquitto/config
+      - {{ app_folder_root }}/mosquitto/data:/mosquitto/data
+      - {{ app_folder_root }}/mosquitto/log:/mosquitto/log
+{% endif %}
+
+{% if enable_monitoring_server %}
+  prometheus:
+    image: prom/prometheus:{{ prometheus_version }}
+    container_name: prometheus
+    volumes:
+      - {{ app_folder_root }}/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--storage.tsdb.retention.time=240h"
+      - "--web.enable-lifecycle"
+    restart: unless-stopped
+    expose:
+      - 9090
+    networks:
+      - proxy
+    labels:
+      - "org.label-schema.group=monitoring"
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.{{ full_domain }}`)"
+      - "traefik.http.routers.prometheus.entrypoints=https"
+      - "traefik.http.routers.prometheus.tls=true"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  alertmanager:
+    image: prom/alertmanager:{{ alertmanager_version }}
+    container_name: alertmanager
+    volumes:
+      - {{ app_folder_root }}/alertmanager:/etc/alertmanager
+    command:
+      - "--config.file=/etc/alertmanager/config.yml"
+      - "--storage.path=/alertmanager"
+    restart: unless-stopped
+    expose:
+      - 9093
+    networks:
+      - proxy
+    labels:
+      - "org.label-schema.group=monitoring"
+      - "traefik.enable=true"
+      - "traefik.http.routers.alertmanager.rule=Host(`alertmanager.{{ full_domain }}`)"
+      - "traefik.http.routers.alertmanager.entrypoints=https"
+      - "traefik.http.routers.alertmanager.tls=true"
+      - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
+
+  loki:
+    image: grafana/loki:{{ loki_version }}
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+      - {{ app_folder_root }}/loki:/etc/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.loki.rule=Host(`loki.{{ full_domain }}`)"
+      - "traefik.http.routers.loki.entrypoints=https"
+      - "traefik.http.routers.loki.tls=true"
+      - "traefik.http.services.loki.loadbalancer.server.port=3100"
+
+  promtail:
+    image: grafana/promtail:{{ promtail_version }}
+    container_name: promtail
+    volumes:
+      - /var/log:/var/log
+      - {{ app_folder_root }}/promtail:/etc/promtail
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - proxy
+
+  grafana:
+    image: grafana/grafana:{{ grafana_version }}
+    container_name: grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - {{ app_folder_root }}/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER={{ grafana_user }}
+      - GF_SECURITY_ADMIN_PASSWORD={{ grafana_password }}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    expose:
+      - 3000
+    networks:
+      - proxy
+    labels:
+      - "org.label-schema.group=monitoring"
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.{{ full_domain }}`)"
+      - "traefik.http.routers.grafana.entrypoints=https"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+  pushgateway:
+    image: prom/pushgateway:{{ pushgateway_version }}
+    container_name: pushgateway
+    restart: unless-stopped
+    expose:
+      - 9091
+    networks:
+      - proxy
+    labels:
+      - "org.label-schema.group=monitoring"
+      - "traefik.enable=true"
+      - "traefik.http.routers.pushgateway.rule=Host(`pushgateway.{{ full_domain }}`)"
+      - "traefik.http.routers.pushgateway.entrypoints=https"
+      - "traefik.http.routers.pushgateway.tls=true"
+      - "traefik.http.services.pushgateway.loadbalancer.server.port=9091"
+
+  pihole-exporter:
+    image: ekofr/pihole-exporter:{{ pihole_exporter_version }}
+    container_name: pihole-exporter
+    environment:
+      - PIHOLE_PROTOCOL=http,http
+      - PIHOLE_HOSTNAME={{ pihole_main_host }},{{ pihole_backup_host }}
+      - PIHOLE_API_TOKEN={{ pihole_main_api_token }},{{ pihole_backup_api_token }}
+      - PORT=9617
+    restart: unless-stopped
+    networks:
+      - proxy
+    expose:
+      - 9617
+
+  proxmox-exporter:
+    image: prompve/prometheus-pve-exporter:{{ proxmox_exporter_version }}
+    container_name: proxmox-exporter
+    volumes:
+      - {{ app_folder_root }}/pve_exporter:/etc/pve_exporter
+    command:
+      - "--config.file=/etc/pve_exporter/pve.yml"
+    restart: unless-stopped
+    expose:
+      - 9221
+    networks:
+      - proxy
+{% endif %}
+
+volumes:
+  portainer_data:
+{% if enable_db_server or enable_linkding %}
+  pg_data: {}
+{% endif %}
+{% if enable_linkding %}
+  linkding_data: {}
+{% endif %}
+{% if enable_monitoring_server %}
+  prometheus_data: {}
+  grafana_data: {}
+  loki_data: {}
+{% endif %}
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,15 @@
+- name: Log into Docker Hub
+  hosts: "*"
+  become: true
+  vars_prompt:
+    - name: docker_username
+      prompt: "Enter docker username"
+    - name: docker_password
+      prompt: "Enter docker password"
+      encrypt: sha512_crypt
+      private: true
+  tasks:
+    - name: Log in
+      community.docker.docker_login:
+        username: "{{ docker_username }}"
+        password: "{{ docker_password }}"

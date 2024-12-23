@@ -1,0 +1,21 @@
+---
+# tasks file for docker
+- name: Install pre-requisite packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - nut
+    - nut-client
+    - nut-server
+
+# Copy files across
+# restart services
+
+- name: Install pre-requisite packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - apache2
+    - nut-cgi

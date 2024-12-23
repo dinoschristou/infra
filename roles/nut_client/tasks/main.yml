@@ -1,0 +1,31 @@
+---
+# tasks file for docker
+- name: Install pre-requisite packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - nut-client
+# Copy files across
+# restart services
+- name: Deploy upsmon config
+  ansible.builtin.template:
+    src: "templates/upsmon.conf.j2"
+    dest: "/etc/nut/upsmon.conf"
+    owner: root
+    group: nut
+    mode: "0640"
+
+- name: Deploy nut config
+  ansible.builtin.file:
+    src: "files/nut.conf"
+    dest: "/etc/nut/nut.conf"
+    owner: root
+    group: nut
+    mode: "0640"
+
+- name: Restart nut nut-client
+  ansible.builtin.systemd:
+    name: nut-client
+    state: restarted
+    enabled: true

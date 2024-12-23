@@ -1,0 +1,7 @@
+- name: Update pihole
+  hosts: "piholes"
+  tasks:
+    - name: Pihole Update
+      ansible.builtin.command:
+        cmd: pihole -up
+        creates: /etc/pihole/pihole-FTL.conf

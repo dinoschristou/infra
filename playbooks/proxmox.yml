@@ -1,0 +1,28 @@
+- name: "Setup proxmox initial configuration"
+  hosts: "*"
+  tasks:
+    - name: 'Ensure enterprise repo file is not present'
+      ansible.builtin.apt_repository:
+        repo: 'deb https://enterprise.proxmox.com/debian/pve bookworm pve-enterprise'
+        state: absent
+    - name: 'Ensure ceph enterprise repo file is not present'
+      ansible.builtin.apt_repository:
+        repo: 'deb https://enterprise.proxmox.com/debian/ceph-quincy bookworm enterprise'
+        state: absent
+    - name: Switch to community repos
+      ansible.builtin.apt_repository:
+        repo: 'deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription'
+        state: present
+    - name: Update all packages to the latest version
+      ansible.builtin.apt:
+        upgrade: dist
+
+
+# Need to set this
+# GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt"
+# in /etc/default/grub
+# update /etc/modules
+# vfio
+# vfio_iommu_type1
+# vfio_pci
+# vfio_virqfd

@@ -1,0 +1,91 @@
+---
+- name: Setup monitoring server directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755" # Optional file permissions
+    owner: "{{ main_username }}" # Optional ownership
+    group: "{{ main_groupname }}" # Optional group ownership
+  loop:
+    - "{{ app_folder_root }}/alertmanager"
+    - "{{ app_folder_root }}/prometheus"
+    - "{{ app_folder_root }}/grafana/provisioning/datasources"
+    - "{{ app_folder_root }}/grafana/provisioning/dashboards"
+    - "{{ app_folder_root }}/loki"
+    - "{{ app_folder_root }}/promtail"
+    - "{{ app_folder_root }}/pve_exporter"
+
+
+- name: Add Alertmanager config.yml file
+  ansible.builtin.template:
+    src: monitoring/alertmanager_config.yaml.j2
+    dest: "{{ app_folder_root }}/alertmanager/config.yml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: "0755"
+
+- name: Add Prometheus config file
+  ansible.builtin.template:
+    src: monitoring/prometheus_config.yaml.j2
+    dest: "{{ app_folder_root }}/prometheus/prometheus.yml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: "0755"
+
+- name: Add Prometheus rules file
+  ansible.builtin.copy:
+    src: monitoring/alert.rules
+    dest: "{{ app_folder_root }}/prometheus/alert.rules"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: "0755"
+
+- name: Add Proxmox Exporter config
+  ansible.builtin.template:
+    src: monitoring/pve.yml.j2
+    dest: "{{ app_folder_root }}/pve_exporter/pve.yml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: "0755"
+
+- name: Add Grafana datasources file
+  ansible.builtin.template:
+    src: monitoring/grafana_datasources.yaml.j2
+    dest: "{{ app_folder_root }}/grafana/provisioning/datasources/datasources.yaml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: "0755"
+
+- name: Add Grafana dashboards yaml
+  ansible.builtin.copy:
+    src: monitoring/grafana_dashboards.yaml
+    dest: "{{ app_folder_root }}/grafana/provisioning/dashboards/dashboards.yaml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: "0755"
+
+- name: Deploy all dashboards
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ app_folder_root }}/grafana/provisioning/dashboards/"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: "0755"
+  with_fileglob:
+    - "monitoring/dashboards/*.json"
+
+- name: Add Promtail config file
+  ansible.builtin.template:
+    src: monitoring/promtail_config.yaml.j2
+    dest: "{{ app_folder_root }}/promtail/config.yml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: "0755"
+
+- name: Add Loki config file
+  ansible.builtin.template:
+    src: monitoring/loki_config.yaml.j2
+    dest: "{{ app_folder_root }}/loki/local-config.yaml"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: "0755"

@@ -1,0 +1,10 @@
+---
+# .ansible-lint
+
+exclude_paths:
+  - roles/pihole/handlers/main.yaml
+  - vars/vault.yaml
+
+warn_list:
+  - command-instead-of-module
+  - command-instead-of-shell

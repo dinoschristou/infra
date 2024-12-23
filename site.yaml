@@ -3,17 +3,17 @@
   hosts: thorondor
   become: true
   vars_files:
-  - vars/vault.yaml
+   - vars/vault.yaml
   roles:
   # - grog.package
   # - docker
-  - docker-services
+   - docker_services
 
 - name: Setup dns on piholes
   hosts: pihole-primary
   become: true
   vars_files:
-  - vars/vault.yaml
+   - vars/vault.yaml
   roles:
-  - role: pihole
-    tags: dns
+   - role: pihole
+     tags: dns

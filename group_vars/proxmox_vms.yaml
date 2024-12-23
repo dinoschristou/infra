@@ -4,7 +4,7 @@ package_list:
   - name: curl
   - name: gnupg
   - name: lsb-release
-    brew-ignore: yes
+    brew-ignore: true
   - name: software-properties-common
   - name: python3-pip
   - name: python3-setuptools

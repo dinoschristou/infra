@@ -1,0 +1,44 @@
+---
+- name: Setup Mosquitto directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755" # Optional file permissions
+    owner: "{{ main_username }}" # Optional ownership
+    group: "{{ main_groupname }}" # Optional group ownership
+  loop:
+    - "{{ app_folder_root }}/mosquitto"
+    - "{{ app_folder_root }}/mosquitto/config"
+    - "{{ app_folder_root }}/mosquitto/config.d"
+    - "{{ app_folder_root }}/mosquitto/data"
+    - "{{ app_folder_root }}/mosquitto/logs"
+
+- name: Deploy Mosquitto config
+  ansible.builtin.template:
+    src: "templates/mosquitto/mosquitto.conf.j2"
+    dest: "{{ app_folder_root }}/mosquitto/config/mosquitto.conf"
+    mode: "0600" # Optional file permissions
+    owner: "{{ main_username }}" # Optional ownership
+    group: "{{ main_groupname }}" # Optional group ownership
+
+- name: Deploy glowmqtt config
+  ansible.builtin.template:
+    src: "templates/mosquitto/glowmqtt.conf.j2"
+    dest: "{{ app_folder_root }}/mosquitto/config/conf.d/glowmqtt.conf"
+    mode: "0600" # Optional file permissions
+    owner: "{{ main_username }}" # Optional ownership
+    group: "{{ main_groupname }}" # Optional group ownership
+
+# Automate creation of mosquitto credentials
+
+- name: Allow all access to tcp port 1883
+  community.general.ufw:
+    rule: allow
+    port: "1883"
+    proto: tcp
+
+- name: Allow all access to tcp port 9001
+  community.general.ufw:
+    rule: allow
+    port: "9001"
+    proto: tcp
