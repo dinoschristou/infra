@@ -1,12 +1,12 @@
 ---
-- name: Setup docker services on thorondor
-  hosts: thorondor
+- name: Setup main home servers
+  hosts: proxmox_vms
   become: true
   vars_files:
    - vars/vault.yaml
   roles:
-  # - grog.package
-  # - docker
+   - grog.package
+   - docker
    - docker_services
 
 - name: Setup dns on piholes

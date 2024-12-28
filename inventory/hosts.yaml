@@ -5,6 +5,9 @@ all:
         thorondor:
           ansible_host: 192.168.42.204
           ansible_user: ubuntu
+        varda:
+          ansible_host: 192.168.42.238
+          ansible_user: ubuntu
     piholes:
       hosts:
         pihole-backup:

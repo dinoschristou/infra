@@ -1,0 +1,8 @@
+enable_monitoring_server: true
+enable_db_server: true
+enable_monitoring_target: true
+enable_proxy: true
+enable_portainer: true
+enable_linkding: true
+
+full_domain: "main.{{ hostname_root }}"

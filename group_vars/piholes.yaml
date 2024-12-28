@@ -2,6 +2,7 @@ dnsmasq_config_dir: /etc/dnsmasq.d
 # TODO: Generate these from the inventory.
 dns_overrides:
   - { ip: 192.168.42.204, custom_dns: "a.knxcloud.io" }
+  - { ip: 192.168.42.238, custom_dns: "main.knxcloud.io" }
   - { ip: 192.168.1.202, custom_dns: "rpi0.knxcloud.io" }
   - { ip: 192.168.1.203, custom_dns: "rpi1.knxcloud.io" }
   - { ip: 192.168.1.204, custom_dns: "rpi2.knxcloud.io" }
