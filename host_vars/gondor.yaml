@@ -1,0 +1,8 @@
+enable_monitoring_server: false
+enable_db_server: true
+enable_monitoring_target: true
+enable_proxy: true
+enable_portainer: false
+enable_linkding: false
+
+full_domain: "gondor.{{ hostname_root }}"

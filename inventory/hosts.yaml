@@ -8,6 +8,9 @@ all:
         varda:
           ansible_host: 192.168.42.238
           ansible_user: ubuntu
+        gondor:
+          ansible_host: 192.168.42.225
+          ansible_user: ubuntu
     piholes:
       hosts:
         pihole-backup:
