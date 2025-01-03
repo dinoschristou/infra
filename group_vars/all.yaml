@@ -20,6 +20,8 @@ enable_proxy: false
 enable_portainer: false
 enable_linkding: false
 enable_mosquitto: false
+enable_scrypted: false
+enable_dashboard: false
 
 # User and group settings
 main_username: "{{ ansible_user }}"
@@ -51,6 +53,8 @@ pushgateway_version: "v1.9.0"
 traefik_version: "v3.1"
 linkding_version: "1.36.0"
 mosquitto_version: "1.6.15"
+scrypted_version: "v0.126.0-noble-full"
+homepage_version: "v0.10.7"
 
 # Database settings
 postgres_user: dinos

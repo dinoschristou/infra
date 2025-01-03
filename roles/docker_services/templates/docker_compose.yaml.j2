@@ -350,6 +350,52 @@ services:
     networks:
       - proxy
 {% endif %}
+{% if enable_scrypted %}
+  scrypted:
+    image: ghcr.io/koush/scrypted:{{ scrypted_version }}
+    container_name: scrypted
+    volumes:
+      - scrypted_data:/server/volume
+    environment:
+      - PUID=1000
+      - PGID=1000
+    restart: unless-stopped
+    networks:
+      - proxy
+    logging:
+      driver: "none"
+    expose:
+      - 11080
+      - 10443
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.scrypted.rule=Host(`scrypted.{{ full_domain }}`)"
+      - "traefik.http.routers.scrypted.entrypoints=https"
+      - "traefik.http.routers.scrypted.tls=true"
+      - "traefik.http.services.scrypted.loadbalancer.server.port=11080"
+{% endif %}
+{% if enable_dashboard %}
+  homepage:
+    image: ghcr.io/gethomepage/homepage:{{ homepage_version }}
+    container_name: homepage
+    ports:
+      - 3000:3000
+    volumes:
+      - {{ app_folder_root }}/homepage:/app/config 
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - PUID=1000
+      - PGID=1000
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homepage.rule=Host(`home.{{ full_domain }}`)"
+      - "traefik.http.routers.homepage.entrypoints=https"
+      - "traefik.http.routers.homepage.tls=true"
+      - "traefik.http.services.homepage.loadbalancer.server.port=3000"
+{% endif %}
 
 volumes:
   portainer_data:
@@ -364,6 +410,10 @@ volumes:
   grafana_data: {}
   loki_data: {}
 {% endif %}
+{% if enable_scrypted %}
+  scrypted_data: {}
+{% endif %}
+
 
 networks:
   proxy:

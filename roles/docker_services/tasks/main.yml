@@ -60,6 +60,17 @@
   ansible.builtin.include_tasks: mosquitto.yml
   when: enable_mosquitto
 
+- name: Setup Homepage Folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755" # Optional file permissions
+    owner: "{{ main_username }}" # Optional ownership
+    group: "{{ main_groupname }}" # Optional group ownership
+  loop:
+    - "{{ app_folder_root }}/homepage"
+  when: enable_dashboard
+
 - name: Allow tcp access to tcp port 443
   community.general.ufw:
     rule: allow
