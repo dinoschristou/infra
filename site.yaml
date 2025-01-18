@@ -5,8 +5,8 @@
   vars_files:
    - vars/vault.yaml
   roles:
-   - grog.package
-   - docker
+  #  - grog.package
+  #  - docker
    - docker_services
 
 - name: Setup dns on piholes
@@ -24,6 +24,7 @@
   vars_files:
    - vars/vault.yaml
   roles:
-   - grog.package
-   - base
-   - docker
+  #  - grog.package
+  #  - base
+  #  - docker
+   - docker_services

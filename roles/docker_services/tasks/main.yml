@@ -71,6 +71,38 @@
     - "{{ app_folder_root }}/homepage"
   when: enable_dashboard
 
+- name: Setup Authentik Folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755" # Optional file permissions
+    owner: "{{ main_username }}" # Optional ownership
+    group: "{{ main_groupname }}" # Optional group ownership
+  loop:
+    - "{{ app_folder_root }}/authentik"
+    - "{{ app_folder_root }}/authentik/media"
+    - "{{ app_folder_root }}/authentik/certs"
+    - "{{ app_folder_root }}/authentik/custom-templates"
+  when: enable_authentik
+
+- name: Setup Productivity App Folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755" # Optional file permissions
+    owner: "{{ main_username }}" # Optional ownership
+    group: "{{ main_groupname }}" # Optional group ownership
+  loop:
+    - "{{ app_folder_root }}/apps"
+    - "{{ app_folder_root }}/apps/freshrss"
+    - "{{ app_folder_root }}/apps/wallabag"
+    - "{{ app_folder_root }}/apps/mealie"
+    - "{{ app_folder_root }}/apps/sterlingpdf"
+    - "{{ app_folder_root }}/apps/sterlingpdf/configs"
+    - "{{ app_folder_root }}/apps/sterlingpdf/ocr-data"
+    - "{{ app_folder_root }}/apps/hoarder"
+  when: enable_productivity
+
 - name: Allow tcp access to tcp port 443
   community.general.ufw:
     rule: allow

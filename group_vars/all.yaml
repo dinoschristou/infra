@@ -28,6 +28,8 @@ enable_linkding: false
 enable_mosquitto: false
 enable_scrypted: false
 enable_dashboard: false
+enable_authentik: false
+enable_productivity: false
 
 # User and group settings
 main_username: "{{ ansible_user }}"
@@ -61,6 +63,7 @@ linkding_version: "1.36.0"
 mosquitto_version: "1.6.15"
 scrypted_version: "v0.126.0-noble-full"
 homepage_version: "v0.10.7"
+authentik_version: "2024.12.2"
 
 # Database settings
 postgres_user: dinos
@@ -70,3 +73,5 @@ postgres_db: core
 grafana_user: dinos
 pihole_main_host: 192.168.3.237
 pihole_backup_host: 192.168.1.41
+
+default_timezone: "Europe/London"

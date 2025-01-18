@@ -396,7 +396,167 @@ services:
       - "traefik.http.routers.homepage.tls=true"
       - "traefik.http.services.homepage.loadbalancer.server.port=3000"
 {% endif %}
-
+{% if enable_authentik %}
+  authentik-postgresql:
+    image: docker.io/library/postgres:{{ postgres_version }}
+    container_name: authentik-postgresql
+    networks:
+      - authentik
+      - proxy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - authentik_database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: {{ authentik_pg_pass }}
+      POSTGRES_USER: {{ authentik_pg_user }}
+      POSTGRES_DB: authentik
+  authentik-redis:
+    image: docker.io/library/redis:alpine
+    container_name: authentik-redis
+    networks:
+      - authentik
+      - proxy    
+    command: --save 60 1 --loglevel warning
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - authentik_redis:/data
+  authentik-server:
+    image: ghcr.io/goauthentik/server:{{ authentik_version }}
+    container_name: authentik-server
+    restart: unless-stopped
+    networks:
+      - authentik
+      - proxy
+    command: server
+    environment:
+      AUTHENTIK_REDIS__HOST: authentik-redis
+      AUTHENTIK_POSTGRESQL__HOST: authentik-postgresql
+      AUTHENTIK_POSTGRESQL__USER: {{ authentik_pg_user}}
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: {{ authentik_pg_pass }}
+      AUTHENTIK_SECRET_KEY: {{ authentik_secret_key }}
+    volumes:
+      - ./authentik/media:/media
+      - ./authentik/custom-templates:/templates
+    ports:
+      - "9060:9000"
+      - "9061:9443"
+    depends_on:
+      authentik-postgresql:
+        condition: service_healthy
+      authentik-redis:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authentik.rule=Host(`auth.{{ full_domain }}`)"
+      - "traefik.http.routers.authentik.tls=true"
+      - "traefik.http.services.authentik.loadbalancer.server.port=9000"
+      - "traefik.http.routers.authentik.entrypoints=https"
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:{{ authentik_version }}
+    container_name: authentik-worker
+    networks:
+      - authentik
+      - proxy
+    restart: unless-stopped
+    command: worker
+    environment:
+      AUTHENTIK_REDIS__HOST: authentik-redis
+      AUTHENTIK_POSTGRESQL__HOST: authentik-postgresql
+      AUTHENTIK_POSTGRESQL__USER: {{ authentik_pg_user}}
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: {{ authentik_pg_pass }}
+      AUTHENTIK_SECRET_KEY: {{ authentik_secret_key }}
+    volumes:
+      - ./authentik/media:/media
+      - ./authentik/certs:/certs
+      - ./authentik/custom-templates:/templates
+    depends_on:
+      authentik-postgresql:
+        condition: service_healthy
+      authentik-redis:
+        condition: service_healthy
+{% endif %}
+{% if enable_productivity %}
+  mealie:
+    image: hkotel/mealie:v2.4.2
+    container_name: mealie
+    networks:
+      - proxy
+    volumes:
+      - "{{ app_folder_root }}/apps/mealie:/app/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.mealie.rule=Host(`mealie.{{ full_domain }}`)"
+      - "traefik.http.routers.mealie.entrypoints=https"
+      - "traefik.http.routers.mealie.tls=true"
+    environment:
+      - DB_ENGINE=sqlite
+      - "BASE_URL=https://mealie.{{ full_domain }}"
+    restart: unless-stopped
+  freshrss:
+    image: lscr.io/linuxserver/freshrss:latest
+    networks:
+      - proxy
+    container_name: freshrss
+    volumes:
+      - "{{ app_folder_root }}/apps/freshrss:/config"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.freshrss.rule=Host(`freshrss.{{ full_domain }}`)"
+      - "traefik.http.routers.freshrss.entrypoints=https"
+      - "traefik.http.routers.freshrss.tls=true"
+    environment:
+      - "PUID=1000"
+      - "PGID=1000"
+      - "TZ={{ default_timezone }}"
+      - "CRON_MIN=5,25,45"
+    restart: unless-stopped
+  wallabag:
+    image: wallabag/wallabag:latest
+    container_name: wallabag
+    networks:
+      - proxy
+    volumes:
+      - "{{ app_folder_root }}/apps/wallabag:/var/www/wallabag/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.wallabag.rule=Host(`wallabag.{{ full_domain }}`)"
+      - "traefik.http.routers.wallabag.entrypoints=https"
+      - "traefik.http.routers.wallabag.tls=true"
+    environment:
+      - "SYMFONY__ENV__DOMAIN_NAME=https://wallabag.{{ full_domain }}"
+      - SYMFONY__ENV__DATABASE_DRIVER=pdo_sqlite
+    restart: unless-stopped
+  stirlingpdf:
+    image: frooodle/s-pdf:latest
+    networks:
+      - proxy
+    container_name: stirlingpdf
+    volumes:
+      - "{{ app_folder_root }}/apps/stirlingpdf/configs:/configs"
+      - "{{ app_folder_root }}/apps/stirlingpdf/ocr-data:/usr/share/tesseract-ocr/5/tessdata"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.pdf.rule=Host(`pdf.{{ full_domain }}`)"
+      - "traefik.http.routers.pdf.entrypoints=https"
+      - "traefik.http.routers.pdf.tls=true"
+    environment:
+      - DOCKER_ENABLE_SECURITY=false
+    restart: unless-stopped
+{% endif %}
 volumes:
   portainer_data:
 {% if enable_db_server or enable_linkding %}
@@ -413,8 +573,20 @@ volumes:
 {% if enable_scrypted %}
   scrypted_data: {}
 {% endif %}
+{% if enable_authentik %}
+  authentik_database:
+    driver: local
+  authentik_redis:
+    driver: local
+  authentik_main:
+    driver: local
+{% endif %}
 
 
 networks:
   proxy:
     external: true
+{% if enable_authentik %}
+  authentik:
+    external: false
+{% endif %}
