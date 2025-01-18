@@ -1,16 +1,13 @@
 package_list:
   - name: apt-transport-https
   - name: ca-certificates
-  - name: curl
   - name: gnupg
   - name: lsb-release
     brew-ignore: true
   - name: software-properties-common
   - name: python3-pip
   - name: python3-setuptools
-  - name: nfs-common
   - name: zsh
-  - name: qemu-guest-agent
   - name: ufw
     brew-ignore: true
   - name: fail2ban

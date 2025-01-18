@@ -1,14 +1,83 @@
-- name: Install qemu-guest-agent
-  ansible.builtin.apt:
-    name: qemu-guest-agent
-    state: present
-    update_cache: true
-  become: true
-  when: is_vm
-
 - name: Systemd service
   ansible.builtin.systemd:
     name: qemu-guest-agent
     state: started
+    enabled: true
   become: true
-  when: is_vm
+  when: is_local_vm
+
+- name: Update SSH configuration to be more secure.
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: 'sshd -t -f %s'
+  with_items:
+    - regexp: "^.*PasswordAuthentication"
+      line: "PasswordAuthentication no"
+    - regexp: "^.*PermitRootLogin"
+      line: "PermitRootLogin no"
+  notify: Restart ssh service
+
+- name: Add sudo rights for deployment user.
+  ansible.builtin.lineinfile:
+    dest: /etc/sudoers
+    regexp: '^{{ ansible_user }}'
+    line: '{{ ansible_user }} ALL=(ALL) NOPASSWD: ALL'
+    state: present
+    validate: 'visudo -cf %s'
+
+- name: Copy unattended-upgrades configuration files in place.
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/apt/apt.conf.d/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - 20auto-upgrades
+    - 52-unattended-upgrades
+  when: ansible_os_family == 'Debian'
+
+- name: Enable ufw
+  become: true
+  community.general.ufw:
+    state: enabled
+    logging: true
+  notify: Restart ufw service
+
+- name: Ufw - default deny out
+  become: true
+  community.general.ufw:
+    policy: deny
+    direction: outgoing
+  notify: Restart ufw service
+
+- name: Ufw - configure ssh rule
+  become: true
+  community.general.ufw:
+    rule: limit
+    direction: in
+    to_port: "{{ ansible_port }}"
+  notify: Restart ufw service
+
+- name: Ufw - allow outgoing ports
+  become: true
+  community.general.ufw:
+    rule: allow
+    direction: out
+    to_port: "{{ item }}"
+  with_items:
+    - "80"
+    - "443"
+    - "53"
+    - "123"
+  notify: Restart ufw service
+
+- name: Enable fail2ban
+  become: true
+  ansible.builtin.systemd:
+    name: fail2ban
+    state: started
+    enabled: true

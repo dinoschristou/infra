@@ -17,3 +17,13 @@
   roles:
    - role: pihole
      tags: dns
+
+- name: Setup cloud servers
+  hosts: cloud
+  become: true
+  vars_files:
+   - vars/vault.yaml
+  roles:
+   - grog.package
+   - base
+   - docker

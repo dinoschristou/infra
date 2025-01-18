@@ -1,0 +1,34 @@
+// Enable the update/upgrade script (0=disable)
+APT::Periodic::Enable "1";
+
+// Do "apt-get update" automatically every n-days (0=disable)
+APT::Periodic::Update-Package-Lists "1";
+
+// Do "apt-get upgrade --download-only" every n-days (0=disable)
+APT::Periodic::Download-Upgradeable-Packages "1";
+
+// Do "apt-get autoclean" every n-days (0=disable)
+APT::Periodic::AutocleanInterval "7";
+
+APT::Periodic::Unattended-Upgrade "1";
+
+// Automatically install security updates only
+Unattended-Upgrade::Origins-Pattern {
+    "${distro_id}:${distro_codename}-security";
+};
+
+// You can specify your own packages to NOT automatically upgrade here
+Unattended-Upgrade::Package-Blacklist {
+};
+
+// Run dpkg --force-confold --configure -a if a unclean dpkg state is detected to true to ensure that updates get installed even when the system got interrupted during a previous run
+Unattended-Upgrade::AutoFixInterruptedDpkg "true";
+
+//Perform the upgrade when the machine is running because we wont be shutting our server down often
+Unattended-Upgrade::InstallOnShutdown "false";
+
+// Remove all unused dependencies after the upgrade has finished
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+
+// Remove any new unused dependencies after the upgrade has finished
+Unattended-Upgrade::Remove-New-Unused-Dependencies "true";

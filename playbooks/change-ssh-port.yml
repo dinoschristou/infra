@@ -1,0 +1,67 @@
+- name: Change SSH port
+  hosts: "cloud"
+  gather_facts: false
+  handlers:
+    - name: Restart sshd
+      become: true
+      ansible.builtin.systemd:
+        name: sshd
+        state: restarted
+  tasks:
+    - name: Set desired port fact
+      ansible.builtin.set_fact:
+        desired_port: "{{ ansible_port }}"
+
+    - name: Check if we're using desired SSH port
+      ansible.builtin.wait_for:
+        port: "{{ ansible_port }}"
+        state: "started"
+        host: "{{ ansible_host }}"
+        connect_timeout: "5"
+        timeout: "10"
+      delegate_to: "localhost"
+      ignore_errors: true
+      register: desired_port_is_setup
+
+    - name: Desired SSH port is configured properly
+      ansible.builtin.debug:
+        msg: "Desired SSH port is configured properly"
+      when: desired_port_is_setup is defined and
+            desired_port_is_setup.state is defined and
+            desired_port_is_setup.state == "started"
+      register: ssh_port_set
+
+    - name: Check if we're using the default SSH port
+      ansible.builtin.wait_for:
+        port: "22"
+        state: "started"
+        host: "{{ ansible_host }}"
+        connect_timeout: "5"
+        timeout: "10"
+      delegate_to: "localhost"
+      ignore_errors: true
+      register: default_port_is_setup
+      when: desired_port_is_setup is defined and
+            desired_port_is_setup.state is undefined
+
+    - name: Set inventory ansible_port to default
+      ansible.builtin.set_fact:
+        ansible_port: "22"
+      when: default_port_is_setup is defined and
+            "state" in default_port_is_setup and
+            default_port_is_setup.state == "started"
+      register: ssh_port_set
+
+    - name: Fail if do not recognize the SSH port
+      ansible.builtin.fail:
+        msg: "The SSH port is neither 22 or {{ ansible_port }}."
+      when: ssh_port_set is undefined
+
+    - name: Setup alternate SSH port
+      become: true
+      ansible.builtin.lineinfile:
+        dest: "/etc/ssh/sshd_config"
+        regexp: "^#Port"
+        line: "Port {{ desired_port }}"
+      notify: Restart sshd
+      when: ansible_port == '22'

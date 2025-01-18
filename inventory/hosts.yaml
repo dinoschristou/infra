@@ -19,3 +19,9 @@ all:
         pihole-primary:
           ansible_host: 192.168.3.237
           ansible_user: dinos
+    cloud:
+      hosts:
+        external-test:
+          ansible_host: 192.168.42.226
+          ansible_user: ubuntu
+          ansible_port: 4322

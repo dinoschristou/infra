@@ -28,3 +28,11 @@ tasks:
   update-dns:
     cmds:
       - ansible-playbook -i inventory/hosts.yaml site.yaml --tags dns --limit piholes
+
+  setup-ssh:
+    cmds:
+      - ansible-playbook -i inventory/hosts.yaml playbooks/change-ssh-port.yml
+
+  run-ext:
+    cmds:
+      - ansible-playbook -i inventory/hosts.yaml site.yaml --skip-tags dns --limit cloud

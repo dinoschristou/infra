@@ -10,8 +10,14 @@ package_list:
   - name: python3-setuptools
   - name: nfs-common
   - name: zsh
+  - name: ufw
+    brew-ignore: true
+  - name: fail2ban
+    brew-ignore: true
+  - name: unattended-upgrades
+    brew-ignore: true
 
-is_vm: true
+is_local_vm: true
 
 enable_monitoring_server: false
 enable_db_server: false
