@@ -50,7 +50,7 @@ acme_provider: "cloudflare"
 adminer_version: "4.8.1"
 # renovate: datasource=docker depName=prom/alertmanager
 alertmanager_version: "v0.27.0"
-# renovate: datasource=github-releases depName=cadvisor/cadvisor
+# renovate: datasource=docker depName=cadvisor/cadvisor
 cadvisor_version: "v0.49.1"
 # renovate: datasource=docker depName=grafana/grafana
 grafana_version: "11.1.1"
@@ -78,11 +78,11 @@ traefik_version: "v3.1"
 linkding_version: "1.36.0"
 # renovate: datasource=docker depName=eclipse-mosquitto
 mosquitto_version: "1.6.15"
-# renovate: datasource=github-releases depName=koush/scrypted
+# renovate: datasource=docker depName=koush/scrypted
 scrypted_version: "v0.126.0-noble-full"
 # renovate: datasource=github-releases depName=gethomepage/homepage
 homepage_version: "v0.10.7"
-# renovate: datasource=github-releases depName=goauthentik/server
+# renovate: datasource=docker depName=goauthentik/server
 authentik_version: "2024.12.2"
 # renovate: datasource=github-releases depName=andrewjw/glowprom
 glowprom_version: "0.9.0"
