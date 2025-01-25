@@ -55,7 +55,7 @@ cadvisor_version: "v0.49.1"
 # renovate: datasource=docker depName=grafana/grafana
 grafana_version: "11.1.1"
 # renovate: datasource=docker depName=grafana/loki
-loki_version: "3.1.0"
+loki_version: "3.3.2"
 # renovate: datasource=docker depName=prom/node-exporter
 node_exporter_version: "v1.8.1"
 # renovate: datasource=docker depName=ekofr/pihole-exporter
