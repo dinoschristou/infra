@@ -50,7 +50,7 @@ acme_provider: "cloudflare"
 adminer_version: "4.8.1"
 # renovate: datasource=docker depName=prom/alertmanager
 alertmanager_version: "v0.27.0"
-# renovate: datasource=github-tags depName=cadvisor/cadvisor
+# renovate: datasource=github-tags depName=google/cadvisor
 cadvisor_version: "v0.49.1"
 # renovate: datasource=docker depName=grafana/grafana
 grafana_version: "11.1.1"
