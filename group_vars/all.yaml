@@ -30,6 +30,7 @@ enable_scrypted: false
 enable_dashboard: false
 enable_authentik: false
 enable_productivity: false
+enable_glowprom: false
 
 # User and group settings
 main_username: "{{ ansible_user }}"
@@ -64,6 +65,7 @@ mosquitto_version: "1.6.15"
 scrypted_version: "v0.126.0-noble-full"
 homepage_version: "v0.10.7"
 authentik_version: "2024.12.2"
+glowprom_version: "0.9.0"
 
 # Database settings
 postgres_user: dinos
@@ -73,5 +75,8 @@ postgres_db: core
 grafana_user: dinos
 pihole_main_host: 192.168.3.237
 pihole_backup_host: 192.168.1.41
+
+mqtt_server: 192.168.42.122
+mqtt_port: 1883
 
 default_timezone: "Europe/London"

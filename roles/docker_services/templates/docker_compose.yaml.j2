@@ -557,6 +557,32 @@ services:
       - DOCKER_ENABLE_SECURITY=false
     restart: unless-stopped
 {% endif %}
+{% if enable_glowprom %}
+  glowprom:
+    container_name: glowprom
+    image: andrewjw/glowprom:{{ glowprom_version }}
+    command: --bind 0.0.0.0:9420
+    networks:
+      - proxy
+    ports:
+      - 9420:9420
+    depends_on:
+      - postgres
+    environment:
+      - GLOWPROM_MQTT={{ mqtt_server }}
+      - GLOWPROM_PORT={{ mqtt_port }}
+      - GLOWPROM_USER={{ mosquitto_username }}
+      - GLOWPROM_PASSWD={{ mosquitto_password }}
+      - PGID=1000
+      - PUID=1000
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.glowprom.rule=Host(`glowprom.{{ full_domain }}`)"
+      - "traefik.http.routers.glowprom.entrypoints=https"
+      - "traefik.http.routers.glowprom.tls=true"
+      - "traefik.http.services.glowprom.loadbalancer.server.port=9420"
+{% endif %}
 volumes:
   portainer_data:
 {% if enable_db_server or enable_linkding %}

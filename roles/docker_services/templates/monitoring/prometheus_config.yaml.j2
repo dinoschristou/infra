@@ -38,6 +38,11 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets: ['pihole-exporter:9617']
+  
+  - job_name: 'glowprom'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['glowprom:9420']
 
   - job_name: "hass"
     scrape_interval: 60s
