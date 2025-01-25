@@ -71,7 +71,7 @@ promtail_version: "3.1.0"
 # renovate: datasource=docker depName=prompve/prometheus-pve-exporter
 proxmox_exporter_version: "3.5.1"
 # renovate: datasource=docker depName=prom/pushgateway
-pushgateway_version: "v1.9.0"
+pushgateway_version: "v1.11.0"
 # renovate: datasource=docker depName=traefik
 traefik_version: "v3.1"
 # renovate: datasource=docker depName=sissbruecker/linkding
