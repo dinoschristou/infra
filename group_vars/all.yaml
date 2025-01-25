@@ -67,7 +67,7 @@ postgres_version: "15-alpine"
 # renovate: datasource=docker depName=prom/prometheus
 prometheus_version: "v3.1.0"
 # renovate: datasource=docker depName=grafana/promtail
-promtail_version: "3.1.0"
+promtail_version: "3.3.2"
 # renovate: datasource=docker depName=prompve/prometheus-pve-exporter
 proxmox_exporter_version: "3.5.1"
 # renovate: datasource=docker depName=prom/pushgateway
