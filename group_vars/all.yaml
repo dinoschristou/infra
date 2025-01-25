@@ -81,7 +81,7 @@ mosquitto_version: "1.6.15"
 # renovate: datasource=docker depName=koush/scrypted
 scrypted_version: "v0.126.0-noble-full"
 # renovate: datasource=github-releases depName=gethomepage/homepage
-homepage_version: "v0.10.7"
+homepage_version: "v0.10.9"
 # renovate: datasource=github-tags depName=goauthentik/authentik
 authentik_version: "2024.12.2"
 # renovate: datasource=github-releases depName=andrewjw/glowprom
