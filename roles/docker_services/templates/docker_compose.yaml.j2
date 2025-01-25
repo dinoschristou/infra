@@ -491,7 +491,7 @@ services:
 {% endif %}
 {% if enable_productivity %}
   mealie:
-    image: hkotel/mealie:v2.4.2
+    image: hkotel/mealie:{{ mealie_version }}
     container_name: mealie
     networks:
       - proxy
@@ -507,7 +507,7 @@ services:
       - "BASE_URL=https://mealie.{{ full_domain }}"
     restart: unless-stopped
   freshrss:
-    image: lscr.io/linuxserver/freshrss:latest
+    image: lscr.io/linuxserver/freshrss:{{ freshrss_version }}
     networks:
       - proxy
     container_name: freshrss
@@ -525,7 +525,7 @@ services:
       - "CRON_MIN=5,25,45"
     restart: unless-stopped
   wallabag:
-    image: wallabag/wallabag:latest
+    image: wallabag/wallabag:{{ wallabag_version }}
     container_name: wallabag
     networks:
       - proxy
@@ -541,7 +541,7 @@ services:
       - SYMFONY__ENV__DATABASE_DRIVER=pdo_sqlite
     restart: unless-stopped
   stirlingpdf:
-    image: frooodle/s-pdf:latest
+    image: frooodle/s-pdf:{{ stirlingpdf_version }}
     networks:
       - proxy
     container_name: stirlingpdf
