@@ -65,7 +65,7 @@ portainer_version: "2.19.5"
 # renovate: datasource=docker depName=postgres
 postgres_version: "15-alpine"
 # renovate: datasource=docker depName=prom/prometheus
-prometheus_version: "v2.53.1"
+prometheus_version: "v3.1.0"
 # renovate: datasource=docker depName=grafana/promtail
 promtail_version: "3.1.0"
 # renovate: datasource=docker depName=prompve/prometheus-pve-exporter
