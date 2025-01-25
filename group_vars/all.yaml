@@ -46,25 +46,45 @@ hostname_root: "knxcloud.io"
 acme_provider: "cloudflare"
 
 # versions
+# renovate: datasource=docker depName=adminer
 adminer_version: "4.8.1"
+# renovate: datasource=docker depName=prom/alertmanager
 alertmanager_version: "v0.27.0"
+# renovate: datasource=github-releases depName=cadvisor/cadvisor
 cadvisor_version: "v0.49.1"
+# renovate: datasource=docker depName=grafana/grafana
 grafana_version: "11.1.1"
+# renovate: datasource=docker depName=grafana/loki
 loki_version: "3.1.0"
+# renovate: datasource=docker depName=prom/node-exporter
 node_exporter_version: "v1.8.1"
+# renovate: datasource=docker depName=ekofr/pihole-exporter
 pihole_exporter_version: "v0.4.0"
+# renovate: datasource=docker depName=portainer/portainer-ce
 portainer_version: "2.19.5"
+# renovate: datasource=docker depName=postgres
 postgres_version: "15-alpine"
+# renovate: datasource=docker depName=prom/prometheus
 prometheus_version: "v2.53.1"
+# renovate: datasource=docker depName=grafana/promtail
 promtail_version: "3.1.0"
+# renovate: datasource=docker depName=prompve/prometheus-pve-exporter
 proxmox_exporter_version: "3.4.3"
+# renovate: datasource=docker depName=prom/pushgateway
 pushgateway_version: "v1.9.0"
+# renovate: datasource=docker depName=traefik
 traefik_version: "v3.1"
+# renovate: datasource=docker depName=sissbruecker/linkding
 linkding_version: "1.36.0"
+# renovate: datasource=docker depName=eclipse-mosquitto
 mosquitto_version: "1.6.15"
+# renovate: datasource=github-releases depName=koush/scrypted
 scrypted_version: "v0.126.0-noble-full"
+# renovate: datasource=github-releases depName=gethomepage/homepage
 homepage_version: "v0.10.7"
+# renovate: datasource=github-releases depName=goauthentik/server
 authentik_version: "2024.12.2"
+# renovate: datasource=github-releases depName=andrewjw/glowprom
 glowprom_version: "0.9.0"
 
 # Database settings
