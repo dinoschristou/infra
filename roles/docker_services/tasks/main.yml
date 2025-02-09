@@ -103,6 +103,17 @@
     - "{{ app_folder_root }}/apps/hoarder"
   when: enable_productivity
 
+- name: Setup Homebridge Folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755" # Optional file permissions
+    owner: "{{ main_username }}" # Optional ownership
+    group: "{{ main_groupname }}" # Optional group ownership
+  loop:
+    - "{{ app_folder_root }}/homebridge"
+  when: enable_homebridge
+
 - name: Allow tcp access to tcp port 443
   community.general.ufw:
     rule: allow

@@ -583,6 +583,27 @@ services:
       - "traefik.http.routers.glowprom.tls=true"
       - "traefik.http.services.glowprom.loadbalancer.server.port=9420"
 {% endif %}
+{% if enable_homebridge %}
+  homebridge:
+    image: homebridge/homebridge:{{ homebridge_version }}
+    container_name: homebridge
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - "{{ app_folder_root }}/homebridge:/homebridge"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10mb"
+        max-file: "1"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homebridge.rule=Host(`homebridge.{{ full_domain }}`)"
+      - "traefik.http.routers.homebridge.entrypoints=https"
+      - "traefik.http.routers.homebridge.tls=true"
+      - "traefik.http.services.homebridge.loadbalancer.server.port=8581"
+{% endif %}
 volumes:
   portainer_data:
 {% if enable_db_server or enable_linkding %}

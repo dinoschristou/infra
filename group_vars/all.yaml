@@ -31,6 +31,7 @@ enable_dashboard: false
 enable_authentik: false
 enable_productivity: false
 enable_glowprom: false
+enable_homebridge: false
 
 # User and group settings
 main_username: "{{ ansible_user }}"
@@ -94,6 +95,8 @@ wallabag_version: "2.6.10"
 freshrss_version: "1.25.0"
 # renovate: datasource=docker depName=hkotel/mealie
 mealie_version: "v2.4.2"
+# renovate: datasource=docker depName=homebridge/homebridge
+homebridge_version: "2025-01-11"
 
 # Database settings
 postgres_user: dinos

@@ -41,6 +41,7 @@ scrape_configs:
   
   - job_name: 'glowprom'
     scrape_interval: 5s
+    fallback_scrape_protocol: PrometheusText0.0.4
     static_configs:
       - targets: ['glowprom:9420']
 

@@ -9,5 +9,6 @@ enable_productivity: true
 enable_glowprom: true
 enable_scrypted: false
 enable_dashboard: true
+enable_homebridge: false
 
 full_domain: "main.{{ hostname_root }}"
