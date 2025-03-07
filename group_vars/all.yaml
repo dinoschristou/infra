@@ -62,7 +62,7 @@ node_exporter_version: "v1.8.2"
 # renovate: datasource=docker depName=ekofr/pihole-exporter
 pihole_exporter_version: "v0.4.0"
 # renovate: datasource=docker depName=portainer/portainer-ce
-portainer_version: "2.26.1"
+portainer_version: "2.27.1"
 # renovate: datasource=docker depName=postgres
 postgres_version: "15-alpine"
 # renovate: datasource=docker depName=prom/prometheus
