@@ -78,7 +78,7 @@ traefik_version: "v3.1"
 # renovate: datasource=docker depName=sissbruecker/linkding
 linkding_version: "1.39.1"
 # renovate: datasource=docker depName=eclipse-mosquitto
-mosquitto_version: "2.0.20"
+mosquitto_version: "2.0.21"
 # renovate: datasource=docker depName=koush/scrypted
 scrypted_version: "v0.126.0-noble-full"
 # renovate: datasource=github-releases depName=gethomepage/homepage
