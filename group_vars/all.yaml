@@ -60,7 +60,7 @@ loki_version: "3.3.2"
 # renovate: datasource=docker depName=prom/node-exporter
 node_exporter_version: "v1.8.2"
 # renovate: datasource=docker depName=ekofr/pihole-exporter
-pihole_exporter_version: "v0.4.0"
+pihole_exporter_version: "v1.0.1"
 # renovate: datasource=docker depName=portainer/portainer-ce
 portainer_version: "2.26.1"
 # renovate: datasource=docker depName=postgres
