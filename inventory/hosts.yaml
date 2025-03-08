@@ -13,9 +13,6 @@ all:
           ansible_user: ubuntu
     piholes:
       hosts:
-        pihole-backup:
-          ansible_host: 192.168.1.41
-          ansible_user: pi
         pihole-primary:
           ansible_host: 192.168.3.237
           ansible_user: dinos

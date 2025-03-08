@@ -328,8 +328,8 @@ services:
     container_name: pihole-exporter
     environment:
       - PIHOLE_PROTOCOL=http,http
-      - PIHOLE_HOSTNAME={{ pihole_main_host }},{{ pihole_backup_host }}
-      - PIHOLE_API_TOKEN={{ pihole_main_api_token }},{{ pihole_backup_api_token }}
+      - PIHOLE_HOSTNAME={{ pihole_main_host }}
+      - PIHOLE_API_TOKEN={{ pihole_main_api_token }}
       - PORT=9617
     restart: unless-stopped
     networks:

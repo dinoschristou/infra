@@ -8,7 +8,7 @@
   #  - grog.package
   #  - docker
    - nfs_client
-  # - docker_services
+   - docker_services
 
 - name: Setup dns on piholes
   hosts: pihole-primary
