@@ -14,7 +14,7 @@
     - "{{ app_folder_root }}/loki"
     - "{{ app_folder_root }}/promtail"
     - "{{ app_folder_root }}/pve_exporter"
-
+  tags: config
 
 - name: Add Alertmanager config.yml file
   ansible.builtin.template:
@@ -23,6 +23,7 @@
     owner: "{{ main_uid }}"
     group: "{{ main_gid }}"
     mode: "0755"
+  tags: config
 
 - name: Add Prometheus config file
   ansible.builtin.template:
@@ -31,6 +32,7 @@
     owner: "{{ main_uid }}"
     group: "{{ main_gid }}"
     mode: "0755"
+  tags: config
 
 - name: Add Prometheus rules file
   ansible.builtin.copy:
@@ -39,6 +41,7 @@
     owner: "{{ main_uid }}"
     group: "{{ main_gid }}"
     mode: "0755"
+  tags: config
 
 - name: Add Proxmox Exporter config
   ansible.builtin.template:
@@ -47,6 +50,7 @@
     owner: "{{ main_uid }}"
     group: "{{ main_gid }}"
     mode: "0755"
+  tags: config
 
 - name: Add Grafana datasources file
   ansible.builtin.template:
@@ -55,6 +59,7 @@
     owner: "{{ main_uid }}"
     group: "{{ main_gid }}"
     mode: "0755"
+  tags: config
 
 - name: Add Grafana dashboards yaml
   ansible.builtin.copy:
@@ -63,6 +68,7 @@
     owner: "{{ main_uid }}"
     group: "{{ main_gid }}"
     mode: "0755"
+  tags: config
 
 - name: Deploy all dashboards
   ansible.builtin.copy:
@@ -73,6 +79,7 @@
     mode: "0755"
   with_fileglob:
     - "monitoring/dashboards/*.json"
+  tags: config
 
 - name: Add Promtail config file
   ansible.builtin.template:
@@ -81,6 +88,7 @@
     owner: "{{ main_uid }}"
     group: "{{ main_gid }}"
     mode: "0755"
+  tags: config
 
 - name: Add Loki config file
   ansible.builtin.template:
@@ -89,3 +97,4 @@
     owner: "{{ main_uid }}"
     group: "{{ main_gid }}"
     mode: "0755"
+  tags: config

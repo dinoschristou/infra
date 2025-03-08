@@ -42,6 +42,7 @@
     - traefik/traefik.yml
     - traefik/config.yml
   when: enable_proxy
+  tags: config
 
 - name: Deploy traefik files
   ansible.builtin.template:
@@ -51,10 +52,12 @@
     group: "{{ main_gid }}"
     mode: "0600"
   when: enable_proxy
+  tags: config
 
 - name: Include monitoring server tasks
   ansible.builtin.include_tasks: monitoring_server.yml
   when: enable_monitoring_server
+  tags: config
 
 - name: Include Mosquitto tasks
   ansible.builtin.include_tasks: mosquitto.yml
