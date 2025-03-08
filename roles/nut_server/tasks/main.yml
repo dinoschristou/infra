@@ -1,5 +1,3 @@
----
-# tasks file for docker
 - name: Install pre-requisite packages
   ansible.builtin.apt:
     name: "{{ item }}"
@@ -8,14 +6,54 @@
     - nut
     - nut-client
     - nut-server
-
-# Copy files across
-# restart services
-
-- name: Install pre-requisite packages
-  ansible.builtin.apt:
-    name: "{{ item }}"
-    state: present
-  loop:
     - apache2
     - nut-cgi
+
+- name: Copy plain configuration files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/nut/{{ item }}"
+    owner: root
+    group: root
+    mode: "0755"
+  with_items:
+    - hosts.conf
+    - nut.conf
+    - ups.conf
+    - upsd.conf
+    - upsset.conf
+
+- name: Copy templated cpnfoguration files
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/nut/{{ item }}"
+    owner: root
+    group: nut
+    mode: "0640"
+  with_items:
+    - upsd.users
+    - upsmon.conf
+
+- name: Copy udev rules
+  ansible.builtin.copy:
+    src: 99-nut-ups.rules
+    dest: /etc/udev/rules.d/99-nut-ups.rules
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Enable the Apache2 module cgid
+  community.general.apache2_module:
+    state: present
+    name: cgid
+
+- name: Enable and start services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  with_items:
+    - nut-server
+    - nut-client
+    - nut-monitor
+    - apache2

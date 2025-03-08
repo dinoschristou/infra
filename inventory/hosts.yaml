@@ -25,3 +25,14 @@ all:
           ansible_host: 192.168.42.226
           ansible_user: ubuntu
           ansible_port: 4322
+    proxmox_hosts:
+      hosts:
+        pve1:
+          ansible_host: 192.168.42.57
+          ansible_user: root
+        pve2:
+          ansible_host: 192.168.42.8
+          ansible_user: root
+        pve3:
+          ansible_host: 192.168.42.9
+          ansible_user: root

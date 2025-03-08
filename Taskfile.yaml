@@ -36,3 +36,7 @@ tasks:
   run-ext:
     cmds:
       - ansible-playbook -i inventory/hosts.yaml site.yaml --skip-tags dns --limit cloud
+
+  nut-server:
+    cmds:
+      - ansible-playbook -i inventory/hosts.yaml site.yaml --tags nut --limit pve3
