@@ -38,3 +38,14 @@
   roles:
    - role: nut_server
      tags: nut
+
+- name: Setup nut clients
+  hosts:
+    - pve1
+    - pve2
+  become: true
+  vars_files:
+   - vars/vault.yaml
+  roles:
+   - role: nut_client
+     tags: nut_client

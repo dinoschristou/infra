@@ -40,3 +40,7 @@ tasks:
   nut-server:
     cmds:
       - ansible-playbook -i inventory/hosts.yaml site.yaml --tags nut --limit pve3
+
+  nut-client:
+    cmds:
+      - ansible-playbook -i inventory/hosts.yaml site.yaml --tags nut_client --limit pve1,pve2

@@ -23,7 +23,7 @@
     - upsd.conf
     - upsset.conf
 
-- name: Copy templated cpnfoguration files
+- name: Copy templated configuration files
   ansible.builtin.template:
     src: "{{ item }}.j2"
     dest: "/etc/nut/{{ item }}"
