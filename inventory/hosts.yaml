@@ -14,8 +14,8 @@ all:
     piholes:
       hosts:
         pihole-primary:
-          ansible_host: 192.168.3.237
-          ansible_user: dinos
+          ansible_host: 192.168.3.254
+          ansible_user: ubuntu
     cloud:
       hosts:
         external-test:

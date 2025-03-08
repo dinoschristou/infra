@@ -104,7 +104,7 @@ postgres_db: core
 
 # Monitoring settings
 grafana_user: dinos
-pihole_main_host: 192.168.3.237
+pihole_main_host: 192.168.3.254
 
 mqtt_server: 192.168.42.122
 mqtt_port: 1883
