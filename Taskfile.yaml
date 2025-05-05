@@ -31,7 +31,7 @@ tasks:
 
   setup-ssh:
     cmds:
-      - ansible-playbook -i inventory/hosts.yaml playbooks/change-ssh-port.yml
+      - ansible-playbook -i inventory/hosts.yaml playbooks/change-ssh-port.yml --limit {{.CLI_ARGS}}
 
   run-ext:
     cmds:

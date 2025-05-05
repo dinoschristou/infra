@@ -25,6 +25,7 @@ enable_monitoring_target: false
 enable_proxy: false
 enable_portainer: false
 enable_linkding: false
+enable_rss: false
 enable_mosquitto: false
 enable_scrypted: false
 enable_dashboard: false
@@ -32,6 +33,8 @@ enable_authentik: false
 enable_productivity: false
 enable_glowprom: false
 enable_homebridge: false
+enable_cloudflare_tunnel: false
+enable_hoarder: false
 
 # User and group settings
 main_username: "{{ ansible_user }}"

@@ -19,6 +19,7 @@
     group: "{{ main_groupname }}" # Optional group ownership
   loop:
     - "{{ app_folder_root }}/traefik"
+    - "{{ app_folder_root }}/traefik/logs"
   when: enable_proxy
 
 - name: Ensures acme.json file exists for proxy
@@ -105,6 +106,18 @@
     - "{{ app_folder_root }}/apps/sterlingpdf/ocr-data"
     - "{{ app_folder_root }}/apps/hoarder"
   when: enable_productivity
+
+- name: Setup FreshRSS Folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755" # Optional file permissions
+    owner: "{{ main_username }}" # Optional ownership
+    group: "{{ main_groupname }}" # Optional group ownership
+  loop:
+    - "{{ app_folder_root }}/apps"
+    - "{{ app_folder_root }}/apps/freshrss"
+  when: enable_rss
 
 - name: Setup Homebridge Folders
   ansible.builtin.file:

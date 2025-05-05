@@ -112,6 +112,7 @@ services:
       - {{ app_folder_root }}/traefik/traefik.yml:/traefik.yml:ro
       - {{ app_folder_root }}/traefik/acme.json:/acme.json
       - {{ app_folder_root }}/traefik/config.yml:/config.yml:ro
+      - {{ app_folder_root }}/traefik/logs:/var/log/traefik
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.entrypoints=http"
@@ -130,6 +131,17 @@ services:
       - "traefik.http.routers.traefik-secure.service=api@internal"
 {% endif %}
 
+{% if enable_cloudflare_tunnel %}
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    networks:
+      - proxy
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN={{ cloudflare_tunnel_token }}
+{% endif %}
 {% if enable_db_server or enable_linkding %}
   postgres:
     image: postgres:{{ postgres_version }}
@@ -489,23 +501,7 @@ services:
       authentik-redis:
         condition: service_healthy
 {% endif %}
-{% if enable_productivity %}
-  mealie:
-    image: hkotel/mealie:{{ mealie_version }}
-    container_name: mealie
-    networks:
-      - proxy
-    volumes:
-      - "{{ app_folder_root }}/apps/mealie:/app/data"
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.mealie.rule=Host(`mealie.{{ full_domain }}`)"
-      - "traefik.http.routers.mealie.entrypoints=https"
-      - "traefik.http.routers.mealie.tls=true"
-    environment:
-      - DB_ENGINE=sqlite
-      - "BASE_URL=https://mealie.{{ full_domain }}"
-    restart: unless-stopped
+{% if enable_rss %}
   freshrss:
     image: lscr.io/linuxserver/freshrss:{{ freshrss_version }}
     networks:
@@ -523,6 +519,24 @@ services:
       - "PGID=1000"
       - "TZ={{ default_timezone }}"
       - "CRON_MIN=5,25,45"
+    restart: unless-stopped
+{% endif %}
+{% if enable_productivity %}
+  mealie:
+    image: hkotel/mealie:{{ mealie_version }}
+    container_name: mealie
+    networks:
+      - proxy
+    volumes:
+      - "{{ app_folder_root }}/apps/mealie:/app/data"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.mealie.rule=Host(`mealie.{{ full_domain }}`)"
+      - "traefik.http.routers.mealie.entrypoints=https"
+      - "traefik.http.routers.mealie.tls=true"
+    environment:
+      - DB_ENGINE=sqlite
+      - "BASE_URL=https://mealie.{{ full_domain }}"
     restart: unless-stopped
   wallabag:
     image: wallabag/wallabag:{{ wallabag_version }}
@@ -604,6 +618,56 @@ services:
       - "traefik.http.routers.homebridge.tls=true"
       - "traefik.http.services.homebridge.loadbalancer.server.port=8581"
 {% endif %}
+{% if enable_hoarder %}
+  hoarder:
+    image: ghcr.io/karakeep-app/karakeep:${KARAKEEP_VERSION:-release}
+    restart: unless-stopped
+    container_name: hoarder
+    networks:
+      - proxy
+    volumes:
+      - hoarder_data:/data
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    environment:
+      MEILI_ADDR: http://meilisearch:7700
+      BROWSER_WEB_URL: http://chrome:9222
+      DATA_DIR: /data
+      DISABLE_SIGNUPS: "true"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.hoarder.rule=Host(`hoarder.{{ full_domain }}`)"
+      - "traefik.http.routers.hoarder.entrypoints=https"
+      - "traefik.http.routers.hoarder.tls=true"
+      - "traefik.http.services.hoarder.loadbalancer.server.port=3000"
+  chrome:
+    image: gcr.io/zenika-hub/alpine-chrome:123
+    restart: unless-stopped
+    container_name: chrome
+    networks:
+      - proxy
+    command:
+      - --no-sandbox
+      - --disable-gpu
+      - --disable-dev-shm-usage
+      - --remote-debugging-address=0.0.0.0
+      - --remote-debugging-port=9222
+      - --hide-scrollbars
+  meilisearch:
+    image: getmeili/meilisearch:v1.13.3
+    restart: unless-stopped
+    container_name: meilisearch
+    networks:
+      - proxy
+    env_file:
+      - .env
+    environment:
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - meilisearch:/meili_data
+{% endif %}
 volumes:
   portainer_data:
 {% if enable_db_server or enable_linkding %}
@@ -616,6 +680,10 @@ volumes:
   prometheus_data: {}
   grafana_data: {}
   loki_data: {}
+{% endif %}
+{% if enable_hoarder %}
+  meilisearch: {}
+  hoarder_data: {}
 {% endif %}
 {% if enable_scrypted %}
   scrypted_data: {}

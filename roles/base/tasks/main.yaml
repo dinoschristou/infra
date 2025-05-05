@@ -19,6 +19,7 @@
     - regexp: "^.*PermitRootLogin"
       line: "PermitRootLogin no"
   notify: Restart ssh service
+  when: is_local_vm
 
 - name: Add sudo rights for deployment user.
   ansible.builtin.lineinfile:
@@ -27,6 +28,7 @@
     line: '{{ ansible_user }} ALL=(ALL) NOPASSWD: ALL'
     state: present
     validate: 'visudo -cf %s'
+  when: is_local_vm
 
 - name: Copy unattended-upgrades configuration files in place.
   ansible.builtin.template:
@@ -46,6 +48,7 @@
     state: enabled
     logging: true
   notify: Restart ufw service
+  when: is_local_vm
 
 - name: Ufw - default deny out
   become: true
@@ -53,6 +56,7 @@
     policy: deny
     direction: outgoing
   notify: Restart ufw service
+  when: is_local_vm
 
 - name: Ufw - configure ssh rule
   become: true
@@ -61,6 +65,7 @@
     direction: in
     to_port: "{{ ansible_port }}"
   notify: Restart ufw service
+  when: is_local_vm
 
 - name: Ufw - allow outgoing ports
   become: true
@@ -74,6 +79,7 @@
     - "53"
     - "123"
   notify: Restart ufw service
+  when: is_local_vm
 
 - name: Enable fail2ban
   become: true

@@ -1,0 +1,45 @@
+package_list:
+  - name: apt-transport-https
+  - name: ca-certificates
+  - name: curl
+  - name: gnupg
+  - name: lsb-release
+    brew-ignore: true
+  - name: software-properties-common
+  - name: python3-pip
+  - name: python3-setuptools
+  - name: nfs-common
+  - name: zsh
+  - name: ufw
+    brew-ignore: true
+  - name: fail2ban
+    brew-ignore: true
+  - name: unattended-upgrades
+    brew-ignore: true
+
+is_local_vm: true
+
+enable_monitoring_server: false
+enable_db_server: false
+enable_monitoring_target: false
+enable_proxy: true
+enable_portainer: false
+enable_linkding: true
+enable_mosquitto: false
+enable_scrypted: false
+enable_dashboard: false
+enable_authentik: false
+enable_productivity: false
+enable_rss: true
+enable_glowprom: false
+enable_homebridge: false
+enable_cloudflare_tunnel: true
+enable_hoarder: true
+
+# Folder structure
+app_folder_root: /opt/stacks
+
+# Domain name settings
+hostname_root: "dinos.sh"
+acme_provider: "cloudflare"
+full_domain: "dinos.sh"

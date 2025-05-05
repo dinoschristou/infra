@@ -6,6 +6,7 @@ enable_portainer: true
 enable_linkding: true
 enable_authentik: true
 enable_productivity: true
+enable_rss: true
 enable_glowprom: true
 
 full_domain: "a.{{ hostname_root }}"

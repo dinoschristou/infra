@@ -21,8 +21,15 @@ all:
           ansible_user: ubuntu
     cloud:
       hosts:
-        external-test:
-          ansible_host: 192.168.42.226
+        # external-test:
+        #   ansible_host: 192.168.42.226
+        #   ansible_user: ubuntu
+        #   ansible_port: 4322
+        # oracle-cloud-vm1:
+        #   ansible_host: 150.230.113.195
+        #   ansible_user: ubuntu
+        external-01:
+          ansible_host: 192.168.92.60
           ansible_user: ubuntu
           ansible_port: 4322
     proxmox_hosts:

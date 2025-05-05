@@ -11,7 +11,9 @@
    - docker_services
 
 - name: Setup dns on piholes
-  hosts: pihole-primary
+  hosts: 
+   - pihole-primary
+   - pihole-backup
   become: true
   vars_files:
    - vars/vault.yaml
