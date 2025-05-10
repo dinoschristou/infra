@@ -55,6 +55,15 @@
   when: enable_proxy
   tags: config
 
+- name: Deploy littlelink env file
+  ansible.builtin.template:
+    src: ".env.littlelink.j2"
+    dest: "{{ app_folder_root }}/.env.littlelink"
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    mode: "0755"
+  tags: config
+
 - name: Include monitoring server tasks
   ansible.builtin.include_tasks: monitoring_server.yml
   when: enable_monitoring_server

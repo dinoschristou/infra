@@ -48,3 +48,7 @@ tasks:
   config-only:
     cmds:
       - ansible-playbook -i inventory/hosts.yaml site.yaml --tags config --limit {{.CLI_ARGS}}
+
+  test-new-roles:
+    cmds:
+      - ansible-playbook -i inventory/hosts.yaml site.yaml --tags test --limit test_hosts

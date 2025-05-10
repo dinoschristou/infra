@@ -11,7 +11,7 @@
    - docker_services
 
 - name: Setup dns on piholes
-  hosts: 
+  hosts:
    - pihole-primary
    - pihole-backup
   become: true
@@ -51,3 +51,12 @@
   roles:
    - role: nut_client
      tags: nut_client
+
+- name: Test new roles
+  hosts: test_hosts
+  become: false
+  vars_files:
+   - vars/vault.yaml
+  roles:
+   - role: services
+     tags: test

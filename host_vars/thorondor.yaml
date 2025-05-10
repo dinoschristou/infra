@@ -10,3 +10,12 @@ enable_rss: true
 enable_glowprom: true
 
 full_domain: "a.{{ hostname_root }}"
+
+services_configs:
+  - name: littlelink
+    version: latest
+    required_folders:
+      - blah
+      - not_blah
+  - name: calibre
+    version: latest

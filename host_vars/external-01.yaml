@@ -43,3 +43,7 @@ app_folder_root: /opt/stacks
 hostname_root: "dinos.sh"
 acme_provider: "cloudflare"
 full_domain: "dinos.sh"
+
+services:
+  - name: littlelink
+    version: latest

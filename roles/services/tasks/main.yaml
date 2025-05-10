@@ -1,0 +1,50 @@
+---
+- name: Ensure docker-compose is installed
+  ansible.builtin.package:
+    name: docker-compose
+    state: present
+
+- name: Ensure Docker service is running
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+  when: ansible_os_family != "Darwin"
+
+- name: Make sure the app folder exists
+  ansible.builtin.file:
+    path: "{{ app_folder_root }}/{{ item.name }}"
+    state: directory
+    mode: "0755" # Optional file permissions
+    owner: "{{ main_username }}" # Optional ownership
+    group: "{{ main_groupname }}" # Optional group ownership
+  loop: "{{ services_configs }}"
+
+- name: Copy docker-compose.yml files
+  ansible.builtin.copy:
+    src: "{{ services_configs_root }}/{{ item.name }}/docker-compose.yaml"
+    dest: "{{ app_folder_root }}/{{ item.name }}/docker-compose.yaml"
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+    mode: "0755"
+  loop: "{{ services_configs }}"
+
+- name: Copy .env files
+  ansible.builtin.template:
+    src: "{{ services_configs_root }}/{{ item.name }}/.env.j2"
+    dest: "{{ app_folder_root }}/{{ item.name }}/.env"
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+    mode: "0755"
+  loop: "{{ services_configs }}"
+
+- name: Create required folders for each service
+  ansible.builtin.file:
+    path: "{{ app_folder_root }}/{{ item.0.name }}/{{ item.1 }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+  loop: "{{ services_configs | subelements('required_folders', skip_missing=True) }}"
+  loop_control:
+    label: "{{ item.0.name }}/{{ item.1 }}"

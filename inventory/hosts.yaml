@@ -43,3 +43,6 @@ all:
         pve3:
           ansible_host: 192.168.42.9
           ansible_user: root
+    test_hosts:
+      hosts:
+        thorondor:

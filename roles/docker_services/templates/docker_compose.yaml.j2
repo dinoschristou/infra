@@ -393,7 +393,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - {{ app_folder_root }}/homepage:/app/config 
+      - {{ app_folder_root }}/homepage:/app/config
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - PUID=1000
@@ -433,7 +433,7 @@ services:
     container_name: authentik-redis
     networks:
       - authentik
-      - proxy    
+      - proxy
     command: --save 60 1 --loglevel warning
     restart: unless-stopped
     healthcheck:
@@ -672,6 +672,25 @@ services:
     volumes:
       - meilisearch:/meili_data
 {% endif %}
+{% if "littlelink" in services | map(attribute="name") %}
+  littlelink:
+    image: ghcr.io/techno-tim/littlelink-server:latest
+    container_name: littlelink
+    restart: unless-stopped
+    networks:
+      - proxy
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - .env.littlelink
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.littlelink.rule=Host(`links.{{ full_domain }}`)"
+      - "traefik.http.routers.littlelink.entrypoints=https"
+      - "traefik.http.routers.littlelink.tls=true"
+      - "traefik.http.services.littlelink.loadbalancer.server.port=3000"
+{% endif %}
+
 volumes:
   portainer_data:
 {% if enable_db_server or enable_linkding %}

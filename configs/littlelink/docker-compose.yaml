@@ -1,0 +1,21 @@
+services:
+  littlelink:
+    image: ghcr.io/techno-tim/littlelink-server:latest
+    container_name: littlelink
+    restart: unless-stopped
+    networks:
+      - proxy
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.littlelink.rule=Host(`links.{{ full_domain }}`)"
+      - "traefik.http.routers.littlelink.entrypoints=https"
+      - "traefik.http.routers.littlelink.tls=true"
+      - "traefik.http.services.littlelink.loadbalancer.server.port=3000"
+
+networks:
+  proxy:
+    external: true

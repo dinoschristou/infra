@@ -1,4 +1,5 @@
-services:
-   - name: "traefik"
-   - name: "portainer"
-   - name: "linkding"
+services_configs:
+   - name: traefik
+     version: "{{ traefik_version }}"
+
+services_configs_root: "{{playbook_dir}}/configs"
