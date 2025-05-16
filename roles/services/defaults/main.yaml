@@ -2,4 +2,4 @@ services_configs:
    - name: traefik
      version: "{{ traefik_version }}"
 
-services_configs_root: "{{playbook_dir}}/configs"
+services_configs_root: "{{ playbook_dir }}/configs"

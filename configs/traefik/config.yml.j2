@@ -1,0 +1,67 @@
+http:
+  routers:
+    pihole:
+      entryPoints:
+        - "https"
+      rule: "Host(`pihole.{{ full_domain }}`)"
+      middlewares:
+        - default-headers
+        - addprefix-pihole
+        - https-redirectscheme
+      tls: {}
+      service: pihole
+    plex:
+      entryPoints:
+        - "https"
+      rule: "Host(`plex.{{ full_domain }}`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: plex
+
+  services:
+    pihole:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.3.237:80"
+        passHostHeader: true
+    plex:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.1.217:32400"
+        passHostHeader: true
+  middlewares:
+    addprefix-pihole:
+      addPrefix:
+        prefix: "/admin"
+    https-redirectscheme:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+    default-headers:
+      headers:
+        frameDeny: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 15552000
+        customFrameOptionsValue: SAMEORIGIN
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+
+    default-whitelist:
+      ipWhiteList:
+        sourceRange:
+        - "10.0.0.0/8"
+        - "192.168.0.0/16"
+        - "172.16.0.0/12"
+
+    secured:
+      chain:
+        middlewares:
+        - default-whitelist
+        - default-headers

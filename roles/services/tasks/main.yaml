@@ -11,31 +11,13 @@
     enabled: true
   when: ansible_os_family != "Darwin"
 
-- name: Make sure the app folder exists
+- name: Make sure the service folder exists
   ansible.builtin.file:
     path: "{{ app_folder_root }}/{{ item.name }}"
     state: directory
     mode: "0755" # Optional file permissions
     owner: "{{ main_username }}" # Optional ownership
     group: "{{ main_groupname }}" # Optional group ownership
-  loop: "{{ services_configs }}"
-
-- name: Copy docker-compose.yml files
-  ansible.builtin.copy:
-    src: "{{ services_configs_root }}/{{ item.name }}/docker-compose.yaml"
-    dest: "{{ app_folder_root }}/{{ item.name }}/docker-compose.yaml"
-    owner: "{{ main_username }}"
-    group: "{{ main_groupname }}"
-    mode: "0755"
-  loop: "{{ services_configs }}"
-
-- name: Copy .env files
-  ansible.builtin.template:
-    src: "{{ services_configs_root }}/{{ item.name }}/.env.j2"
-    dest: "{{ app_folder_root }}/{{ item.name }}/.env"
-    owner: "{{ main_username }}"
-    group: "{{ main_groupname }}"
-    mode: "0755"
   loop: "{{ services_configs }}"
 
 - name: Create required folders for each service
@@ -48,3 +30,141 @@
   loop: "{{ services_configs | subelements('required_folders', skip_missing=True) }}"
   loop_control:
     label: "{{ item.0.name }}/{{ item.1 }}"
+
+- name: Create touch files for each service
+  ansible.builtin.file:
+    path: "{{ app_folder_root }}/{{ item.0.name }}/{{ item.1 }}"
+    state: touch
+    owner: "{{ main_uid }}"
+    group: "{{ main_gid }}"
+    modification_time: preserve
+    access_time: preserve
+    mode: "0600"
+  loop: "{{ services_configs | subelements('touch_files', skip_missing=True) }}"
+  loop_control:
+    label: "{{ item.0.name }}/{{ item.1 }}"
+
+
+- name: Copy docker compose  files
+  ansible.builtin.copy:
+    src: "{{ services_configs_root }}/{{ item.name }}/docker-compose.yaml"
+    dest: "{{ app_folder_root }}/{{ item.name }}/docker-compose.yaml"
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+    mode: "0755"
+  loop: "{{ services_configs }}"
+
+- name: Copy common env file
+  ansible.builtin.copy:
+    src: ".env.common"
+    dest: "{{ app_folder_root }}/.env.common"
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+    mode: "0755"
+
+- name: Copy .env files
+  ansible.builtin.template:
+    src: "{{ services_configs_root }}/{{ item.name }}/.env.st"
+    dest: "{{ app_folder_root }}/{{ item.name }}/.env"
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+    mode: "0600"
+  loop: "{{ services_configs }}"
+
+- name: Register service folder paths fact
+  ansible.builtin.set_fact:
+    service_paths: "{{ services_configs | map(attribute='name') | map('regex_replace', '^(.*)$', services_configs_root + '/\\1') | list }}"
+
+- name: Display registered service paths
+  ansible.builtin.debug:
+    var: service_paths
+
+- name: Find non-template files in the selected service folders
+  ansible.builtin.find:
+    paths: "{{ item }}"
+    recurse: true
+    file_type: file
+    excludes:
+      - "*.j2"
+      - "*.env.st"
+      - "docker-compose.yaml"
+  register: non_template_files_result
+  loop: "{{ service_paths }}"
+  loop_control:
+    label: "Finding files in {{ item }}"
+  delegate_to: localhost  # This runs the find on the control machine
+
+- name: Flatten the non-template file results
+  ansible.builtin.set_fact:
+    non_template_files: "{{ non_template_files_result.results | map(attribute='files') | flatten | list }}"
+
+- name: Extract just the non-template file paths
+  ansible.builtin.set_fact:
+    non_template_file_paths: "{{ non_template_files | map(attribute='path') | list }}"
+
+- name: Extract unique folders of non-template files
+  ansible.builtin.set_fact:
+    non_template_file_folders: "{{ non_template_file_paths | map('dirname') | unique }}"
+
+- name: Find all template files in the selected service folders
+  ansible.builtin.find:
+    paths: "{{ item }}"
+    patterns: "*.j2"
+    recurse: true
+  register: all_template_files_result
+  loop: "{{ service_paths }}"
+  delegate_to: localhost  # This runs the find on the control machine
+
+- name: Set fact to combine all template files
+  ansible.builtin.set_fact:
+    all_template_files: "{{ all_template_files_result.results | map(attribute='files') | flatten }}"
+
+- name: Extract just the template file paths
+  ansible.builtin.set_fact:
+    all_template_files_paths: "{{ all_template_files | map(attribute='path') | list }}"
+
+- name: Extract unique folders from all_template_files
+  ansible.builtin.set_fact:
+    all_template_file_folders: "{{ all_template_files_paths | map('dirname') | unique }}"
+
+- name: Display all template file folders
+  ansible.builtin.debug:
+    var: all_template_files_paths
+
+- name: Display non template file folders
+  ansible.builtin.debug:
+    var: non_template_file_folders
+
+- name: Create any other child folders
+  ansible.builtin.file:
+    path: "{{ item | regex_replace(services_configs_root, app_folder_root) | dirname }}"
+    state: directory
+    mode: '0755'
+  loop: "{{ all_template_files_paths | union(non_template_file_paths) | unique }}"
+  loop_control:
+    label: "Creating directory for {{ item | regex_replace(services_configs_root, app_folder_root) | dirname }}"
+  when: all_template_files | length > 0
+
+- name: Copy template files to the service folders
+  ansible.builtin.template:
+    src: "{{ item.path }}"
+    dest: "{{ item.path | regex_replace(services_configs_root, app_folder_root) | regex_replace('\\.j2$','') }}"
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+    mode: "0755"
+  loop: "{{ all_template_files }}"
+  loop_control:
+    label: "Copying {{ item.path }} to {{ item.path | regex_replace(services_configs_root, app_folder_root) }}"
+  when: all_template_files | length > 0
+
+- name: Copy non-template files to the service folders
+  ansible.builtin.copy:
+    src: "{{ item.path }}"
+    dest: "{{ item.path | regex_replace(services_configs_root, app_folder_root) }}"
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+    mode: "0755"
+  loop: "{{ non_template_files }}"
+  loop_control:
+    label: "Copying {{ item.path }} to {{ item.path | regex_replace(services_configs_root, app_folder_root) }}"
+  when: non_template_files | length > 0

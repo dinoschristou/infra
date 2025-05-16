@@ -14,8 +14,10 @@ full_domain: "a.{{ hostname_root }}"
 services_configs:
   - name: littlelink
     version: latest
-    required_folders:
-      - blah
-      - not_blah
   - name: calibre
     version: latest
+  - name: traefik
+    required_folders:
+      - logs
+    touch_files:
+      - acme.json
