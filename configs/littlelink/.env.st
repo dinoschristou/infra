@@ -16,3 +16,4 @@ LINKED_IN=https://www.linkedin.com/in/dinoschristou
 MASTODON=https://hachyderm.io/@dinos
 BLUESKY=https://bsky.app/profile/dinos.bsky.social
 FOOTER=Dinos Christou © 2025
+FULL_DOMAIN={{ full_domain }}

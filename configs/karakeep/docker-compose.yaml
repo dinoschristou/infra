@@ -1,0 +1,61 @@
+services:
+  hoarder:
+    image: ghcr.io/karakeep-app/karakeep:release
+    restart: unless-stopped
+    container_name: hoarder
+    networks:
+      - proxy
+    volumes:
+      - hoarder_data:/data
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    environment:
+      MEILI_ADDR: http://meilisearch:7700
+      BROWSER_WEB_URL: http://chrome:9222
+      DATA_DIR: /data
+      DISABLE_SIGNUPS: "true"
+      CRAWLER_NUM_WORKERS: 5
+      OPENAI_BASE_URL: https://generativelanguage.googleapis.com/v1beta
+      INFERENCE_TEXT_MODEL: gemini-2.0-flash
+      INFERENCE_IMAGE_MODEL: gemini-2.0-flash
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.hoarder.rule=Host(`hoarder.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.hoarder.entrypoints=https"
+      - "traefik.http.routers.hoarder.tls=true"
+      - "traefik.http.services.hoarder.loadbalancer.server.port=3000"
+  chrome:
+    image: gcr.io/zenika-hub/alpine-chrome:123
+    restart: unless-stopped
+    container_name: chrome
+    networks:
+      - proxy
+    command:
+      - --no-sandbox
+      - --disable-gpu
+      - --disable-dev-shm-usage
+      - --remote-debugging-address=0.0.0.0
+      - --remote-debugging-port=9222
+      - --hide-scrollbars
+  meilisearch:
+    image: getmeili/meilisearch:v1.13.3
+    restart: unless-stopped
+    container_name: meilisearch
+    networks:
+      - proxy
+    env_file:
+      - .env
+    environment:
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - meilisearch:/meili_data
+
+volumes:
+  hoarder_data: {}
+  meilisearch: {}
+
+networks:
+  proxy:
+    external: true

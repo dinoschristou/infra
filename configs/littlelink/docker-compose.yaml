@@ -11,7 +11,7 @@ services:
       - .env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.littlelink.rule=Host(`links.{{ full_domain }}`)"
+      - "traefik.http.routers.littlelink.rule=Host(`links.${FULL_DOMAIN}`)"
       - "traefik.http.routers.littlelink.entrypoints=https"
       - "traefik.http.routers.littlelink.tls=true"
       - "traefik.http.services.littlelink.loadbalancer.server.port=3000"

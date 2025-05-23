@@ -12,10 +12,11 @@ enable_glowprom: true
 full_domain: "a.{{ hostname_root }}"
 
 services_configs:
-  - name: littlelink
-    version: latest
-  - name: calibre
-    version: latest
+  - name: authentik
+    required_folders:
+      - media
+      - custom-templates
+      - certs
   - name: traefik
     required_folders:
       - logs

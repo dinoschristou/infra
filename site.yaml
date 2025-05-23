@@ -43,8 +43,8 @@
 
 - name: Setup nut clients
   hosts:
-    - pve1
-    - pve2
+   - pve1
+   - pve2
   become: true
   vars_files:
    - vars/vault.yaml
@@ -54,7 +54,7 @@
 
 - name: Test new roles
   hosts: test_hosts
-  become: false
+  become: true
   vars_files:
    - vars/vault.yaml
   roles:

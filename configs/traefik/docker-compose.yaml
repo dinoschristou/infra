@@ -42,3 +42,7 @@ services:
       - "traefik.http.routers.traefik-secure.tls.domains[0].main=${FULL_DOMAIN}"
       - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.${FULL_DOMAIN}"
       - "traefik.http.routers.traefik-secure.service=api@internal"
+
+networks:
+  proxy:
+    external: true

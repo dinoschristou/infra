@@ -1,0 +1,25 @@
+services:
+  freshrss:
+    image: lscr.io/linuxserver/freshrss:1.26.0
+    networks:
+      - proxy
+    container_name: freshrss
+    volumes:
+      - "{{ app_folder_root }}/apps/freshrss:/config"
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.freshrss.rule=Host(`freshrss.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.freshrss.entrypoints=https"
+      - "traefik.http.routers.freshrss.tls=true"
+    environment:
+      - "PUID=1000"
+      - "PGID=1000"
+      - "TZ=${TIMEZONE}"
+      - "CRON_MIN=5,25,45"
+    restart: unless-stopped
+    env_file:
+      - .env
+
+networks:
+  proxy:
+    external: true

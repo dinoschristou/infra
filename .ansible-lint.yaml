@@ -4,6 +4,8 @@
 exclude_paths:
   - roles/pihole/handlers/main.yaml
   - vars/vault.yaml
+  - docker-compose.yaml
+  - docker-compose.yml
 
 warn_list:
   - command-instead-of-module

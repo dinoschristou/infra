@@ -1,5 +1,8 @@
 services_configs:
-   - name: traefik
-     version: "{{ traefik_version }}"
+  - name: traefik
+    required_folders:
+      - logs
+    touch_files:
+      - acme.json
 
 services_configs_root: "{{ playbook_dir }}/configs"
