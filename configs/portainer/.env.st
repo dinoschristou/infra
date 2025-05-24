@@ -1,0 +1,1 @@
+FULL_DOMAIN={{ full_domain }}

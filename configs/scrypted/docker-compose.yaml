@@ -1,0 +1,33 @@
+services:
+  scrypted:
+    image: ghcr.io/koush/scrypted:v0.126.0-noble-full
+    container_name: scrypted
+    volumes:
+      - scrypted_data:/server/volume
+    environment:
+      - PUID=1000
+      - PGID=1000
+    restart: unless-stopped
+    networks:
+      - proxy
+    env_file:
+      - .env
+    logging:
+      driver: "none"
+    expose:
+      - 11080
+      - 10443
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.scrypted.rule=Host(`scrypted.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.scrypted.entrypoints=https"
+      - "traefik.http.routers.scrypted.tls=true"
+      - "traefik.http.services.scrypted.loadbalancer.server.port=11080"
+
+volumes:
+  scrypted_data:
+    name: scrypted_data
+    driver: local
+networks:
+  proxy:
+    external: true

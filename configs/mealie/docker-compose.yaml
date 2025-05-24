@@ -1,0 +1,23 @@
+services:
+  mealie:
+    image: hkotel/mealie:v2.7.1
+    container_name: mealie
+    networks:
+      - proxy
+    volumes:
+      - "./data:/app/data"
+    env_file:
+      - .env
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.mealie.rule=Host(`mealie.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.mealie.entrypoints=https"
+      - "traefik.http.routers.mealie.tls=true"
+    environment:
+      - DB_ENGINE=sqlite
+      - "BASE_URL=https://mealie.${FULL_DOMAIN}"
+    restart: unless-stopped
+
+networks:
+  proxy:
+    external: true

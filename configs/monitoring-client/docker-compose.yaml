@@ -1,0 +1,67 @@
+services:
+  node-exporter:
+    image: prom/node-exporter:v1.9.0
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    env_file:
+      - .env
+    ports:
+      - "9100:9100"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.node-exporter.rule=Host(`node-exporter.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.node-exporter.entrypoints=https"
+      - "traefik.http.routers.node-exporter.tls=true"
+      - "traefik.http.services.node-exporter.loadbalancer.server.port=9100"
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.2
+    restart: unless-stopped
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      - PUID=1000
+      - PGID=1000
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.cadvisor.entrypoints=https"
+      - "traefik.http.routers.cadvisor.tls=true"
+      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
+  promtail:
+    image: grafana/promtail:3.4.2
+    container_name: promtail
+    volumes:
+      - /var/log:/var/log
+      - ./promtail:/etc/promtail
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - proxy

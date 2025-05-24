@@ -1,0 +1,26 @@
+services:
+  homebridge:
+    image: homebridge/homebridge:2025-01-11
+    container_name: homebridge
+    restart: unless-stopped
+    networks:
+      - proxy
+    env_file:
+      - .env
+    volumes:
+      - "./data:/homebridge"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10mb"
+        max-file: "1"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homebridge.rule=Host(`homebridge.${FULL_DOMAIN}`)"  
+      - "traefik.http.routers.homebridge.entrypoints=https"
+      - "traefik.http.routers.homebridge.tls=true"
+      - "traefik.http.services.homebridge.loadbalancer.server.port=8581"
+
+networks:
+  proxy:
+    external: true
