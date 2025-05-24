@@ -44,6 +44,13 @@ hostname_root: "dinos.sh"
 acme_provider: "cloudflare"
 full_domain: "dinos.sh"
 
-services:
+services_configs:
+  - name: traefik
+    required_folders:
+      - logs
+    touch_files:
+      - acme.json
+  - name: cloudflared
   - name: littlelink
-    version: latest
+  - name: karakeep
+  - name: freshrss

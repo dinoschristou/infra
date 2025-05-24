@@ -53,8 +53,10 @@ services:
       - meilisearch:/meili_data
 
 volumes:
-  hoarder_data: {}
-  meilisearch: {}
+  hoarder_data:
+    name: hoarder_data
+  meilisearch:
+    name: meilisearch
 
 networks:
   proxy:

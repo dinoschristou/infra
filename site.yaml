@@ -30,7 +30,8 @@
   #  - grog.package
   #  - base
   #  - docker
-   - docker_services
+  #  - docker_services
+   - services
 
 - name: Setup nut server
   hosts: pve3
