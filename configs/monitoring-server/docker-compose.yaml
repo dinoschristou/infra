@@ -6,7 +6,7 @@ services:
       - ./prometheus:/etc/prometheus
       - prometheus_data:/prometheus
     command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--config.file=/etc/prometheus/config.yaml"
       - "--storage.tsdb.path=/prometheus"
       - "--web.console.libraries=/etc/prometheus/console_libraries"
       - "--web.console.templates=/etc/prometheus/consoles"
@@ -133,7 +133,7 @@ services:
     image: prompve/prometheus-pve-exporter:3.5.2
     container_name: proxmox-exporter
     volumes:
-      - .:/etc/pve_exporter
+      - ./pve:/etc/pve_exporter
     command:
       - "--config.file=/etc/pve_exporter/pve.yml"
     restart: unless-stopped
