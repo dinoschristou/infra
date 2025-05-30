@@ -17,3 +17,4 @@ dns_overrides:
   - { ip: 192.168.42.9, custom_dns: "pve3.knxcloud.io" }
   - { ip: 192.168.1.217, custom_dns: "nas.knxcloud.io" }
   - { ip: 192.168.92.60, custom_dns: "dinos.sh" }
+  - { ip: 192.168.42.191, custom_dns: "x.knxcloud.io" }

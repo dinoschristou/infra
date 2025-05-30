@@ -1,1 +1,30 @@
-nothing
+---
+services:
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre-web
+    env_file:
+      - .env
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+      - DOCKER_MODS=linuxserver/mods:universal-calibre
+    volumes:
+      - ./data:/config
+      - /mnt/media/library/Books:/books
+    ports:
+      - 8083:8083
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.calibre-web.rule=Host(`calibre.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.calibre-web.entrypoints=https"
+      - "traefik.http.routers.calibre-web.tls=true"
+      - "traefik.http.services.calibre-web.loadbalancer.server.port=8083"
+
+networks:
+  proxy:
+    external: true

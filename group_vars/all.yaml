@@ -36,6 +36,7 @@ enable_homebridge: false
 enable_cloudflare_tunnel: false
 enable_hoarder: false
 
+ansible_port: 22
 # User and group settings
 main_username: "{{ ansible_user }}"
 main_groupname: "{{ main_username }}"

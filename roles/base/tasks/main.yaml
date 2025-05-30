@@ -55,7 +55,6 @@
   community.general.ufw:
     policy: deny
     direction: outgoing
-  notify: Restart ufw service
   when: is_local_vm
 
 - name: Ufw - configure ssh rule
@@ -64,7 +63,6 @@
     rule: limit
     direction: in
     to_port: "{{ ansible_port }}"
-  notify: Restart ufw service
   when: is_local_vm
 
 - name: Ufw - allow outgoing ports
@@ -78,6 +76,8 @@
     - "443"
     - "53"
     - "123"
+    - "111"
+    - "2049"
   notify: Restart ufw service
   when: is_local_vm
 

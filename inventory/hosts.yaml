@@ -11,6 +11,9 @@ all:
         gondor:
           ansible_host: 192.168.42.225
           ansible_user: ubuntu
+        earendil:
+          ansible_host: 192.168.42.191
+          ansible_user: ubuntu
     piholes:
       hosts:
         pihole-backup:

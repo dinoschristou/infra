@@ -1,0 +1,12 @@
+full_domain: "x.{{ hostname_root }}"
+
+services_configs:
+  - name: traefik
+    required_folders:
+      - logs
+    touch_files:
+      - acme.json
+  - name: monitoring-client
+  - name: calibre
+    required_folders:
+      - data
