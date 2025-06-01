@@ -43,6 +43,7 @@ app_folder_root: /opt/stacks
 hostname_root: "dinos.sh"
 acme_provider: "cloudflare"
 full_domain: "dinos.sh"
+cloudflare_proxied: true
 
 services_configs:
   - name: traefik
@@ -53,4 +54,11 @@ services_configs:
   - name: cloudflared
   - name: littlelink
   - name: karakeep
+  - name: crowdsec
+    required_folders:
+      - data
+      - etc
   - name: freshrss
+  # - name: ntfy
+  #   required_folders:
+  #     - cach

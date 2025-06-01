@@ -10,3 +10,7 @@ services_configs:
   - name: calibre
     required_folders:
       - data
+  - name: audiobookshelf
+    required_folders:
+      - config
+      - metadata

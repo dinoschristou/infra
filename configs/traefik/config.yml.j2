@@ -1,32 +1,28 @@
+{% if cloudflare_proxied %}
 http:
   middlewares:
-    https-redirectscheme:
-      redirectScheme:
-        scheme: https
-        permanent: true
-
-    default-headers:
-      headers:
-        frameDeny: true
-        browserXssFilter: true
-        contentTypeNosniff: true
-        forceSTSHeader: true
-        stsIncludeSubdomains: true
-        stsPreload: true
-        stsSeconds: 15552000
-        customFrameOptionsValue: SAMEORIGIN
-        customRequestHeaders:
-          X-Forwarded-Proto: https
-
-    default-whitelist:
-      ipWhiteList:
-        sourceRange:
-        - "10.0.0.0/8"
-        - "192.168.0.0/16"
-        - "172.16.0.0/12"
-
-    secured:
-      chain:
-        middlewares:
-        - default-whitelist
-        - default-headers
+    crowdsec:
+      plugin:
+        bouncer:
+          enabled: true
+          defaultDecisionSeconds: 60
+          crowdsecMode: live
+          crowdsecAppsecEnabled: false # <--- here you can enable appsec waf
+          crowdsecAppsecHost: crowdsec:7422
+          crowdsecAppsecFailureBlock: true
+          crowdsecAppsecUnreachableBlock: true
+          crowdsecLapiKey: {{ crowdsec_traefik_bouncer_token }}
+          crowdsecLapiHost: crowdsec:8080
+          crowdsecLapiScheme: http
+          crowdsecLapiTLSInsecureVerify: false
+          forwardedHeadersTrustedIPs:
+            # private class ranges
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+          clientTrustedIPs:
+            # private class ranges
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+{% endif %}

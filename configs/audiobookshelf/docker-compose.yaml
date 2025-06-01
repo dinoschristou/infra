@@ -1,0 +1,31 @@
+services:
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
+    ports:
+      - 13378:80
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - proxy
+    volumes:
+      - /mnt/media/library/Audiobooks:/audiobooks
+      - /mnt/media/library/Podcasts:/podcasts
+      - /mnt/media/library/Books:/books
+      - ./config:/config
+      - ./metadata:/metadata
+    environment:
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.audiobookshelf.rule=Host(`abs.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.audiobookshelf.entrypoints=https"
+      - "traefik.http.routers.audiobookshelf.tls=true"
+      - "traefik.http.services.audiobookshelf.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true

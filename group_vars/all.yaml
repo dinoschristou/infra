@@ -122,3 +122,5 @@ default_timezone: "Europe/London"
 services:
   - name: traefik
     version: latest
+
+cloudflare_proxied: false
