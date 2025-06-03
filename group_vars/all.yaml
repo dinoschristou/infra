@@ -96,7 +96,7 @@ stirlingpdf_version: "0.43.2"
 # renovate: datasource=docker depName=wallabag/wallabag
 wallabag_version: "2.6.10"
 # renovate: datasource=docker depName=linuxserver/freshrss
-freshrss_version: "1.26.0"
+freshrss_version: "1.26.3"
 # renovate: datasource=docker depName=hkotel/mealie
 mealie_version: "v2.7.1"
 # renovate: datasource=docker depName=homebridge/homebridge
