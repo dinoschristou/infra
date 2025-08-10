@@ -52,3 +52,11 @@ tasks:
   test-new-roles:
     cmds:
       - ansible-playbook -i inventory/hosts.yaml site.yaml --tags test --limit test_hosts
+
+  cluster-up:
+    cmds:
+      - ansible-playbook -i inventory/hosts.yaml cluster-up.yaml
+
+  cluster-down:
+    cmds:
+      - ansible-playbook -i inventory/hosts.yaml cluster-down.yaml
