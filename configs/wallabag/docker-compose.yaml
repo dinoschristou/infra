@@ -1,0 +1,68 @@
+services:
+  wallabag:
+    image: wallabag/wallabag
+    restart: unless-stopped
+    container_name: wallabag
+    networks:
+      - proxy
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASS}
+      - SYMFONY__ENV__DATABASE_DRIVER=pdo_mysql
+      - SYMFONY__ENV__DATABASE_HOST=wallabag-db
+      - SYMFONY__ENV__DATABASE_PORT=3306
+      - SYMFONY__ENV__DATABASE_NAME=wallabag
+      - SYMFONY__ENV__DATABASE_USER=${DB_USER}
+      - SYMFONY__ENV__DATABASE_PASSWORD=${DB_PASS}
+      - SYMFONY__ENV__DATABASE_CHARSET=utf8mb4
+      - SYMFONY__ENV__DATABASE_TABLE_PREFIX="wallabag_"
+      - SYMFONY__ENV__DOMAIN_NAME=https://read.dinos.sh
+      - SYMFONY__ENV__SERVER_NAME="Dinos's wallabag instance"
+      - SYMFONY__ENV__REDIS_HOST=wallabag-redis
+      - SYMFONY__ENV__FOSUSER_REGISTRATION=false
+    ports:
+      - "80"
+    volumes:
+      - ./images:/var/www/wallabag/web/assets/images
+    depends_on:
+      - wallabag-db
+      - wallabag-redis
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.wallabag.rule=Host(`read.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.wallabag.entrypoints=https"
+      - "traefik.http.routers.wallabag.tls=true"
+      - "traefik.http.services.wallabag.loadbalancer.server.port=80"
+  wallabag-db:
+    image: mariadb
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASS}
+    env_file:
+      - .env
+    networks:
+      - proxy
+    volumes:
+      -  ./data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh", "--innodb_initialized"]
+      interval: 20s
+      timeout: 3s
+    container_name: wallabag-db
+  wallabag-redis:
+    image: redis:alpine
+    restart: unless-stopped
+    networks:
+      - proxy
+    container_name: wallabag-redis
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 20s
+      timeout: 3s
+
+networks:
+  proxy:
+    external: true
