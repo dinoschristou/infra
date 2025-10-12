@@ -59,6 +59,10 @@ services_configs:
       - data
       - etc
   - name: freshrss
+  #- name: ntfy
+  #  required_folders:
+  #    - config
+  #    - cache
   # - name: wallabag
   #   required_folders:
   #     - images
