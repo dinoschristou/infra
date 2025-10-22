@@ -92,7 +92,7 @@ authentik_version: "2024.12.2"
 # renovate: datasource=github-releases depName=andrewjw/glowprom
 glowprom_version: "0.9.0"
 # renovate: datasource=docker depName=frooodle/s-pdf
-stirlingpdf_version: "0.43.2"
+stirlingpdf_version: "0.46.2"
 # renovate: datasource=docker depName=wallabag/wallabag
 wallabag_version: "2.6.10"
 # renovate: datasource=docker depName=linuxserver/freshrss
