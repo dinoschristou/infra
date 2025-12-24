@@ -35,7 +35,7 @@
    - services
 
 - name: Setup nut server
-  hosts: pve3
+  hosts: pve1
   become: true
   vars_files:
    - vars/vault.yaml
@@ -45,7 +45,6 @@
 
 - name: Setup nut clients
   hosts:
-   - pve1
    - pve2
   become: true
   vars_files:

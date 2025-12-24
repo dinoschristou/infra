@@ -22,7 +22,7 @@ services:
     labels:
       - "org.label-schema.group=monitoring"
       - "traefik.enable=true"
-      - "traefik.http.routers.prometheus.rule=Host(`prometheus.${FULL_DOMAIN}}`)"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.${FULL_DOMAIN}`)"
       - "traefik.http.routers.prometheus.entrypoints=https"
       - "traefik.http.routers.prometheus.tls=true"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
@@ -33,7 +33,7 @@ services:
     volumes:
       - ./alertmanager:/etc/alertmanager
     command:
-      - "--config.file=/etc/alertmanager/config.yml"
+      - "--config.file=/etc/alertmanager/config.yaml"
       - "--storage.path=/alertmanager"
     restart: unless-stopped
     expose:
@@ -45,7 +45,7 @@ services:
     labels:
       - "org.label-schema.group=monitoring"
       - "traefik.enable=true"
-      - "traefik.http.routers.alertmanager.rule=Host(`alertmanager.${FULL_DOMAIN}}`)"
+      - "traefik.http.routers.alertmanager.rule=Host(`alertmanager.${FULL_DOMAIN}`)"
       - "traefik.http.routers.alertmanager.entrypoints=https"
       - "traefik.http.routers.alertmanager.tls=true"
       - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
@@ -65,7 +65,7 @@ services:
       - .env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.loki.rule=Host(`loki.${FULL_DOMAIN}}`)"
+      - "traefik.http.routers.loki.rule=Host(`loki.${FULL_DOMAIN}`)"
       - "traefik.http.routers.loki.entrypoints=https"
       - "traefik.http.routers.loki.tls=true"
       - "traefik.http.services.loki.loadbalancer.server.port=3100"
@@ -90,7 +90,7 @@ services:
     labels:
       - "org.label-schema.group=monitoring"
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.${FULL_DOMAIN}}`)"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.${FULL_DOMAIN}`)"
       - "traefik.http.routers.grafana.entrypoints=https"
       - "traefik.http.routers.grafana.tls=true"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
@@ -108,7 +108,7 @@ services:
     labels:
       - "org.label-schema.group=monitoring"
       - "traefik.enable=true"
-      - "traefik.http.routers.pushgateway.rule=Host(`pushgateway.${FULL_DOMAIN}}`)"
+      - "traefik.http.routers.pushgateway.rule=Host(`pushgateway.${FULL_DOMAIN}`)"
       - "traefik.http.routers.pushgateway.entrypoints=https"
       - "traefik.http.routers.pushgateway.tls=true"
       - "traefik.http.services.pushgateway.loadbalancer.server.port=9091"

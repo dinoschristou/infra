@@ -2,17 +2,19 @@ all:
   children:
     proxmox_vms:
       hosts:
-        thorondor:
-          ansible_host: 192.168.42.204
-          ansible_user: ubuntu
         varda:
           ansible_host: 192.168.42.238
           ansible_user: ubuntu
-        gondor:
-          ansible_host: 192.168.42.225
+        mon:
+          ansible_host: 192.168.60.44
           ansible_user: ubuntu
-        earendil:
-          ansible_host: 192.168.42.191
+    unmanaged:
+      hosts:
+        ts:
+          ansible_host: 192.168.42.166
+          ansible_user: ubuntu
+        mqtt:
+          ansible_host: 192.168.42.122
           ansible_user: ubuntu
     piholes:
       hosts:
@@ -24,13 +26,6 @@ all:
           ansible_user: ubuntu
     cloud:
       hosts:
-        # external-test:
-        #   ansible_host: 192.168.42.226
-        #   ansible_user: ubuntu
-        #   ansible_port: 4322
-        # oracle-cloud-vm1:
-        #   ansible_host: 150.230.113.195
-        #   ansible_user: ubuntu
         external-01:
           ansible_host: 192.168.92.60
           ansible_user: ubuntu
@@ -41,35 +36,5 @@ all:
           ansible_host: 192.168.42.57
           ansible_user: root
         pve2:
-          ansible_host: 192.168.42.8
+          ansible_host: 192.168.42.239
           ansible_user: root
-        pve3:
-          ansible_host: 192.168.42.9
-          ansible_user: root
-    test_hosts:
-      hosts:
-        thorondor:
-    k3s_cluster:
-      children:
-        master:
-          hosts:
-            k8s-master-1:
-              ansible_host: 192.168.42.252
-              ansible_user: ubuntu
-            k8s-master-2:
-              ansible_host: 192.168.42.139
-              ansible_user: ubuntu
-            k8s-master-3:
-              ansible_host: 192.168.42.147
-              ansible_user: ubuntu
-        node:
-          hosts:
-            k8s-worker-1:
-              ansible_host: 192.168.42.124
-              ansible_user: ubuntu
-            k8s-worker-2:
-              ansible_host: 192.168.42.227
-              ansible_user: ubuntu
-            k8s-worker-3:
-              ansible_host: 192.168.42.54
-              ansible_user: ubuntu
