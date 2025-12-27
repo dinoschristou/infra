@@ -1,0 +1,9 @@
+full_domain: "infra.{{ hostname_root }}"
+
+services_configs:
+  - name: traefik
+    required_folders:
+      - logs
+    touch_files:
+      - acme.json
+  - name: op-connect

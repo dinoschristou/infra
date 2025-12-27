@@ -8,6 +8,9 @@ all:
         mon:
           ansible_host: 192.168.60.44
           ansible_user: ubuntu
+        infra:
+          ansible_host: 192.168.60.45
+          ansible_user: ubuntu
     unmanaged:
       hosts:
         ts:

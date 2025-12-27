@@ -1,0 +1,53 @@
+services:
+  op-connect-api:
+    image: 1password/connect-api:latest
+    container_name: op-connect-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./1password-credentials.json:/home/opuser/.op/1password-credentials.json"
+      - "op_data:/home/opuser/.op/data"
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - proxy
+    environment:
+      - TZ=${TZ}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.opapi.rule=Host(`opapi.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.opapi.entrypoints=https"
+      - "traefik.http.routers.opapi.tls=true"
+      - "traefik.http.services.opapi.loadbalancer.server.port=8080"
+
+  op-connect-sync:
+    image: 1password/connect-sync:latest
+    container_name: op-connect-sync
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - proxy
+    volumes:
+      - "./1password-credentials.json:/home/opuser/.op/1password-credentials.json"
+      - "op_data:/home/opuser/.op/data"
+    environment:
+      - TZ=${TZ}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.opsync.rule=Host(`opsync.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.opsync.entrypoints=https"
+      - "traefik.http.routers.opsync.tls=true"
+      - "traefik.http.services.opsync.loadbalancer.server.port=8081"
+
+volumes:
+  op_data:
+    driver: local
+    name: op_data
+
+networks:
+  proxy:
+    external: true
