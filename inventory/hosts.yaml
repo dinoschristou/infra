@@ -2,22 +2,19 @@ all:
   children:
     proxmox_vms:
       hosts:
-        varda:
-          ansible_host: 192.168.42.238
-          ansible_user: ubuntu
         mon:
           ansible_host: 192.168.60.44
           ansible_user: ubuntu
         infra:
           ansible_host: 192.168.60.45
           ansible_user: ubuntu
+        mqtt:
+          ansible_host: 192.168.42.122
+          ansible_user: ubuntu
     unmanaged:
       hosts:
         ts:
           ansible_host: 192.168.42.166
-          ansible_user: ubuntu
-        mqtt:
-          ansible_host: 192.168.42.122
           ansible_user: ubuntu
     piholes:
       hosts:

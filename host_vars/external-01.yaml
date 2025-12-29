@@ -59,6 +59,7 @@ services_configs:
       - data
       - etc
   - name: freshrss
+  - name: monitoring-client
   #- name: ntfy
   #  required_folders:
   #    - config

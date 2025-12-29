@@ -7,3 +7,16 @@ services_configs:
     touch_files:
       - acme.json
   - name: op-connect
+  - name: monitoring-client
+  # - name: authentik
+  #   required_folders:
+  #     - media
+  #     - custom-templates
+  #     - certs
+  # - name: calibre
+  #   required_folders:
+  #     - data
+  # - name: audiobookshelf
+  #   required_folders:
+  #     - config
+  #     - metadata

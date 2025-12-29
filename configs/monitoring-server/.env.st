@@ -3,3 +3,7 @@ GF_SECURITY_ADMIN_USER={{ grafana_user }}
 GF_SECURITY_ADMIN_PASSWORD={{ grafana_password }}
 PIHOLE_HOSTNAME={{ pihole_main_host }}
 PIHOLE_PASSWORD={{ pihole_main_api_token }}
+PIHOLE_BACKUP_HOSTNAME={{ pihole_backup_host }}
+PIHOLE_BACKUP_PASSWORD={{ pihole_backup_api_token }}
+PLEX_SERVER={{ plex_host }}
+PLEX_TOKEN={{ plex_token }}

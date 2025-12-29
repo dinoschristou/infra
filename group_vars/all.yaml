@@ -232,3 +232,5 @@ custom_registries_yaml: |
     registry.domain.com:
       endpoint:
         - "https://registry.domain.com"
+
+plex_host: "http://192.168.42.244:32400"

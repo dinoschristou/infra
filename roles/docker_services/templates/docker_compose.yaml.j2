@@ -339,7 +339,7 @@ services:
     image: ekofr/pihole-exporter:{{ pihole_exporter_version }}
     container_name: pihole-exporter
     environment:
-      - PIHOLE_PROTOCOL=http
+      - PIHOLE_PROTOCOL=http,http
       - PIHOLE_HOSTNAME={{ pihole_main_host }}
       - PIHOLE_PASSWORD={{ pihole_main_api_token }}
       - PORT=9617
@@ -580,8 +580,6 @@ services:
       - proxy
     ports:
       - 9420:9420
-    depends_on:
-      - postgres
     environment:
       - GLOWPROM_MQTT={{ mqtt_server }}
       - GLOWPROM_PORT={{ mqtt_port }}

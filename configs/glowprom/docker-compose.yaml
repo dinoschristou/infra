@@ -1,14 +1,12 @@
 services:
   glowprom:
     container_name: glowprom
-    image: andrewjw/glowprom:0.9.0
+    image: andrewjw/glowprom:1.0.0
     command: --bind 0.0.0.0:9420
     networks:
       - proxy
     ports:
       - 9420:9420
-    depends_on:
-      - postgres
     environment:
       - GLOWPROM_MQTT=${GLOWPROM_MQTT}
       - GLOWPROM_PORT=${GLOWPROM_PORT}

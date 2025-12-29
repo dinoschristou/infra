@@ -16,7 +16,12 @@ scrape_configs:
   - job_name: 'node-exporter'
     scrape_interval: 5s
     static_configs:
-      - targets: ['node-exporter:9100']
+      - targets: ['node-exporter:9100', 'node-exporter.ts.knxcloud.io']
+
+
+  - job_name: plex
+    static_configs:
+      - targets: ["prometheus-plex-exporter:9000"]
 
   - job_name: 'cadvisor'
     scrape_interval: 5s
@@ -61,7 +66,6 @@ scrape_configs:
       - targets:
         - pve1.knxcloud.io
         - pve2.knxcloud.io
-        - pve3.knxcloud.io
     metrics_path: /pve
     params:
       module: [default]

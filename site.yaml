@@ -5,9 +5,9 @@
   vars_files:
    - vars/vault.yaml
   roles:
-   - grog.package
-   - base
-   - docker
+  #  - grog.package
+  #  - base
+  #  - docker
    #- nfs_client
    - services
 
