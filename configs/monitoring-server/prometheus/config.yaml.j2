@@ -16,8 +16,12 @@ scrape_configs:
   - job_name: 'node-exporter'
     scrape_interval: 5s
     static_configs:
-      - targets: ['node-exporter:9100', 'node-exporter.ts.knxcloud.io']
-
+      - targets:
+        - node-exporter:9100
+        - node-exporter.ts.knxcloud.io
+        - node-exporter.mqtt.knxcloud.io
+        - node-exporter.infra.knxcloud.io
+        - node-exporter.dinos.sh
 
   - job_name: plex
     static_configs:
@@ -26,7 +30,12 @@ scrape_configs:
   - job_name: 'cadvisor'
     scrape_interval: 5s
     static_configs:
-      - targets: ['cadvisor:8080']
+      - targets:
+        - cadvisor:8080
+        - cadvisor.ts.knxcloud.io
+        - cadvisor.mqtt.knxcloud.io
+        - cadvisor.infra.knxcloud.io
+        - cadvisor.dinos.sh
 
   - job_name: 'prometheus'
     scrape_interval: 10s
@@ -60,6 +69,12 @@ scrape_configs:
 
     static_configs:
       - targets: ['192.168.1.226:8123']
+
+  - job_name: 'unpoller'
+    static_configs:
+      - targets: ['unpoller:9130']
+    scrape_interval: 60s  # if you get 429 errors from UniFi, increase this value to 120s or higher.
+    scrape_timeout: 10s
 
   - job_name: 'pve'
     static_configs:

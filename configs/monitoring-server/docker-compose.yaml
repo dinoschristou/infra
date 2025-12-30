@@ -10,8 +10,9 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--web.console.libraries=/etc/prometheus/console_libraries"
       - "--web.console.templates=/etc/prometheus/consoles"
-      - "--storage.tsdb.retention.time=240h"
+      - "--storage.tsdb.retention.size=80GB"
       - "--web.enable-lifecycle"
+      - "--storage.tsdb.wal-compression"
     restart: unless-stopped
     expose:
       - 9090
@@ -157,6 +158,17 @@ services:
      - 9000
     security_opt:
       - no-new-privileges:true
+
+  unpoller:
+    image: ghcr.io/unpoller/unpoller:latest
+    restart: unless-stopped
+    networks:
+      - proxy
+    container_name: unpoller
+    env_file:
+      - .env
+    ports:
+      - '9130:9130'
 
 networks:
   proxy:

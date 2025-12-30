@@ -8,9 +8,6 @@ route:
   receiver: telegram_bot
 
 receivers:
-- name: discord
-  discord_configs:
-  - webhook_url: {{ discord_webhook_url }}
 - name: 'telegram_bot'
   telegram_configs:
   - bot_token: {{ telegram_bot_token }}

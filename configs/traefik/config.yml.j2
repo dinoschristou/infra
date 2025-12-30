@@ -1,5 +1,5 @@
-{% if cloudflare_proxied %}
 http:
+{% if cloudflare_proxied %}
   middlewares:
     crowdsec:
       plugin:
@@ -25,4 +25,11 @@ http:
             - 10.0.0.0/8
             - 172.16.0.0/12
             - 192.168.0.0/16
-{% endif %}
+ {% endif %}
+  routers:
+    metrics:
+      entryPoints:
+        - https
+      rule: "Host(`traefik.{{ full_domain }}`) && PathPrefix(`/metrics`)"
+      service: prometheus@internal
+      tls: {}
