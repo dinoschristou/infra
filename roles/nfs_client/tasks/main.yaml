@@ -1,7 +1,15 @@
 - name: Mount NFS media volume
   ansible.posix.mount:
-    src: "{{ nfs_server }}:{{ nfs_path }}"
+    src: "{{ nfs_server }}:{{ nfs_media_path }}"
     path: /mnt/media
+    opts: auto,defaults,nofail
+    state: mounted
+    fstype: nfs
+
+- name: Mount NFS lab volume
+  ansible.posix.mount:
+    src: "{{ nfs_server }}:{{ nfs_lab_path }}"
+    path: /mnt/lab
     opts: auto,defaults,nofail
     state: mounted
     fstype: nfs

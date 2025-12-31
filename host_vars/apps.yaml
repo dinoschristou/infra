@@ -1,0 +1,23 @@
+full_domain: "apps.{{ hostname_root }}"
+
+services_configs:
+  - name: traefik
+    required_folders:
+      - logs
+    touch_files:
+      - acme.json
+  - name: monitoring-client
+  - name: calibre
+    required_folders:
+      - data
+  - name: audiobookshelf
+    required_folders:
+      - config
+      - metadata
+  - name: mealie
+    required_folders:
+      - data
+  - name: stirlingpdf
+    required_folders:
+      - configs
+      - ocr-data

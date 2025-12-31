@@ -4,31 +4,26 @@ all:
       hosts:
         mon:
           ansible_host: 192.168.60.44
-          ansible_user: ubuntu
         infra:
           ansible_host: 192.168.60.45
-          ansible_user: ubuntu
         mqtt:
           ansible_host: 192.168.42.122
-          ansible_user: ubuntu
+        apps:
+          ansible_host: 192.168.60.46
     unmanaged:
       hosts:
         ts:
           ansible_host: 192.168.42.166
-          ansible_user: ubuntu
     piholes:
       hosts:
         pihole-backup:
           ansible_host: 192.168.3.254
-          ansible_user: ubuntu
         pihole-primary:
           ansible_host: 192.168.1.202
-          ansible_user: ubuntu
     cloud:
       hosts:
         external-01:
           ansible_host: 192.168.92.60
-          ansible_user: ubuntu
           ansible_port: 4322
     proxmox_hosts:
       hosts:

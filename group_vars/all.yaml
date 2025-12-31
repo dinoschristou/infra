@@ -36,6 +36,7 @@ enable_homebridge: false
 enable_cloudflare_tunnel: false
 enable_hoarder: false
 
+ansible_user: ubuntu
 ansible_port: 22
 # User and group settings
 main_username: "{{ ansible_user }}"
@@ -115,7 +116,8 @@ mqtt_server: 192.168.42.122
 mqtt_port: 1883
 
 nfs_server: 192.168.1.217
-nfs_path: /volume1/media
+nfs_media_path: /volume1/media
+nfs_lab_path: /volume1/lab
 
 default_timezone: "Europe/London"
 

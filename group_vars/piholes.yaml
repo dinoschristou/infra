@@ -12,3 +12,4 @@ dns_overrides:
   - { ip: 192.168.60.44, custom_dns: "mon.knxcloud.io" }
   - { ip: 192.168.60.45, custom_dns: "infra.knxcloud.io" }
   - { ip: 192.168.42.122, custom_dns: "mqtt.knxcloud.io" }
+  - { ip: 192.168.60.46, custom_dns: "apps.knxcloud.io" }
