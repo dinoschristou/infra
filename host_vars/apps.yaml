@@ -21,3 +21,7 @@ services_configs:
     required_folders:
       - configs
       - ocr-data
+  - name: atuin
+    required_folders:
+      - config
+      - database

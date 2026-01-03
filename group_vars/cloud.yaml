@@ -1,16 +1,1 @@
-package_list:
-  - name: apt-transport-https
-  - name: ca-certificates
-  - name: gnupg
-  - name: lsb-release
-    brew-ignore: true
-  - name: software-properties-common
-  - name: python3-pip
-  - name: python3-setuptools
-  - name: zsh
-  - name: fail2ban
-    brew-ignore: true
-  - name: unattended-upgrades
-    brew-ignore: true
-
 is_local_vm: false

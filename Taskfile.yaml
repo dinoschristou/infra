@@ -60,3 +60,10 @@ tasks:
   cluster-down:
     cmds:
       - ansible-playbook -i inventory/hosts.yaml cluster-down.yaml
+
+  new-config:
+    cmds:
+      - echo "Generating new configuration files in {{ .TASKFILE_DIR }}/configs"
+      - mkdir -p {{ .TASKFILE_DIR }}/configs/{{.CLI_ARGS}}
+      - cp {{ .TASKFILE_DIR }}/configs/ztemplate/docker-compose.yaml {{ .TASKFILE_DIR }}/configs/{{.CLI_ARGS}}/docker-compose.yaml
+      - cp {{ .TASKFILE_DIR }}/configs/ztemplate/.env.st {{ .TASKFILE_DIR }}/configs/{{.CLI_ARGS}}/.env.st

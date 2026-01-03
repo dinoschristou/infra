@@ -14,6 +14,9 @@ services:
       - "traefik.http.routers.pdf.tls=true"
     environment:
       - DOCKER_ENABLE_SECURITY=false
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
     restart: unless-stopped
     env_file:
       - .env

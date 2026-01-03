@@ -14,6 +14,9 @@ services:
       - "traefik.http.routers.mealie.entrypoints=https"
       - "traefik.http.routers.mealie.tls=true"
     environment:
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
       - DB_ENGINE=sqlite
       - "BASE_URL=https://mealie.${FULL_DOMAIN}"
     restart: unless-stopped

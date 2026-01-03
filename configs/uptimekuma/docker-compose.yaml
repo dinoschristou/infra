@@ -1,0 +1,23 @@
+services:
+  whoami:
+    image: louislam/uptime-kuma:2.0.2
+    container_name: uptimekuma
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - proxy
+    environment:
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./data:/app/data"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.uptimekuma.rule=Host(`uptime-kuma.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.uptimekuma.entrypoints=https"
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,21 @@
+services:
+  whoami:
+    image: traefik/whoami
+    container_name: whoami
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - proxy
+    environment:
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.whoami.entrypoints=https"
+
+networks:
+  proxy:
+    external: true
