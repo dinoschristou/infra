@@ -1,0 +1,58 @@
+services:
+  linkwarden-postgres:
+    image: postgres:16-alpine
+    container_name: linkwarden-postgres
+    networks:
+      - proxy
+    env_file: .env
+    restart: always
+    environment:
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+
+  linkwarden:
+    env_file: .env
+    container_name: linkwarden
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@linkwarden-postgres:5432/postgres
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
+    restart: always
+    networks:
+      - proxy
+    image: ghcr.io/linkwarden/linkwarden:v2.13.5
+    ports:
+      - 3001:3000
+    volumes:
+      - ./data:/data/data
+    depends_on:
+      - linkwarden-postgres
+      - linkwarden-meilisearch
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.linkwarden.rule=Host(`linkwarden.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.linkwarden.entrypoints=https"
+      - "traefik.http.routers.linkwarden.tls=true"
+  linkwarden-meilisearch:
+    image: getmeili/meilisearch:v1.12.8
+    container_name: linkwarden-meilisearch
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./meili_data:/meili_data
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+

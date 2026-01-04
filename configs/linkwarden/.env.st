@@ -1,0 +1,12 @@
+TZ={{ default_timezone }}
+FULL_DOMAIN={{ full_domain }}
+NEXTAUTH_URL=https://linkwarden.${FULL_DOMAIN}/api/v1/auth
+NEXTAUTH_SECRET={{ linkwarden_nextauth_secret }}
+MEILI_MASTER_KEY={{ linkwarden_meilisearch_api_key }}
+MEILI_HOST=http://linkwarden-meilisearch:7700
+POSTGRES_PASSWORD={{ linkwarden_db_password }}
+CUSTOM_OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
+OPENAI_MODEL=gemini-2.5-flash
+OPENAI_API_KEY={{ gemini_ai_studio_api_key }}
+DISABLE_NEW_SSO_USERS=true
+NEXT_PUBLIC_DISABLE_REGISTRATION=true

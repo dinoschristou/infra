@@ -15,6 +15,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.rule=Host(`whoami.${FULL_DOMAIN}`)"
       - "traefik.http.routers.whoami.entrypoints=https"
+      - "traefik.http.routers.whoami.tls=true"
 
 networks:
   proxy:

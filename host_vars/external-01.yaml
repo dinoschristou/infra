@@ -60,6 +60,11 @@ services_configs:
       - etc
   - name: freshrss
   - name: monitoring-client
+  - name: linkwarden
+    required_folders:
+      - data
+      - pgdata
+      - meili_data
   #- name: ntfy
   #  required_folders:
   #    - config
