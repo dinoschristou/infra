@@ -29,7 +29,7 @@ services:
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
   alertmanager:
-    image: prom/alertmanager:v0.30.0
+    image: prom/alertmanager:v0.30.1
     container_name: alertmanager
     volumes:
       - ./alertmanager:/etc/alertmanager
