@@ -3,6 +3,7 @@
 # Ansible Bootstrap Script for Laptop Setup
 # Supports macOS and various Linux distributions
 # Usage: ./bootstrap.sh [playbook_url]
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/dinoschristou/infra/refs/heads/main/scripts/setup-machine.sh)"
 
 set -e  # Exit on any error
 

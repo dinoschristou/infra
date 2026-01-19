@@ -319,14 +319,62 @@
       failed_when: false
       changed_when: false
 
-    - name: Authenticate with GitHub CLI (device code flow)
+    - name: Generate GitHub device code
       ansible.builtin.shell: |
         set -o pipefail
-        echo "Starting GitHub authentication..."
-        echo "A one-time code will be displayed below."
-        echo "Open https://github.com/login/device in a browser and enter the code."
-        echo ""
-        gh auth login --git-protocol ssh --hostname github.com --skip-ssh-key
+        # Request device code from GitHub
+        response=$(curl -s -X POST \
+          -H "Accept: application/json" \
+          -d "client_id=178c6fc778ccc68e1d6a&scope=read:user,repo,gist,admin:public_key,admin:ssh_signing_key" \
+          https://github.com/login/device/code)
+        echo "$response" | jq -r '.device_code' > /tmp/gh_device_code
+        echo "$response" | jq -r '.user_code'
+      args:
+        executable: /bin/bash
+      when: gh_auth_status.rc != 0
+      become: false
+      register: gh_device_code
+
+    - name: Prompt user to authenticate
+      ansible.builtin.pause:
+        prompt: |
+
+          ==========================================
+          GitHub Authentication Required
+          ==========================================
+
+          1. Open https://github.com/login/device in any browser
+          2. Enter this code: {{ gh_device_code.stdout }}
+          3. Authorize the application
+
+          Press Enter once you have completed authorization...
+      when: gh_auth_status.rc != 0
+
+    - name: Complete GitHub authentication
+      ansible.builtin.shell: |
+        set -o pipefail
+        device_code=$(cat /tmp/gh_device_code)
+        # Poll for the access token
+        for i in {1..60}; do
+          response=$(curl -s -X POST \
+            -H "Accept: application/json" \
+            -d "client_id=178c6fc778ccc68e1d6a&device_code=${device_code}&grant_type=urn:ietf:params:oauth:grant-type:device_code" \
+            https://github.com/login/oauth/access_token)
+          token=$(echo "$response" | jq -r '.access_token // empty')
+          if [ -n "$token" ]; then
+            echo "$token" | gh auth login --with-token
+            rm -f /tmp/gh_device_code
+            exit 0
+          fi
+          error=$(echo "$response" | jq -r '.error // empty')
+          if [ "$error" = "expired_token" ] || [ "$error" = "access_denied" ]; then
+            rm -f /tmp/gh_device_code
+            exit 1
+          fi
+          sleep 5
+        done
+        rm -f /tmp/gh_device_code
+        exit 1
       args:
         executable: /bin/bash
       when: gh_auth_status.rc != 0
