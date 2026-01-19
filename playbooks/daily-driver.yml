@@ -100,10 +100,6 @@
         apt_ignore: true  # Install manually
         yum_ignore: true  # Install manually
         brew: kubectl
-      - name: awscli
-        apt: awscli
-        yum: awscli
-        brew: awscli
       - name: gh
         apt_ignore: true  # Install via custom repo
         yum_ignore: true
