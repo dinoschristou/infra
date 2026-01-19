@@ -12,8 +12,8 @@
 
   vars:
     # User configuration (will be detected automatically)
-    setup_user: "{{ ansible_user_id }}"
-    user_home: "{{ ansible_env.HOME }}"
+    setup_user: "{{ lookup('env', 'USER') }}"
+    user_home: "{{ '/Users/' + setup_user if ansible_os_family == 'Darwin' else '/home/' + setup_user }}"
 
     # Dotfiles repository URL (can be overridden)
     dotfiles_repo: "{{ dotfiles_repository | default('https://github.com/dinoschristou/dotfiles.git') }}"
