@@ -642,7 +642,7 @@
     - name: Clone dotfiles repository
       ansible.builtin.git:
         repo: "{{ dotfiles_repo }}"
-        dest: "{{ user_home }}/.dotfiles"
+        dest: "{{ user_home }}/dotfiles"
         version: main
         force: true
       become: false
