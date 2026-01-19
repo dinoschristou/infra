@@ -1,7 +1,35 @@
 ---
 # Laptop Setup Ansible Playbook
 # This playbook sets up a development environment on macOS or Linux
-# Usage: ansible-playbook -i localhost, -c local --ask-become-pass playbook.yml
+# Usage: ansible-playbook -i localhost, -c local playbooks/daily-driver.yml
+# Note: Will automatically prompt for sudo password if needed
+
+# First play: Check if passwordless sudo is available
+- name: Check sudo access
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Test passwordless sudo
+      ansible.builtin.command:
+        cmd: sudo -n true
+      register: sudo_check
+      failed_when: false
+      changed_when: false
+
+    - name: Prompt for sudo password if needed
+      ansible.builtin.pause:
+        prompt: "Enter your sudo password"
+        echo: false
+      register: sudo_password_input
+      when: sudo_check.rc != 0
+      no_log: true
+
+    - name: Set become password fact
+      ansible.builtin.set_fact:
+        provided_become_pass: "{{ sudo_password_input.user_input | default(omit) }}"
+      when: sudo_check.rc != 0
+      no_log: true
 
 - name: Laptop Development Environment Setup
   hosts: localhost
@@ -9,8 +37,8 @@
   become: true
   become_method: ansible.builtin.sudo
   gather_facts: true
-
   vars:
+    ansible_become_password: "{{ hostvars['localhost']['provided_become_pass'] | default(omit) }}"
     # User configuration (will be detected automatically)
     setup_user: "{{ lookup('env', 'USER') }}"
     user_home: "{{ '/Users/' + setup_user if ansible_os_family == 'Darwin' else '/home/' + setup_user }}"
@@ -291,21 +319,14 @@
       failed_when: false
       changed_when: false
 
-    - name: Prompt for GitHub authentication
-      ansible.builtin.pause:
-        prompt: |
-          Please authenticate with GitHub CLI:
-          1. A browser window will open for authentication
-          2. Follow the prompts to log in to GitHub
-          3. Grant the necessary permissions
-
-          Press Enter to continue...
-      when: gh_auth_status.rc != 0
-
-    - name: Authenticate with GitHub CLI
+    - name: Authenticate with GitHub CLI (device code flow)
       ansible.builtin.shell: |
         set -o pipefail
-        gh auth login --git-protocol ssh --web
+        echo "Starting GitHub authentication..."
+        echo "A one-time code will be displayed below."
+        echo "Open https://github.com/login/device in a browser and enter the code."
+        echo ""
+        gh auth login --git-protocol ssh --hostname github.com --skip-ssh-key
       args:
         executable: /bin/bash
       when: gh_auth_status.rc != 0
