@@ -612,11 +612,30 @@
         - Projects
         - .local/bin
 
-    - name: Install Python packages
-      ansible.builtin.pip:
-        name: "{{ python_packages }}"
-        extra_args: --user
+    - name: Install pipx (Debian/Ubuntu)
+      ansible.builtin.apt:
+        name: pipx
         state: present
+      when: ansible_os_family == "Debian"
+      become: true
+
+    - name: Install pipx (macOS)
+      community.general.homebrew:
+        name: pipx
+        state: present
+      when: ansible_os_family == "Darwin"
+
+    - name: Ensure pipx path is set up
+      ansible.builtin.command:
+        cmd: pipx ensurepath
+      changed_when: false
+
+    - name: Install Python packages via pipx
+      community.general.pipx:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ python_packages }}"
+      failed_when: false  # Some packages might not be installable via pipx
 
     - name: Install Node.js global packages
       community.general.npm:
