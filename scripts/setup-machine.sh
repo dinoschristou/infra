@@ -14,7 +14,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Default playbook URL (replace with your actual playbook repository)
-DEFAULT_PLAYBOOK_URL="https://raw.githubusercontent.com/your-username/laptop-setup/main/playbook.yml"
+DEFAULT_PLAYBOOK_URL="https://raw.githubusercontent.com/dinoschristou/infra/refs/heads/main/playbooks/daily-driver.yml"
 
 # Configuration
 PLAYBOOK_URL="${1:-$DEFAULT_PLAYBOOK_URL}"

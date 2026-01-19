@@ -7,20 +7,17 @@
   hosts: localhost
   connection: local
   become: true
-  become_method: sudo
+  become_method: ansible.builtin.sudo
   gather_facts: true
-  
+
   vars:
     # User configuration (will be detected automatically)
     setup_user: "{{ ansible_user_id }}"
     user_home: "{{ ansible_env.HOME }}"
-    
+
     # Dotfiles repository URL (can be overridden)
-    dotfiles_repo: "{{ dotfiles_repository | default('https://github.com/username/dotfiles.git') }}"
-    
-    # Work dotfiles repository URL (can be overridden)
-    work_dotfiles_repo: "{{ work_dotfiles_repository | default('https://github.com/username/work-dotfiles.git') }}"
-    
+    dotfiles_repo: "{{ dotfiles_repository | default('https://github.com/dinoschristou/dotfiles.git') }}"
+
     # All packages with cross-platform specifications
     all_packages:
       - name: git
@@ -44,7 +41,7 @@
       - name: docker
         apt: docker.io
         yum: docker
-        brew_ignore: yes  # Use cask instead
+        brew_ignore: true  # Use cask instead
       - name: neovim
         apt: neovim
         yum: neovim
@@ -52,59 +49,46 @@
       - name: fzf
       - name: ripgrep
       - name: jq
-      - name: rcm
-        apt_ignore: yes
-        yum_ignore: yes
-        brew: rcm
       - name: bat
-        apt_ignore: yes
-        yum_ignore: yes
-        brew: bat
-      - name: exa
-        apt_ignore: yes
-        yum_ignore: yes
-        brew: exa
+      - name: eza
       - name: fd
         apt: fd-find
         yum: fd-find
         brew: fd
       - name: yq
-        apt_ignore: yes
-        yum_ignore: yes
-        brew: yq
       - name: go
-        apt_ignore: yes  # Install manually
-        yum_ignore: yes  # Install manually
+        apt_ignore: true  # Install manually
+        yum_ignore: true  # Install manually
         brew: go
       - name: rust
-        apt_ignore: yes  # Install via rustup
-        yum_ignore: yes  # Install via rustup
+        apt_ignore: true  # Install via rustup
+        yum_ignore: true  # Install via rustup
         brew: rust
       - name: terraform
-        apt_ignore: yes
-        yum_ignore: yes
+        apt_ignore: true
+        yum_ignore: true
         brew: terraform
       - name: kubectl
-        apt_ignore: yes  # Install manually
-        yum_ignore: yes  # Install manually
+        apt_ignore: true  # Install manually
+        yum_ignore: true  # Install manually
         brew: kubectl
       - name: awscli
         apt: awscli
         yum: awscli
         brew: awscli
       - name: gh
-        apt_ignore: yes  # Install via custom repo
-        yum_ignore: yes
+        apt_ignore: true  # Install via custom repo
+        yum_ignore: true
         brew: gh
       - name: build-essential
         apt: build-essential
         yum: "@Development Tools"
-        brew_ignore: yes
+        brew_ignore: true
       - name: software-properties-common
         apt: software-properties-common
-        yum_ignore: yes
-        brew_ignore: yes
-    
+        yum_ignore: true
+        brew_ignore: true
+
     # macOS Cask applications
     macos_casks:
       - visual-studio-code
@@ -114,7 +98,7 @@
       - rectangle
       - 1password
       - spotify
-    
+
     # Snap packages (for Ubuntu/other supported distros)
     snap_packages:
       - name: code
@@ -123,7 +107,7 @@
         classic: true
       - name: terraform
         classic: false
-    
+
     # Python packages to install via pip
     python_packages:
       - virtualenv
@@ -133,7 +117,7 @@
       - mypy
       - jupyter
       - ansible-lint
-    
+
     # Node.js global packages
     npm_packages:
       - yarn
@@ -147,23 +131,65 @@
       - create-react-app
 
   tasks:
+    # Homebrew Installation (macOS) - Must happen before package cache updates
+    - name: Check if Homebrew is installed
+      ansible.builtin.stat:
+        path: /opt/homebrew/bin/brew
+      register: homebrew_check
+      when: ansible_os_family == "Darwin"
+
+    - name: Install Homebrew
+      ansible.builtin.shell: |
+        set -o pipefail
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      args:
+        executable: /bin/bash
+        creates: /opt/homebrew/bin/brew
+      when:
+        - ansible_os_family == "Darwin"
+        - not homebrew_check.stat.exists
+      become: false
+
+    - name: Add Homebrew to PATH for Apple Silicon
+      ansible.builtin.lineinfile:
+        path: "{{ user_home }}/.zprofile"
+        line: 'eval "$(/opt/homebrew/bin/brew shellenv)"'
+        create: true
+        mode: '0644'
+      when:
+        - ansible_os_family == "Darwin"
+        - ansible_architecture == "arm64"
+      become: false
+
     # System Detection and Updates
-    - name: Update package cache
-      grog.package:
+    - name: Update package cache (Debian/Ubuntu)
+      ansible.builtin.apt:
         update_cache: true
-        
+      when: ansible_os_family == "Debian"
+
+    - name: Update package cache (CentOS/RHEL/Fedora)
+      ansible.builtin.dnf:
+        update_cache: true
+      when: ansible_os_family == "RedHat"
+
+    - name: Update Homebrew (macOS)
+      community.general.homebrew:
+        update_homebrew: true
+      when: ansible_os_family == "Darwin"
+      become: false
+
     # Determine machine type based on hostname
     - name: Check if this is a work machine
       ansible.builtin.set_fact:
         is_work_machine: "{{ '.lon' in ansible_hostname or '.corp' in ansible_hostname }}"
-        
+
     - name: Display machine type
       ansible.builtin.debug:
         msg: "Detected {{ 'work' if is_work_machine else 'home' }} machine: {{ ansible_hostname }}"
-      
+
     # Early Git Installation (needed for SSH key setup)
     - name: Install git early
-      grog.package:
+      ansible.builtin.package:
         name: git
         state: present
 
@@ -176,30 +202,30 @@
         group: "{{ setup_user }}"
         mode: '0700'
       become: false
-      
+
     - name: Check if SSH key exists
       ansible.builtin.stat:
         path: "{{ user_home }}/.ssh/id_ed25519"
       register: ssh_key_exists
       become: false
-      
+
     - name: Prompt for Git email (needed for SSH key)
       ansible.builtin.pause:
         prompt: "Enter your Git email address"
       register: git_email_input
-      when: 
+      when:
         - not ssh_key_exists.stat.exists
         - git_email is not defined
-      
+
     - name: Generate SSH key
-      community.crypto.openssh_keypair:
-        path: "{{ user_home }}/.ssh/id_ed25519"
-        type: ed25519
-        comment: "{{ git_email_input.user_input | default(git_email | default('your.email@example.com')) }}"
-        mode: '0600'
+      ansible.builtin.command:
+        cmd: >-
+          ssh-keygen -t ed25519 -f "{{ user_home }}/.ssh/id_ed25519" -N ""
+          -C "{{ git_email_input.user_input | default(git_email | default('your.email@example.com')) }}"
+        creates: "{{ user_home }}/.ssh/id_ed25519"
       when: not ssh_key_exists.stat.exists
       become: false
-      
+
     - name: Set SSH key permissions
       ansible.builtin.file:
         path: "{{ user_home }}/.ssh/id_ed25519.pub"
@@ -208,49 +234,19 @@
         mode: '0644'
       when: not ssh_key_exists.stat.exists
       become: false
-      
+
     - name: Read SSH public key
       ansible.builtin.slurp:
         src: "{{ user_home }}/.ssh/id_ed25519.pub"
       register: ssh_public_key
       become: false
-      
+
     - name: Display SSH public key
       ansible.builtin.debug:
         msg: |
           Generated SSH public key:
           {{ ssh_public_key.content | b64decode | trim }}
       when: not ssh_key_exists.stat.exists
-
-    # Homebrew Installation (macOS) - Needed for GitHub CLI
-    - name: Check if Homebrew is installed
-      ansible.builtin.stat:
-        path: /opt/homebrew/bin/brew
-      register: homebrew_check
-      when: ansible_os_family == "Darwin"
-      
-    - name: Install Homebrew
-      ansible.builtin.shell: |
-        set -o pipefail
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      args:
-        executable: /bin/bash
-        creates: /opt/homebrew/bin/brew
-      when: 
-        - ansible_os_family == "Darwin"
-        - not homebrew_check.stat.exists
-      become: false
-        
-    - name: Add Homebrew to PATH for Apple Silicon
-      ansible.builtin.lineinfile:
-        path: "{{ user_home }}/.zprofile"
-        line: 'eval "$(/opt/homebrew/bin/brew shellenv)"'
-        create: true
-        mode: '0644'
-      when: 
-        - ansible_os_family == "Darwin"
-        - ansible_architecture == "arm64"
-      become: false
 
     # GitHub CLI Installation
     - name: Install GitHub CLI via Homebrew (macOS)
@@ -259,24 +255,26 @@
         state: present
       when: ansible_os_family == "Darwin"
       become: false
-      
+
     - name: Add GitHub CLI repository (Debian/Ubuntu)
       ansible.builtin.shell: |
         set -o pipefail
-        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+        | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+        | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
       args:
         executable: /bin/bash
         creates: /etc/apt/sources.list.d/github-cli.list
       when: ansible_os_family == "Debian"
-      
+
     - name: Update package cache after adding GitHub CLI repo (Debian/Ubuntu)
-      grog.package:
+      ansible.builtin.apt:
         update_cache: true
       when: ansible_os_family == "Debian"
-      
+
     - name: Install GitHub CLI (Linux)
-      grog.package:
+      ansible.builtin.package:
         name: gh
         state: present
       when: ansible_os_family != "Darwin"
@@ -292,19 +290,18 @@
       become: false
       failed_when: false
       changed_when: false
-      
+
     - name: Prompt for GitHub authentication
       ansible.builtin.pause:
         prompt: |
-          
           Please authenticate with GitHub CLI:
           1. A browser window will open for authentication
           2. Follow the prompts to log in to GitHub
           3. Grant the necessary permissions
-          
+
           Press Enter to continue...
       when: gh_auth_status.rc != 0
-      
+
     - name: Authenticate with GitHub CLI
       ansible.builtin.shell: |
         set -o pipefail
@@ -314,7 +311,8 @@
       when: gh_auth_status.rc != 0
       become: false
       register: gh_auth_result
-      
+      changed_when: gh_auth_result.rc == 0
+
     - name: Verify GitHub authentication
       ansible.builtin.shell: |
         set -o pipefail
@@ -323,7 +321,7 @@
         executable: /bin/bash
       become: false
       changed_when: false
-      
+
     - name: Check if SSH key is already added to GitHub
       ansible.builtin.shell: |
         set -o pipefail
@@ -334,7 +332,7 @@
       become: false
       failed_when: false
       changed_when: false
-      
+
     - name: Add SSH key to GitHub
       ansible.builtin.shell: |
         set -o pipefail
@@ -343,7 +341,8 @@
         executable: /bin/bash
       when: ssh_key_exists_on_github.rc != 0
       become: false
-      
+      changed_when: true
+
     - name: Test SSH connection to GitHub
       ansible.builtin.shell: |
         set -o pipefail
@@ -354,7 +353,7 @@
       become: false
       failed_when: false
       changed_when: false
-      
+
     - name: Display GitHub SSH connection status
       ansible.builtin.debug:
         msg: |
@@ -368,7 +367,7 @@
         prompt: "Enter your Git username"
       register: git_username_input
       when: git_username is not defined
-      
+
     - name: Set Git username
       community.general.git_config:
         name: user.name
@@ -376,7 +375,7 @@
         scope: global
       become: false
       when: git_username_input.user_input is defined
-      
+
     - name: Set Git email
       community.general.git_config:
         name: user.email
@@ -384,21 +383,21 @@
         scope: global
       become: false
       when: git_email_input.user_input is defined or git_email is defined
-      
+
     - name: Set Git default branch
       community.general.git_config:
         name: init.defaultBranch
         value: main
         scope: global
       become: false
-      
+
     - name: Set Git pull behavior
       community.general.git_config:
         name: pull.rebase
         value: "false"
         scope: global
       become: false
-      
+
     - name: Set Git editor
       community.general.git_config:
         name: core.editor
@@ -407,11 +406,34 @@
       become: false
 
     # Package Installation
-    - name: Install all packages
-      grog.package:
-        name: "{{ all_packages }}"
+    - name: Install packages (Debian/Ubuntu)
+      ansible.builtin.apt:
+        name: "{{ item.apt | default(item.name) }}"
         state: present
-      
+      loop: "{{ all_packages }}"
+      when:
+        - ansible_os_family == "Debian"
+        - item.apt_ignore is not defined or not item.apt_ignore
+
+    - name: Install packages (RedHat/CentOS/Fedora)
+      ansible.builtin.dnf:
+        name: "{{ item.yum | default(item.name) }}"
+        state: present
+      loop: "{{ all_packages }}"
+      when:
+        - ansible_os_family == "RedHat"
+        - item.yum_ignore is not defined or not item.yum_ignore
+
+    - name: Install packages (macOS)
+      community.general.homebrew:
+        name: "{{ item.brew | default(item.name) }}"
+        state: present
+      loop: "{{ all_packages }}"
+      when:
+        - ansible_os_family == "Darwin"
+        - item.brew_ignore is not defined or not item.brew_ignore
+      become: false
+
     - name: Install Homebrew Cask applications
       community.general.homebrew_cask:
         name: "{{ macos_casks }}"
@@ -420,15 +442,30 @@
       become: false
 
     # Snap packages (where supported)
+    - name: Check if display manager is installed
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /usr/bin/gdm
+        - /usr/bin/gdm3
+        - /usr/bin/sddm
+        - /usr/bin/lightdm
+      register: display_manager_check
+
+    - name: Set display manager installed fact
+      ansible.builtin.set_fact:
+        has_display_manager: "{{ display_manager_check.results | selectattr('stat.exists', 'equalto', true) | list | length > 0 }}"
+
     - name: Install packages via snap
       community.general.snap:
         name: "{{ item.name }}"
         classic: "{{ item.classic }}"
         state: present
       loop: "{{ snap_packages }}"
-      when: 
+      when:
         - ansible_os_family == "Debian"
         - ansible_distribution == "Ubuntu"
+        - has_display_manager
       failed_when: false  # Some systems might not have snap
 
     # Font Installation
@@ -438,14 +475,14 @@
         state: present
       when: ansible_os_family == "Darwin"
       become: false
-      
+
     - name: Install JetBrains Mono Nerd Font via Homebrew Cask (macOS)
       community.general.homebrew_cask:
         name: font-jetbrains-mono-nerd-font
         state: present
       when: ansible_os_family == "Darwin"
       become: false
-      
+
     - name: Create fonts directory (Linux)
       ansible.builtin.file:
         path: "{{ user_home }}/.local/share/fonts"
@@ -455,14 +492,14 @@
         mode: '0755'
       when: ansible_os_family != "Darwin"
       become: false
-      
+
     - name: Download FiraCode Nerd Font (Linux)
       ansible.builtin.get_url:
         url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/FiraCode.zip"
         dest: "/tmp/FiraCode.zip"
         mode: '0644'
       when: ansible_os_family != "Darwin"
-      
+
     - name: Extract FiraCode Nerd Font (Linux)
       ansible.builtin.unarchive:
         src: "/tmp/FiraCode.zip"
@@ -473,14 +510,14 @@
         creates: "{{ user_home }}/.local/share/fonts/FiraCodeNerdFont-Regular.ttf"
       when: ansible_os_family != "Darwin"
       become: false
-      
+
     - name: Download JetBrains Mono Nerd Font (Linux)
       ansible.builtin.get_url:
         url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip"
         dest: "/tmp/JetBrainsMono.zip"
         mode: '0644'
       when: ansible_os_family != "Darwin"
-      
+
     - name: Extract JetBrains Mono Nerd Font (Linux)
       ansible.builtin.unarchive:
         src: "/tmp/JetBrainsMono.zip"
@@ -491,13 +528,14 @@
         creates: "{{ user_home }}/.local/share/fonts/JetBrainsMonoNerdFont-Regular.ttf"
       when: ansible_os_family != "Darwin"
       become: false
-      
+
     - name: Update font cache (Linux)
-      ansible.builtin.shell: fc-cache -fv
+      ansible.builtin.command:
+        cmd: fc-cache -fv
       when: ansible_os_family != "Darwin"
       become: false
       changed_when: true
-      
+
     - name: Clean up font archives (Linux)
       ansible.builtin.file:
         path: "{{ item }}"
@@ -513,24 +551,33 @@
         path: /usr/local/go/bin/go
       register: go_installed
       when: ansible_os_family != "Darwin"
-      
+
+    - name: Get latest Go version
+      ansible.builtin.uri:
+        url: https://go.dev/VERSION?m=text
+        return_content: true
+      register: go_latest_version
+      when:
+        - ansible_os_family != "Darwin"
+        - not go_installed.stat.exists
+
     - name: Install Go (Linux)
       ansible.builtin.unarchive:
-        src: https://go.dev/dl/go1.21.5.linux-amd64.tar.gz
+        src: "https://go.dev/dl/{{ go_latest_version.content | regex_search('go[0-9.]+') }}.linux-amd64.tar.gz"
         dest: /usr/local
         remote_src: true
         creates: /usr/local/go/bin/go
         mode: '0755'
-      when: 
+      when:
         - ansible_os_family != "Darwin"
         - not go_installed.stat.exists
-        
+
     - name: Check if Rust is already installed
       ansible.builtin.stat:
         path: "{{ user_home }}/.cargo/bin/rustc"
       register: rust_installed
       become: false
-      
+
     - name: Install Rust
       ansible.builtin.shell: |
         set -o pipefail
@@ -540,10 +587,17 @@
         creates: "{{ user_home }}/.cargo/bin/rustc"
       when: not rust_installed.stat.exists
       become: false
-      
+
+    - name: Get latest kubectl version
+      ansible.builtin.uri:
+        url: https://dl.k8s.io/release/stable.txt
+        return_content: true
+      register: kubectl_latest_version
+      when: ansible_os_family != "Darwin"
+
     - name: Install kubectl (Linux)
       ansible.builtin.get_url:
-        url: "https://dl.k8s.io/release/v1.28.4/bin/linux/amd64/kubectl"
+        url: "https://dl.k8s.io/release/{{ kubectl_latest_version.content | trim }}/bin/linux/amd64/kubectl"
         dest: /usr/local/bin/kubectl
         mode: '0755'
         owner: root
@@ -557,55 +611,17 @@
         groups: docker
         append: true
       when: ansible_os_family != "Darwin"
-      
+
     - name: Enable and start Docker service (Linux)
       ansible.builtin.systemd:
         name: docker
         enabled: true
         state: started
-      when: 
+      when:
         - ansible_os_family != "Darwin"
         - ansible_service_mgr == "systemd"
 
-    # Shell Configuration - Install Oh My Zsh
-    - name: Check if Oh My Zsh is already installed
-      ansible.builtin.stat:
-        path: "{{ user_home }}/.oh-my-zsh"
-      register: oh_my_zsh_installed
-      become: false
-      
-    - name: Install Oh My Zsh
-      ansible.builtin.shell: |
-        set -o pipefail
-        sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-      args:
-        executable: /bin/bash
-        creates: "{{ user_home }}/.oh-my-zsh"
-      when: not oh_my_zsh_installed.stat.exists
-      become: false
-      
-    - name: Install zsh-autosuggestions plugin
-      ansible.builtin.git:
-        repo: https://github.com/zsh-users/zsh-autosuggestions
-        dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
-        version: master
-      become: false
-      
-    - name: Install zsh-syntax-highlighting plugin
-      ansible.builtin.git:
-        repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
-        dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
-        version: master
-      become: false
-      
-    - name: Install Powerlevel10k theme
-      ansible.builtin.git:
-        repo: https://github.com/romkatv/powerlevel10k.git
-        dest: "{{ user_home }}/.oh-my-zsh/custom/themes/powerlevel10k"
-        depth: 1
-        version: master
-      become: false
-      
+    # Shell Configuration - Zsh Plugins
     - name: Create zsh plugins directory
       ansible.builtin.file:
         path: "{{ user_home }}/.zsh/plugins"
@@ -614,32 +630,54 @@
         group: "{{ setup_user }}"
         mode: '0755'
       become: false
-      
+
+    - name: Install zsh-autosuggestions plugin
+      ansible.builtin.git:
+        repo: https://github.com/zsh-users/zsh-autosuggestions
+        dest: "{{ user_home }}/.zsh/plugins/zsh-autosuggestions"
+        version: master
+      become: false
+
+    - name: Install zsh-syntax-highlighting plugin
+      ansible.builtin.git:
+        repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+        dest: "{{ user_home }}/.zsh/plugins/zsh-syntax-highlighting"
+        version: master
+      become: false
+
     - name: Install zsh-completions plugin
       ansible.builtin.git:
         repo: https://github.com/zsh-users/zsh-completions.git
         dest: "{{ user_home }}/.zsh/plugins/zsh-completions"
         version: master
       become: false
-      
+
     - name: Install zsh-history-substring-search plugin
       ansible.builtin.git:
         repo: https://github.com/zsh-users/zsh-history-substring-search.git
         dest: "{{ user_home }}/.zsh/plugins/zsh-history-substring-search"
         version: master
       become: false
-      
+
     - name: Install fast-syntax-highlighting plugin
       ansible.builtin.git:
         repo: https://github.com/zdharma-continuum/fast-syntax-highlighting.git
         dest: "{{ user_home }}/.zsh/plugins/fast-syntax-highlighting"
         version: master
       become: false
-      
+
     - name: Install zsh-z plugin (better z command)
       ansible.builtin.git:
         repo: https://github.com/agkozak/zsh-z.git
         dest: "{{ user_home }}/.zsh/plugins/zsh-z"
+        version: master
+      become: false
+
+    - name: Install Powerlevel10k theme
+      ansible.builtin.git:
+        repo: https://github.com/romkatv/powerlevel10k.git
+        dest: "{{ user_home }}/.zsh/plugins/powerlevel10k"
+        depth: 1
         version: master
       become: false
 
@@ -649,12 +687,12 @@
         prompt: "Enter your dotfiles repository URL (or press Enter to use default: {{ dotfiles_repo }})"
       register: dotfiles_repo_input
       when: dotfiles_repository is not defined
-      
+
     - name: Set dotfiles repository URL
       ansible.builtin.set_fact:
         dotfiles_repo: "{{ dotfiles_repo_input.user_input | default(dotfiles_repo) }}"
       when: dotfiles_repo_input.user_input is defined and dotfiles_repo_input.user_input != ""
-      
+
     - name: Clone dotfiles repository
       ansible.builtin.git:
         repo: "{{ dotfiles_repo }}"
@@ -663,7 +701,7 @@
         force: true
       become: false
       when: dotfiles_repo != "https://github.com/username/dotfiles.git"  # Skip if using placeholder
-      
+
     - name: Install dotfiles using rcup
       ansible.builtin.shell: |
         set -o pipefail
@@ -674,14 +712,15 @@
       when: dotfiles_repo != "https://github.com/username/dotfiles.git"  # Skip if using placeholder
       register: rcup_result
       failed_when: false
-      
+      changed_when: rcup_result.rc == 0
+
     - name: Display dotfiles installation result
       ansible.builtin.debug:
         msg: |
           Dotfiles installation result:
           {{ rcup_result.stdout | default('No output') }}
           {{ rcup_result.stderr | default('No errors') }}
-      when: 
+      when:
         - rcup_result is defined
         - dotfiles_repo != "https://github.com/username/dotfiles.git"
 
@@ -698,14 +737,14 @@
         - Projects
         - .local/bin
       become: false
-      
+
     - name: Install Python packages
       ansible.builtin.pip:
         name: "{{ python_packages }}"
         extra_args: --user
         state: present
       become: false
-      
+
     - name: Install Node.js global packages
       community.general.npm:
         name: "{{ item }}"
@@ -721,21 +760,21 @@
         name: "{{ setup_user }}"
         shell: /bin/zsh
       when: ansible_os_family != "Darwin"  # macOS users can change manually
-      
+
     - name: Display completion message
       ansible.builtin.debug:
         msg: |
           Laptop setup completed successfully!
-          
+
           GitHub SSH key has been generated and uploaded to your GitHub account.
           You can now clone repositories using SSH URLs.
-          
+
           {% if dotfiles_repo != "https://github.com/username/dotfiles.git" %}
           Dotfiles have been installed from: {{ dotfiles_repo }}
           {% else %}
           To set up dotfiles, re-run with: -e dotfiles_repository=https://github.com/yourusername/dotfiles.git
           {% endif %}
-          
+
           Next steps:
           1. Restart your terminal or run 'source ~/.zshrc'
           2. Log out and back in for Docker group membership (Linux only)
