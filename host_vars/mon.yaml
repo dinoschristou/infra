@@ -10,5 +10,5 @@ services_configs:
   - name: monitoring-client
   - name: glowprom
   - name: uptimekuma
-  - required_folders:
+    required_folders:
       - data

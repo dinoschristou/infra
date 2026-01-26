@@ -42,28 +42,28 @@ groups:
 - name: containers
   rules:
   - alert: traefik_down
-    expr: absent(container_memory_usage_bytes{name="traefik"})
+    expr: count(container_memory_usage_bytes{name="traefik"}) by (instance) < 1 or absent(container_memory_usage_bytes{name="traefik"})
     for: 300s
     labels:
       severity: critical
     annotations:
-      summary: "traefik down"
-      description: "traefik container is down for more than 30 seconds."
+      summary: "traefik down on {{ $labels.instance }}"
+      description: "traefik container is down for more than 5 minutes on {{ $labels.instance }}."
 
   - alert: traefik_high_cpu
-    expr: sum(rate(container_cpu_usage_seconds_total{name="traefik"}[1m])) / count(node_cpu_seconds_total{mode="system"}) * 100 > 10
+    expr: sum(rate(container_cpu_usage_seconds_total{name="traefik"}[1m])) by (instance) / on(instance) count(node_cpu_seconds_total{mode="system"}) by (instance) * 100 > 10
     for: 300s
     labels:
       severity: warning
     annotations:
-      summary: "traefik high CPU usage"
-      description: "traefik CPU usage is {{ humanize $value}}%."
+      summary: "traefik high CPU usage on {{ $labels.instance }}"
+      description: "traefik CPU usage is {{ humanize $value}}% on {{ $labels.instance }}."
 
   - alert: traefik_high_memory
-    expr: sum(container_memory_usage_bytes{name="traefik"}) > 1200000000
+    expr: sum(container_memory_usage_bytes{name="traefik"}) by (instance) > 1200000000
     for: 300s
     labels:
       severity: warning
     annotations:
-      summary: "traefik high memory usage"
-      description: "traefik memory consumption is at {{ humanize $value}}."
+      summary: "traefik high memory usage on {{ $labels.instance }}"
+      description: "traefik memory consumption is at {{ humanize $value}} on {{ $labels.instance }}."
