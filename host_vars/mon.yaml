@@ -9,6 +9,7 @@ services_configs:
   - name: monitoring-server
   - name: monitoring-client
   - name: glowprom
+  - name: portainer
   - name: uptimekuma
     required_folders:
       - data
