@@ -19,7 +19,7 @@ tasks:
 
   run:
     cmds:
-      - ansible-playbook -i inventory/hosts.yaml site.yaml --skip-tags dns
+      - ansible-playbook -i inventory/hosts.yaml site.yaml --skip-tags dns,nut,nut_client,test
 
   run-machine:
     cmds:
