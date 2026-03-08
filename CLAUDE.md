@@ -96,16 +96,8 @@ The older `docker_services` role is deprecated.
 
 Container versions are managed in two places:
 
-- Some versions in `group_vars/all.yaml` (referenced by templates)
 - Newer services have versions directly in docker-compose.yaml files in `/configs/`
 - Renovate is configured to automatically update container versions
-
-### Available Services (in /configs/)
-
-- **Monitoring**: monitoring-server, monitoring-client, uptimekuma, glowprom
-- **Infrastructure**: traefik, authentik, op-connect, cloudflared, crowdsec
-- **Applications**: calibre, audiobookshelf, mealie, stirlingpdf, atuin, freshrss, linkwarden, karakeep, littlelink, homepage
-- **Other**: mosquitto, ntfy, portainer, postgresql, homebridge, scrypted, wallabag
 
 ### Adding a New Service
 
