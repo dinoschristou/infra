@@ -1,22 +1,22 @@
 FULL_DOMAIN={{ full_domain }}
 
 # Proxmox
-PVE_USER={{ vault_pve_user }}
-PVE_PASSWORD={{ vault_pve_password }}
+PVE_USER={{ proxmox_monitoring_user }}
+PVE_PASSWORD={{ proxmox_monitoring_password }}
 
 # Pi-hole
-PIHOLE_PASSWORD={{ vault_pihole_password }}
-PIHOLE_BACKUP_PASSWORD={{ vault_pihole_backup_password }}
+PIHOLE_PASSWORD={{ pihole_main_api_token }}
+PIHOLE_BACKUP_PASSWORD={{ pihole_backup_api_token }}
 
 # Monitoring
 GRAFANA_USER={{ grafana_user }}
-GRAFANA_PASSWORD={{ vault_grafana_password }}
+GRAFANA_PASSWORD={{ grafana_password }}
 UPTIME_KUMA_SLUG={{ uptime_kuma_slug | default('default') }}
 
 # Management
 PORTAINER_API_KEY={{ vault_portainer_api_key }}
-TRAEFIK_USER={{ vault_traefik_user }}
-TRAEFIK_PASSWORD={{ vault_traefik_password }}
+TRAEFIK_USER={{ traefik_user }}
+TRAEFIK_PASSWORD={{ traefik_password }}
 
 # Applications
 MEALIE_API_KEY={{ vault_mealie_api_key }}
