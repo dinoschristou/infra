@@ -1,1 +1,2 @@
 FULL_DOMAIN={{ full_domain }}
+HOMEPAGE_ALLOWED_HOSTS=*
