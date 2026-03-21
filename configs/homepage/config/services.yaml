@@ -63,10 +63,6 @@
     - icon: uptime-kuma.png
       href: https://uptime-kuma.mon.knxcloud.io
       description: Service Monitoring
-      widget:
-        type: uptimekuma
-        url: https://uptime-kuma.mon.knxcloud.io
-        slug: ${UPTIME_KUMA_SLUG}
   - Loki:
     - icon: loki.png
       href: https://loki.mon.knxcloud.io
@@ -77,11 +73,6 @@
     - icon: portainer.png
       href: https://portainer.mon.knxcloud.io
       description: Docker Management — mon
-      widget:
-        type: portainer
-        url: https://portainer.mon.knxcloud.io
-        env: 2
-        key: ${PORTAINER_API_KEY}
   - Traefik (mon):
     - icon: traefik.png
       href: https://traefik-dashboard.mon.knxcloud.io
@@ -137,10 +128,6 @@
     - icon: mealie.png
       href: https://mealie.apps.knxcloud.io
       description: Recipe Manager
-      widget:
-        type: mealie
-        url: https://mealie.apps.knxcloud.io
-        key: ${MEALIE_API_KEY}
   - Calibre:
     - icon: calibre-web.png
       href: https://calibre.apps.knxcloud.io
@@ -149,10 +136,6 @@
     - icon: audiobookshelf.png
       href: https://abs.apps.knxcloud.io
       description: Audiobooks & Podcasts
-      widget:
-        type: audiobookshelf
-        url: https://abs.apps.knxcloud.io
-        key: ${AUDIOBOOKSHELF_API_KEY}
   - Stirling PDF:
     - icon: stirling-pdf.png
       href: https://pdf.apps.knxcloud.io
@@ -185,19 +168,10 @@
     - icon: freshrss.png
       href: https://freshrss.dinos.sh
       description: RSS Reader
-      widget:
-        type: freshrss
-        url: https://freshrss.dinos.sh
-        username: ${FRESHRSS_USER}
-        password: ${FRESHRSS_PASSWORD}
   - Linkwarden:
     - icon: linkwarden.png
       href: https://linkwarden.dinos.sh
       description: Bookmark Manager
-      widget:
-        type: linkwarden
-        url: https://linkwarden.dinos.sh
-        key: ${LINKWARDEN_API_KEY}
   - Karakeep:
     - icon: hoarder.png
       href: https://hoarder.dinos.sh
