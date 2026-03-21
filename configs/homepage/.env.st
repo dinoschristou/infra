@@ -26,3 +26,4 @@ AUDIOBOOKSHELF_API_KEY={{ vault_audiobookshelf_api_key }}
 FRESHRSS_USER={{ vault_freshrss_user }}
 FRESHRSS_PASSWORD={{ vault_freshrss_password }}
 LINKWARDEN_API_KEY={{ vault_linkwarden_api_key }}
+HOMEPAGE_ALLOWED_HOSTS=*

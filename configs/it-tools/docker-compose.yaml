@@ -1,0 +1,22 @@
+services:
+  it-tools:
+    image: ghcr.io/corentinth/it-tools:2024.10.22-7ca5933
+    container_name: it-tools
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - proxy
+    environment:
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.it-tools.rule=Host(`it-tools.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.it-tools.entrypoints=https"
+      - "traefik.http.routers.it-tools.tls=true"
+
+networks:
+  proxy:
+    external: true

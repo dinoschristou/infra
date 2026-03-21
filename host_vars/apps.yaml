@@ -28,3 +28,5 @@ services_configs:
   - name: homepage
     required_folders:
       - config
+  - name: it-tools
+  - name: openspeedtest

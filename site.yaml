@@ -5,11 +5,12 @@
   vars_files:
    - vars/vault.yaml
   roles:
-   - grog.package
-   - base
-   - docker
-   - nfs_client
-   - services
+   - role: grog.package
+   - role: base
+   - role: docker
+   - role: nfs_client
+   - role: services
+     tags: configs
 
 - name: Setup dns on piholes
   hosts:
