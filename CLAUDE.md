@@ -79,10 +79,32 @@ The older `docker_services` role is deprecated.
 
 - **Monitoring Stack**: Prometheus, Grafana, Loki, Alertmanager on mon
 - **Reverse Proxy**: Traefik with Cloudflare ACME SSL on every host
-- **Identity**: Authentik for SSO
-- **DNS**: Dual Pi-hole instances for redundancy
+- **Identity**: Authentik (config exists in `/configs/authentik/` but not deployed)
+- **DNS**: Dual Pi-hole instances for redundancy (192.168.1.202 primary, 192.168.3.254 backup)
 - **Power**: Network UPS Tools (NUT) for graceful shutdowns
 - **Kubernetes**: Optional K3s cluster support
+
+### Service URL Patterns
+
+- Local VMs: `<service>.<hostname>.knxcloud.io` (e.g. `grafana.mon.knxcloud.io`)
+- External cloud: `<service>.dinos.sh` (e.g. `freshrss.dinos.sh`)
+- Traefik dashboards: `traefik-dashboard.<hostname>.knxcloud.io` (basic auth protected)
+
+### Services by Host
+
+**mon** (monitoring): traefik, prometheus (`prometheus.mon.knxcloud.io`), grafana (`grafana.mon.knxcloud.io`), loki, alertmanager, pushgateway, portainer (`portainer.mon.knxcloud.io`), uptime-kuma (`uptime-kuma.mon.knxcloud.io`), glowprom, monitoring-client
+
+**infra** (infrastructure): traefik, op-connect (1Password API `opapi.infra.knxcloud.io` + sync `opsync.infra.knxcloud.io`), monitoring-client
+
+**apps** (applications): traefik, calibre (`calibre.apps.knxcloud.io`), audiobookshelf (`abs.apps.knxcloud.io`), mealie (`mealie.apps.knxcloud.io`), stirlingpdf (`pdf.apps.knxcloud.io`), atuin (`atuin.apps.knxcloud.io`), homepage (`home.apps.knxcloud.io`), monitoring-client
+- Smart home (commented out, configs exist): scrypted, homebridge, zigbee2mqtt (z2m-main, z2m-mancave)
+
+**mqtt** (broker): traefik, mosquitto (1883/9001), monitoring-client
+
+**external-01** (dinos.sh, Cloudflare-proxied): traefik, cloudflared, littlelink (`links.dinos.sh`), karakeep (`hoarder.dinos.sh`), freshrss (`freshrss.dinos.sh`), linkwarden (`linkwarden.dinos.sh`), crowdsec, monitoring-client
+- Commented out (configs exist): ntfy (`notify.dinos.sh`), wallabag (`read.dinos.sh`)
+
+**pve1 / pve2**: Proxmox hypervisors at `pve1.knxcloud.io:8006` / `pve2.knxcloud.io:8006`
 
 ### Variable Structure
 

@@ -25,5 +25,8 @@ services_configs:
     required_folders:
       - config
       - database
+  - name: homepage
+    required_folders:
+      - config
   - name: it-tools
   - name: openspeedtest
