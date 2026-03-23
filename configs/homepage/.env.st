@@ -1,4 +1,5 @@
 FULL_DOMAIN={{ full_domain }}
+TZ={{ default_timezone }}
 
 # Proxmox
 PVE_USER={{ proxmox_monitoring_user }}
@@ -14,5 +15,5 @@ GRAFANA_PASSWORD={{ grafana_password }}
 
 # Management
 TRAEFIK_USER={{ traefik_user }}
-TRAEFIK_PASSWORD={{ traefik_password }}
-HOMEPAGE_ALLOWED_HOSTS=*
+TRAEFIK_PASSWORD={{ traefik_api_password }}
+HOMEPAGE_ALLOWED_HOSTS=home.{{ full_domain }}

@@ -1,12 +1,10 @@
 services:
   homepage:
-    image: ghcr.io/gethomepage/homepage:v.1.11.0
+    image: ghcr.io/gethomepage/homepage:v1.11.0
     container_name: homepage
-    ports:
-      - 3000:3000
     volumes:
       - ./config:/app/config
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - PUID=1000
       - PGID=1000

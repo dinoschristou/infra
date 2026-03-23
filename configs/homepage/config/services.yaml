@@ -1,182 +1,182 @@
 - Infrastructure:
-  - Proxmox VE 1:
-    - icon: proxmox.png
-      href: https://pve1.knxcloud.io:8006
-      description: Proxmox Hypervisor — pve1
-      widget:
-        type: proxmox
-        url: https://pve1.knxcloud.io:8006
-        username: ${PVE_USER}
-        password: ${PVE_PASSWORD}
-        node: pve1
-  - Proxmox VE 2:
-    - icon: proxmox.png
-      href: https://pve2.knxcloud.io:8006
-      description: Proxmox Hypervisor — pve2
-      widget:
-        type: proxmox
-        url: https://pve2.knxcloud.io:8006
-        username: ${PVE_USER}
-        password: ${PVE_PASSWORD}
-        node: pve2
-  - Pi-hole:
-    - icon: pi-hole.png
-      href: http://192.168.1.202/admin
-      description: Primary DNS
-      widget:
-        type: pihole
-        url: http://192.168.1.202
-        version: 6
-        key: ${PIHOLE_PASSWORD}
-  - Pi-hole Backup:
-    - icon: pi-hole.png
-      href: http://192.168.3.254/admin
-      description: Backup DNS
-      widget:
-        type: pihole
-        url: http://192.168.3.254
-        version: 6
-        key: ${PIHOLE_BACKUP_PASSWORD}
+    - Proxmox VE 1:
+        icon: proxmox.png
+        href: https://pve1.knxcloud.io:8006
+        description: Proxmox Hypervisor — pve1
+        widget:
+          type: proxmox
+          url: https://pve1.knxcloud.io:8006
+          username: ${PVE_USER}
+          password: ${PVE_PASSWORD}
+          node: pve1
+    - Proxmox VE 2:
+        icon: proxmox.png
+        href: https://pve2.knxcloud.io:8006
+        description: Proxmox Hypervisor — pve2
+        widget:
+          type: proxmox
+          url: https://pve2.knxcloud.io:8006
+          username: ${PVE_USER}
+          password: ${PVE_PASSWORD}
+          node: pve2
+    - Pi-hole:
+        icon: pi-hole.png
+        href: http://192.168.1.202/admin
+        description: Primary DNS
+        widget:
+          type: pihole
+          url: http://192.168.1.202
+          version: 6
+          key: ${PIHOLE_PASSWORD}
+    - Pi-hole Backup:
+        icon: pi-hole.png
+        href: http://192.168.3.254/admin
+        description: Backup DNS
+        widget:
+          type: pihole
+          url: http://192.168.3.254
+          version: 6
+          key: ${PIHOLE_BACKUP_PASSWORD}
 
 - Monitoring:
-  - Grafana:
-    - icon: grafana.png
-      href: https://grafana.mon.knxcloud.io
-      description: Dashboards & Visualisation
-      widget:
-        type: grafana
-        url: https://grafana.mon.knxcloud.io
-        username: ${GRAFANA_USER}
-        password: ${GRAFANA_PASSWORD}
-  - Prometheus:
-    - icon: prometheus.png
-      href: https://prometheus.mon.knxcloud.io
-      description: Metrics Collection
-      widget:
-        type: prometheus
-        url: https://prometheus.mon.knxcloud.io
-  - Alertmanager:
-    - icon: alertmanager.png
-      href: https://alertmanager.mon.knxcloud.io
-      description: Alert Routing
-  - Uptime Kuma:
-    - icon: uptime-kuma.png
-      href: https://uptime-kuma.mon.knxcloud.io
-      description: Service Monitoring
-  - Loki:
-    - icon: loki.png
-      href: https://loki.mon.knxcloud.io
-      description: Log Aggregation
+    - Grafana:
+        icon: grafana.png
+        href: https://grafana.mon.knxcloud.io
+        description: Dashboards & Visualisation
+        widget:
+          type: grafana
+          url: https://grafana.mon.knxcloud.io
+          username: ${GRAFANA_USER}
+          password: ${GRAFANA_PASSWORD}
+    - Prometheus:
+        icon: prometheus.png
+        href: https://prometheus.mon.knxcloud.io
+        description: Metrics Collection
+        widget:
+          type: prometheus
+          url: https://prometheus.mon.knxcloud.io
+    - Alertmanager:
+        icon: alertmanager.png
+        href: https://alertmanager.mon.knxcloud.io
+        description: Alert Routing
+    - Uptime Kuma:
+        icon: uptime-kuma.png
+        href: https://uptime-kuma.mon.knxcloud.io
+        description: Service Monitoring
+    - Loki:
+        icon: loki.png
+        href: https://loki.mon.knxcloud.io
+        description: Log Aggregation
 
 - Management:
-  - Portainer:
-    - icon: portainer.png
-      href: https://portainer.mon.knxcloud.io
-      description: Docker Management — mon
-  - Traefik (mon):
-    - icon: traefik.png
-      href: https://traefik-dashboard.mon.knxcloud.io
-      description: Reverse Proxy — mon
-      widget:
-        type: traefik
-        url: https://traefik-dashboard.mon.knxcloud.io
-        username: ${TRAEFIK_USER}
-        password: ${TRAEFIK_PASSWORD}
-  - Traefik (apps):
-    - icon: traefik.png
-      href: https://traefik-dashboard.apps.knxcloud.io
-      description: Reverse Proxy — apps
-      widget:
-        type: traefik
-        url: https://traefik-dashboard.apps.knxcloud.io
-        username: ${TRAEFIK_USER}
-        password: ${TRAEFIK_PASSWORD}
-  - Traefik (infra):
-    - icon: traefik.png
-      href: https://traefik-dashboard.infra.knxcloud.io
-      description: Reverse Proxy — infra
-      widget:
-        type: traefik
-        url: https://traefik-dashboard.infra.knxcloud.io
-        username: ${TRAEFIK_USER}
-        password: ${TRAEFIK_PASSWORD}
-  - Traefik (mqtt):
-    - icon: traefik.png
-      href: https://traefik-dashboard.mqtt.knxcloud.io
-      description: Reverse Proxy — mqtt
-      widget:
-        type: traefik
-        url: https://traefik-dashboard.mqtt.knxcloud.io
-        username: ${TRAEFIK_USER}
-        password: ${TRAEFIK_PASSWORD}
-  - Traefik (external):
-    - icon: traefik.png
-      href: https://traefik-dashboard.dinos.sh
-      description: Reverse Proxy — external
-      widget:
-        type: traefik
-        url: https://traefik-dashboard.dinos.sh
-        username: ${TRAEFIK_USER}
-        password: ${TRAEFIK_PASSWORD}
-  - 1Password Connect:
-    - icon: 1password.png
-      href: https://opapi.infra.knxcloud.io
-      description: Secrets API
+    - Portainer:
+        icon: portainer.png
+        href: https://portainer.mon.knxcloud.io
+        description: Docker Management — mon
+    - Traefik (mon):
+        icon: traefik.png
+        href: https://traefik-dashboard.mon.knxcloud.io
+        description: Reverse Proxy — mon
+        widget:
+          type: traefik
+          url: https://traefik-dashboard.mon.knxcloud.io
+          username: ${TRAEFIK_USER}
+          password: ${TRAEFIK_PASSWORD}
+    - Traefik (apps):
+        icon: traefik.png
+        href: https://traefik-dashboard.apps.knxcloud.io
+        description: Reverse Proxy — apps
+        widget:
+          type: traefik
+          url: https://traefik-dashboard.apps.knxcloud.io
+          username: ${TRAEFIK_USER}
+          password: ${TRAEFIK_PASSWORD}
+    - Traefik (infra):
+        icon: traefik.png
+        href: https://traefik-dashboard.infra.knxcloud.io
+        description: Reverse Proxy — infra
+        widget:
+          type: traefik
+          url: https://traefik-dashboard.infra.knxcloud.io
+          username: ${TRAEFIK_USER}
+          password: ${TRAEFIK_PASSWORD}
+    - Traefik (mqtt):
+        icon: traefik.png
+        href: https://traefik-dashboard.mqtt.knxcloud.io
+        description: Reverse Proxy — mqtt
+        widget:
+          type: traefik
+          url: https://traefik-dashboard.mqtt.knxcloud.io
+          username: ${TRAEFIK_USER}
+          password: ${TRAEFIK_PASSWORD}
+    - Traefik (external):
+        icon: traefik.png
+        href: https://traefik-dashboard.dinos.sh
+        description: Reverse Proxy — external
+        widget:
+          type: traefik
+          url: https://traefik-dashboard.dinos.sh
+          username: ${TRAEFIK_USER}
+          password: ${TRAEFIK_PASSWORD}
+    - 1Password Connect:
+        icon: 1password.png
+        href: https://opapi.infra.knxcloud.io
+        description: Secrets API
 
 - Applications:
-  - Mealie:
-    - icon: mealie.png
-      href: https://mealie.apps.knxcloud.io
-      description: Recipe Manager
-  - Calibre:
-    - icon: calibre-web.png
-      href: https://calibre.apps.knxcloud.io
-      description: Book Library
-  - Audiobookshelf:
-    - icon: audiobookshelf.png
-      href: https://abs.apps.knxcloud.io
-      description: Audiobooks & Podcasts
-  - Stirling PDF:
-    - icon: stirling-pdf.png
-      href: https://pdf.apps.knxcloud.io
-      description: PDF Tools
-  - Atuin:
-    - icon: atuin.png
-      href: https://atuin.apps.knxcloud.io
-      description: Shell History Sync
+    - Mealie:
+        icon: mealie.png
+        href: https://mealie.apps.knxcloud.io
+        description: Recipe Manager
+    - Calibre:
+        icon: calibre-web.png
+        href: https://calibre.apps.knxcloud.io
+        description: Book Library
+    - Audiobookshelf:
+        icon: audiobookshelf.png
+        href: https://abs.apps.knxcloud.io
+        description: Audiobooks & Podcasts
+    - Stirling PDF:
+        icon: stirling-pdf.png
+        href: https://pdf.apps.knxcloud.io
+        description: PDF Tools
+    - Atuin:
+        icon: mdi-console-line
+        href: https://atuin.apps.knxcloud.io
+        description: Shell History Sync
 
 - Smart Home:
-  - Homebridge:
-    - icon: homebridge.png
-      href: https://homebridge.apps.knxcloud.io
-      description: HomeKit Bridge
-  - Scrypted:
-    - icon: scrypted.png
-      href: https://scrypted.apps.knxcloud.io
-      description: Smart Home Hub
-  - Zigbee2MQTT:
-    - icon: zigbee2mqtt.png
-      href: https://z2m-main.apps.knxcloud.io
-      description: Zigbee — Main
-  - Zigbee2MQTT (Mancave):
-    - icon: zigbee2mqtt.png
-      href: https://z2m-mancave.apps.knxcloud.io
-      description: Zigbee — Mancave
+    - Homebridge:
+        icon: homebridge.png
+        href: https://homebridge.apps.knxcloud.io
+        description: HomeKit Bridge
+    - Scrypted:
+        icon: scrypted.png
+        href: https://scrypted.apps.knxcloud.io
+        description: Smart Home Hub
+    - Zigbee2MQTT:
+        icon: zigbee2mqtt.png
+        href: https://z2m-main.apps.knxcloud.io
+        description: Zigbee — Main
+    - Zigbee2MQTT (Mancave):
+        icon: zigbee2mqtt.png
+        href: https://z2m-mancave.apps.knxcloud.io
+        description: Zigbee — Mancave
 
 - External:
-  - FreshRSS:
-    - icon: freshrss.png
-      href: https://freshrss.dinos.sh
-      description: RSS Reader
-  - Linkwarden:
-    - icon: linkwarden.png
-      href: https://linkwarden.dinos.sh
-      description: Bookmark Manager
-  - Karakeep:
-    - icon: hoarder.png
-      href: https://hoarder.dinos.sh
-      description: Content Hoarding
-  - Littlelink:
-    - icon: littlelink.png
-      href: https://links.dinos.sh
-      description: Link Hub
+    - FreshRSS:
+        icon: freshrss.png
+        href: https://freshrss.dinos.sh
+        description: RSS Reader
+    - Linkwarden:
+        icon: linkwarden.png
+        href: https://linkwarden.dinos.sh
+        description: Bookmark Manager
+    - Karakeep:
+        icon: karakeep.png
+        href: https://hoarder.dinos.sh
+        description: Content Hoarding
+    - Littlelink:
+        icon: mdi-link-variant
+        href: https://links.dinos.sh
+        description: Link Hub
