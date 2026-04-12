@@ -47,7 +47,7 @@ detect_system() {
     elif [[ -f /etc/os-release ]]; then
         . /etc/os-release
         OS="linux"
-        
+
         if command -v apt &> /dev/null; then
             PACKAGE_MANAGER="apt"
             DISTRO="debian"
@@ -74,7 +74,7 @@ detect_system() {
         log_error "Unsupported operating system"
         exit 1
     fi
-    
+
     log_info "Detected OS: $OS ($PACKAGE_MANAGER)"
 }
 
@@ -90,7 +90,7 @@ check_root() {
 # Install prerequisites
 install_prerequisites() {
     log_info "Installing prerequisites..."
-    
+
     case $PACKAGE_MANAGER in
         "apt")
             sudo apt update
@@ -120,32 +120,32 @@ install_prerequisites() {
             if ! command -v brew &> /dev/null; then
                 log_info "Installing Homebrew..."
                 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-                
+
                 # Add Homebrew to PATH for Apple Silicon Macs
                 if [[ $(uname -m) == "arm64" ]]; then
                     echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
                     eval "$(/opt/homebrew/bin/brew shellenv)"
                 fi
             fi
-            
+
             brew update
             brew install curl wget git python3
             ;;
     esac
-    
+
     log_success "Prerequisites installed"
 }
 
 # Install Ansible
 install_ansible() {
     log_info "Installing Ansible..."
-    
+
     # Check if Ansible is already installed
     if command -v ansible-playbook &> /dev/null; then
         log_info "Ansible is already installed ($(ansible --version | head -n1))"
         return 0
     fi
-    
+
     case $PACKAGE_MANAGER in
         "apt")
             # Install from official Ansible PPA for latest version
@@ -178,7 +178,7 @@ install_ansible() {
             # Fallback to pip installation
             log_warning "Installing Ansible via pip as fallback"
             python3 -m pip install --user ansible
-            
+
             # Ensure pip installed binaries are in PATH
             if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
                 export PATH="$HOME/.local/bin:$PATH"
@@ -186,7 +186,7 @@ install_ansible() {
             fi
             ;;
     esac
-    
+
     # Verify installation
     if command -v ansible-playbook &> /dev/null; then
         log_success "Ansible installed successfully ($(ansible --version | head -n1))"
@@ -199,10 +199,10 @@ install_ansible() {
 # Download playbook
 download_playbook() {
     log_info "Downloading playbook from: $PLAYBOOK_URL"
-    
+
     # Create temporary directory
     mkdir -p "$TEMP_DIR"
-    
+
     # Download the playbook
     if curl -fsSL "$PLAYBOOK_URL" -o "$PLAYBOOK_FILE"; then
         log_success "Playbook downloaded successfully"
@@ -210,7 +210,7 @@ download_playbook() {
         log_error "Failed to download playbook from $PLAYBOOK_URL"
         exit 1
     fi
-    
+
     # Verify it's a valid YAML file
     if ! python3 -c "import yaml; yaml.safe_load(open('$PLAYBOOK_FILE'))" 2>/dev/null; then
         log_error "Downloaded file is not valid YAML"
@@ -221,13 +221,13 @@ download_playbook() {
 # Run Ansible playbook
 run_playbook() {
     log_info "Running Ansible playbook..."
-    
+
     # Check if sudo is available and working
     if ! sudo -n true 2>/dev/null; then
         log_info "Sudo access required for playbook execution"
         log_info "You may be prompted for your password"
     fi
-    
+
     # Create ansible.cfg in temp directory for this run
     cat > "$TEMP_DIR/ansible.cfg" << 'EOF'
 [defaults]
@@ -241,10 +241,10 @@ timeout = 30
 [ssh_connection]
 pipelining = True
 EOF
-    
+
     # Run the playbook
     cd "$TEMP_DIR"
-    
+
     if ansible-playbook \
         --inventory localhost, \
         --connection local \
@@ -290,13 +290,13 @@ main() {
         show_usage
         exit 0
     fi
-    
+
     log_info "Starting laptop setup with Ansible..."
     log_info "Playbook URL: $PLAYBOOK_URL"
-    
+
     # Set up cleanup trap
     trap cleanup EXIT
-    
+
     # Run setup steps
     check_root
     detect_system
@@ -304,7 +304,7 @@ main() {
     install_ansible
     download_playbook
     run_playbook
-    
+
     log_success "Laptop setup completed successfully!"
     log_info "Check the output above for any warnings or additional steps needed"
 }

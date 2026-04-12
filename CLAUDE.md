@@ -4,46 +4,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-All operations use `task` command (Go Task):
+All operations use `just` command:
 
 ### Core Deployment
 
-- `task run` - Deploy all services except DNS to all hosts
-- `task run-machine -- <hostname>` - Deploy to specific machine (e.g., mon, infra, apps, mqtt)
-- `task run-ext` - Deploy only to cloud/external servers
-- `task config-only -- <hostname>` - Deploy only configurations without service restarts
+- `just run` - Deploy all services except DNS to all hosts
+- `just run-machine <hostname>` - Deploy to specific machine (e.g., mon, infra, apps, mqtt)
+- `just run-ext` - Deploy only to cloud/external servers
+- `just config-only <hostname>` - Deploy only configurations without service restarts
 
 ### DNS Management
 
-- `task update-dns` - Update Pi-hole configurations on both DNS servers
+- `just update-dns` - Update Pi-hole configurations on both DNS servers
 
 ### Vault & Security
 
-- `task encrypt` / `task decrypt` - Manage Ansible Vault encryption for vars/vault.yaml
-- `task setup-ssh -- <hostname>` - Configure SSH port changes
+- `just encrypt` / `just decrypt` - Manage Ansible Vault encryption for vars/vault.yaml
+- `just setup-ssh <hostname>` - Configure SSH port changes
 
 ### Dependencies
 
-- `task ansible-reqs` - Install Ansible Galaxy requirements
-- `task python-reqs` - Install Python dependencies
+- `just ansible-reqs` - Install Ansible Galaxy requirements
+- `just python-reqs` - Install Python dependencies
 
 ### Power Management (UPS)
 
-- `task nut-server` - Configure UPS server on pve1
-- `task nut-client` - Configure UPS clients on pve2
+- `just nut-server` - Configure UPS server on pve1
+- `just nut-client` - Configure UPS clients on pve2
 
 ### Kubernetes Cluster
 
-- `task cluster-up` - Deploy K3s cluster
-- `task cluster-down` - Tear down K3s cluster
+- `just cluster-up` - Deploy K3s cluster
+- `just cluster-down` - Tear down K3s cluster
 
 ### Testing
 
-- `task test-new-roles` - Test roles on designated test hosts
+- `just test-new-roles` - Test roles on designated test hosts
 
 ### Utilities
 
-- `task new-config -- <service-name>` - Generate new service config from template
+- `just new-config <service-name>` - Generate new service config from template
 
 ## Architecture
 
@@ -123,7 +123,7 @@ Container versions are managed in two places:
 
 ### Adding a New Service
 
-1. Run `task new-config -- <service-name>` to create from template
+1. Run `just new-config <service-name>` to create from template
 2. Edit `/configs/<service>/docker-compose.yaml` and `.env.st`
 3. Add the service to the appropriate `host_vars/<hostname>.yaml` under `services_configs`
-4. Deploy with `task run-machine -- <hostname>`
+4. Deploy with `just run-machine <hostname>`
