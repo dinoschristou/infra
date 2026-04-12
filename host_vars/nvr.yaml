@@ -1,0 +1,13 @@
+full_domain: "nvr.{{ hostname_root }}"
+
+services_configs:
+  - name: traefik
+    required_folders:
+      - logs
+    touch_files:
+      - acme.json
+  - name: monitoring-client
+  - name: portainer
+  - name: frigate
+    required_folders:
+      - config

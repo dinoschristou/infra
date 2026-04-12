@@ -10,6 +10,8 @@ all:
           ansible_host: 192.168.42.122
         apps:
           ansible_host: 192.168.60.46
+        nvr:
+          ansible_host: 192.168.60.102
     unmanaged:
       hosts:
         ts:

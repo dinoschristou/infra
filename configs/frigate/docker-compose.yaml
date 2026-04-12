@@ -1,0 +1,41 @@
+services:
+  frigate:
+    container_name: frigate
+    privileged: true # this may not be necessary for all setups
+    restart: unless-stopped
+    stop_grace_period: 30s # allow enough time to shut down the various services
+    image: ghcr.io/blakeblackshear/frigate:stable
+    shm_size: "1024mb" # update for your cameras based on calculation above
+    devices:
+      - /dev/bus/usb:/dev/bus/usb # Passes the USB Coral, needs to be modified for other versions
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config:/config
+      - /mnt/media/nvr/frigate:/media/frigate
+      - type: tmpfs # 1GB In-memory filesystem for recording segment storage
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    ports:
+      - "8971:8971"
+      # - "5000:5000" # Internal unauthenticated access. Expose carefully.
+      - "8554:8554" # RTSP feeds
+      - "8555:8555/tcp" # WebRTC over tcp
+      - "8555:8555/udp" # WebRTC over udp
+      # - "1984:1984"
+    env_file:
+      - .env
+    networks:
+      - proxy
+    environment:
+      - TZ=${TZ}
+      - FRIGATE_RTSP_PASSWORD=${FRIGATE_RTSP_PASSWORD}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frigate.rule=Host(`frigate.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.frigate.entrypoints=https"
+      - "traefik.http.routers.frigate.tls=true"
+
+networks:
+  proxy:
+    external: true
