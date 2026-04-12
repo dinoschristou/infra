@@ -115,19 +115,35 @@ services:
       - "traefik.http.routers.pushgateway.tls=true"
       - "traefik.http.services.pushgateway.loadbalancer.server.port=9091"
 
-  pihole-exporter:
+  pihole-exporter1:
     image: ekofr/pihole-exporter:v1.2.0
-    container_name: pihole-exporter
+    container_name: pihole-exporter1
     environment:
-      - PIHOLE_PROTOCOL=http,http
-      - PIHOLE_HOSTNAME=${PIHOLE_HOSTNAME},${PIHOLE_BACKUP_HOSTNAME}
-      - PIHOLE_PASSWORD=${PIHOLE_PASSWORD},${PIHOLE_BACKUP_PASSWORD}
+      - PIHOLE_PROTOCOL=http
+      - PIHOLE_HOSTNAME=${PIHOLE_HOSTNAME}
+      - "PIHOLE_PASSWORD=${PIHOLE_PASSWORD}"
       - PORT=9617
     restart: unless-stopped
     networks:
       - proxy
     expose:
       - 9617
+    env_file:
+      - .env
+    
+  pihole-exporter2:
+    image: ekofr/pihole-exporter:v1.2.0
+    container_name: pihole-exporter2
+    environment:
+      - PIHOLE_PROTOCOL=http
+      - PIHOLE_HOSTNAME=${PIHOLE_BACKUP_HOSTNAME}
+      - "PIHOLE_PASSWORD=${PIHOLE_BACKUP_PASSWORD}"
+      - PORT=9618
+    restart: unless-stopped
+    networks:
+      - proxy
+    expose:
+      - 9618
     env_file:
       - .env
 
