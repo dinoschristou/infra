@@ -69,7 +69,7 @@ services_configs:
   #  required_folders:
   #    - config
   #    - cache
-  # - name: wallabag
-  #   required_folders:
-  #     - images
-  #     - data
+  - name: wallabag
+    required_folders:
+      - images
+      - data

@@ -1,6 +1,6 @@
 services:
   wallabag:
-    image: wallabag/wallabag
+    image: wallabag/wallabag:2.6.14
     restart: unless-stopped
     container_name: wallabag
     networks:
@@ -16,18 +16,22 @@ services:
       - SYMFONY__ENV__DATABASE_USER=${DB_USER}
       - SYMFONY__ENV__DATABASE_PASSWORD=${DB_PASS}
       - SYMFONY__ENV__DATABASE_CHARSET=utf8mb4
-      - SYMFONY__ENV__DATABASE_TABLE_PREFIX="wallabag_"
+      - SYMFONY__ENV__DATABASE_TABLE_PREFIX=wallabag_
       - SYMFONY__ENV__DOMAIN_NAME=https://read.dinos.sh
-      - SYMFONY__ENV__SERVER_NAME="Dinos's wallabag instance"
+      - SYMFONY__ENV__SERVER_NAME=Wallabag
       - SYMFONY__ENV__REDIS_HOST=wallabag-redis
-      - SYMFONY__ENV__FOSUSER_REGISTRATION=false
+      - SYMFONY__ENV__FOSUSER_REGISTRATION=true
+      - SYMFONY__ENV__FOSUSER_CONFIRMATION=false
+      - SYMFONY__ENV__MAILER_DSN=null://null
     ports:
       - "80"
     volumes:
       - ./images:/var/www/wallabag/web/assets/images
     depends_on:
-      - wallabag-db
-      - wallabag-redis
+      wallabag-db:
+        condition: service_healthy
+      wallabag-redis:
+        condition: service_healthy
     labels:
       - traefik.enable=true
       - "traefik.http.routers.wallabag.rule=Host(`read.${FULL_DOMAIN}`)"
@@ -35,20 +39,24 @@ services:
       - "traefik.http.routers.wallabag.tls=true"
       - "traefik.http.services.wallabag.loadbalancer.server.port=80"
   wallabag-db:
-    image: mariadb
+    image: mariadb:11
     restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_PASS}
+      # - MYSQL_DATABASE=wallabag
+      # - MYSQL_USER=${DB_USER}
+      # - MYSQL_PASSWORD=${DB_PASS}
     env_file:
       - .env
     networks:
       - proxy
     volumes:
-      -  ./data:/var/lib/mysql
+      - ./data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "/usr/local/bin/healthcheck.sh", "--innodb_initialized"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 20s
       timeout: 3s
+      retries: 5
     container_name: wallabag-db
   wallabag-redis:
     image: redis:alpine
