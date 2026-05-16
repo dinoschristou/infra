@@ -78,7 +78,6 @@ resource "proxmox_virtual_environment_vm" "vms" {
     }
 
     dns {
-      domain  = var.domain_name
       servers = var.dns_servers
     }
 
