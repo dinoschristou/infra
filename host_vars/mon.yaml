@@ -13,3 +13,8 @@ services_configs:
   - name: uptimekuma
     required_folders:
       - data
+  - name: filebrowser
+    required_folders:
+      - database
+      - config
+  - name: dozzle

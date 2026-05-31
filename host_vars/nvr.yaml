@@ -11,3 +11,8 @@ services_configs:
   - name: frigate
     required_folders:
       - config
+  - name: filebrowser
+    required_folders:
+      - database
+      - config
+  - name: dozzle

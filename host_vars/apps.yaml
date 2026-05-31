@@ -30,3 +30,8 @@ services_configs:
       - config
   - name: it-tools
   - name: openspeedtest
+  - name: filebrowser
+    required_folders:
+      - database
+      - config
+  - name: dozzle
