@@ -92,6 +92,10 @@ freshrss_version: "1.26.3"
 mealie_version: "v2.7.1"
 # renovate: datasource=docker depName=homebridge/homebridge
 homebridge_version: "2025-01-11"
+# renovate: datasource=docker depName=filebrowser/filebrowser
+filebrowser_version: "v2.63.5"
+# renovate: datasource=docker depName=amir20/dozzle
+dozzle_version: "v10.6.3"
 
 # Database settings
 postgres_user: dinos
