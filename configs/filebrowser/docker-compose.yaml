@@ -1,6 +1,6 @@
 services:
   filebrowser:
-    image: filebrowser/filebrowser:${FILEBROWSER_VERSION:-v2.63.5}
+    image: filebrowser/filebrowser:v2.63.14
     container_name: filebrowser
     restart: unless-stopped
     env_file:

@@ -4,10 +4,15 @@ roles:
 
 collections:
   - name: ansible.utils
+    version: 6.0.2
   - name: community.general
+    version: 13.0.1
   - name: community.docker
+    version: 5.2.1
   - name: ansible.posix
+    version: 2.2.0
   - name: kubernetes.core
+    version: 6.4.0
   - name: https://github.com/techno-tim/k3s-ansible.git
     type: git
     version: master

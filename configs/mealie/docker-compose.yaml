@@ -1,6 +1,6 @@
 services:
   mealie:
-    image: hkotel/mealie:v2.7.1
+    image: hkotel/mealie:v3.19.2
     container_name: mealie
     networks:
       - proxy

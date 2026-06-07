@@ -1,6 +1,26 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    "docker:pinDigests"
+  ],
+  "timezone": "Europe/London",
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "packageRules": [
+    {
+      "description": "Batch non-major container updates into a single PR to cut noise",
+      "matchManagers": ["docker-compose", "dockerfile"],
+      "matchUpdateTypes": ["minor", "patch", "digest", "pin"],
+      "groupName": "container images (non-major)"
+    },
+    {
+      "description": "Hold databases on their deliberately pinned major tag; allow patch/minor within it",
+      "matchManagers": ["docker-compose"],
+      "matchDepNames": ["postgres", "docker.io/library/postgres", "mariadb"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
   ]
 }

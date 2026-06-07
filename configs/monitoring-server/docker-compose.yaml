@@ -1,6 +1,6 @@
 services:
   prometheus:
-    image: prom/prometheus:v3.8.1
+    image: prom/prometheus:v3.12.0
     container_name: prometheus
     volumes:
       - ./prometheus:/etc/prometheus
@@ -52,7 +52,7 @@ services:
       - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
 
   loki:
-    image: grafana/loki:3.6.5
+    image: grafana/loki:3.7.2
     container_name: loki
     restart: unless-stopped
     ports:
@@ -73,7 +73,7 @@ services:
       - "traefik.http.services.loki.loadbalancer.server.port=3100"
 
   grafana:
-    image: grafana/grafana:12.3.1
+    image: grafana/grafana:13.0.1
     container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
@@ -98,7 +98,7 @@ services:
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
   pushgateway:
-    image: prom/pushgateway:v1.11.0
+    image: prom/pushgateway:v1.11.3
     container_name: pushgateway
     restart: unless-stopped
     expose:
@@ -148,7 +148,7 @@ services:
       - .env
 
   proxmox-exporter:
-    image: prompve/prometheus-pve-exporter:3.8.0
+    image: prompve/prometheus-pve-exporter:3.9.0
     container_name: proxmox-exporter
     volumes:
       - ./pve:/etc/pve_exporter
@@ -177,7 +177,7 @@ services:
       - no-new-privileges:true
 
   unpoller:
-    image: ghcr.io/unpoller/unpoller:latest
+    image: ghcr.io/unpoller/unpoller:v3.2.0
     restart: unless-stopped
     networks:
       - proxy

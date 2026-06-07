@@ -2,7 +2,7 @@ services:
   z2m-main:
     container_name: z2m-main
     restart: unless-stopped
-    image: ghcr.io/koenkk/zigbee2mqtt:2.9
+    image: ghcr.io/koenkk/zigbee2mqtt:2.11.0
     volumes:
       - ./z2m-main:/app/data
       - /etc/localtime:/etc/localtime:ro
@@ -25,7 +25,7 @@ services:
   z2m-mancave:
     container_name: z2m-mancave
     restart: unless-stopped
-    image: ghcr.io/koenkk/zigbee2mqtt:2.9
+    image: ghcr.io/koenkk/zigbee2mqtt:2.11.0
     volumes:
       - ./z2m-mancave:/app/data
       - /etc/localtime:/etc/localtime:ro

@@ -15,7 +15,7 @@ services:
     labels:
 
   adminer:
-    image: adminer:4.17.1
+    image: adminer:5.4.2
     container_name: adminer
     restart: unless-stopped
     networks:

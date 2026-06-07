@@ -100,7 +100,7 @@ services:
           cpus: "1.0"
 
   keyvalue:
-    image: valkey/valkey:9-alpine  # renovate: datasource=docker depName=valkey/valkey
+    image: valkey/valkey:9.1-alpine  # renovate: datasource=docker depName=valkey/valkey
     container_name: terminus-keyvalue
     networks:
       - proxy

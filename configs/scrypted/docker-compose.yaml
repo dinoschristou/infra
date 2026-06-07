@@ -1,6 +1,6 @@
 services:
   scrypted:
-    image: ghcr.io/koush/scrypted:v0.126.0-noble-full
+    image: ghcr.io/koush/scrypted:v0.143.0-noble-full
     container_name: scrypted
     volumes:
       - scrypted_data:/server/volume

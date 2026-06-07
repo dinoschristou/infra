@@ -1,7 +1,7 @@
 services:
   glowprom:
     container_name: glowprom
-    image: andrewjw/glowprom:1.0.0
+    image: andrewjw/glowprom:1.2.1
     command: --bind 0.0.0.0:9420
     networks:
       - proxy
