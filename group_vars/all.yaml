@@ -41,62 +41,6 @@ app_folder_root: /opt/knxcloud
 hostname_root: "knxcloud.io"
 acme_provider: "cloudflare"
 
-# versions
-# renovate: datasource=docker depName=adminer
-adminer_version: "4.17.1"
-# renovate: datasource=docker depName=prom/alertmanager
-alertmanager_version: "v0.28.0"
-# renovate: datasource=github-tags depName=google/cadvisor
-cadvisor_version: "v0.53.0"
-# renovate: datasource=docker depName=grafana/grafana
-grafana_version: "11.5.2"
-# renovate: datasource=docker depName=grafana/loki
-loki_version: "3.4.2"
-# renovate: datasource=docker depName=prom/node-exporter
-node_exporter_version: "v1.9.0"
-# renovate: datasource=docker depName=ekofr/pihole-exporter
-pihole_exporter_version: "v1.0.1"
-# renovate: datasource=docker depName=portainer/portainer-ce
-portainer_version: "2.27.1"
-# renovate: datasource=docker depName=postgres
-postgres_version: "15-alpine"
-# renovate: datasource=docker depName=prom/prometheus
-prometheus_version: "v3.2.1"
-# renovate: datasource=docker depName=grafana/promtail
-promtail_version: "3.4.2"
-# renovate: datasource=docker depName=prompve/prometheus-pve-exporter
-proxmox_exporter_version: "3.5.2"
-# renovate: datasource=docker depName=prom/pushgateway
-pushgateway_version: "v1.11.0"
-# renovate: datasource=docker depName=traefik
-traefik_version: "v3.1"
-# renovate: datasource=docker depName=sissbruecker/linkding
-linkding_version: "1.39.1"
-# renovate: datasource=docker depName=eclipse-mosquitto
-mosquitto_version: "2.0.21"
-# renovate: datasource=docker depName=koush/scrypted
-scrypted_version: "v0.126.0-noble-full"
-# renovate: datasource=github-releases depName=gethomepage/homepage
-homepage_version: "v0.10.9"
-# renovate: datasource=github-tags depName=goauthentik/authentik
-authentik_version: "2024.12.2"
-# renovate: datasource=github-releases depName=andrewjw/glowprom
-glowprom_version: "0.9.0"
-# renovate: datasource=docker depName=frooodle/s-pdf
-stirlingpdf_version: "0.43.2"
-# renovate: datasource=docker depName=wallabag/wallabag
-wallabag_version: "2.6.10"
-# renovate: datasource=docker depName=linuxserver/freshrss
-freshrss_version: "1.26.3"
-# renovate: datasource=docker depName=hkotel/mealie
-mealie_version: "v2.7.1"
-# renovate: datasource=docker depName=homebridge/homebridge
-homebridge_version: "2025-01-11"
-# renovate: datasource=docker depName=filebrowser/filebrowser
-filebrowser_version: "v2.63.5"
-# renovate: datasource=docker depName=amir20/dozzle
-dozzle_version: "v10.6.3"
-
 # Database settings
 postgres_user: dinos
 postgres_db: core

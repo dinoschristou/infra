@@ -24,7 +24,7 @@ services:
     restart: always
     networks:
       - proxy
-    image: ghcr.io/linkwarden/linkwarden:v2.13.5
+    image: ghcr.io/linkwarden/linkwarden:v2.14.1
     ports:
       - 3001:3000
     volumes:
@@ -38,7 +38,7 @@ services:
       - "traefik.http.routers.linkwarden.entrypoints=https"
       - "traefik.http.routers.linkwarden.tls=true"
   linkwarden-meilisearch:
-    image: getmeili/meilisearch:v1.12.8
+    image: getmeili/meilisearch:v1.45.2
     container_name: linkwarden-meilisearch
     restart: always
     env_file:

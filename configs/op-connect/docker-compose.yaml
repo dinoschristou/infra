@@ -1,6 +1,6 @@
 services:
   op-connect-api:
-    image: 1password/connect-api:latest
+    image: 1password/connect-api:1.8.2
     container_name: op-connect-api
     ports:
       - "8080:8080"
@@ -22,7 +22,7 @@ services:
       - "traefik.http.services.opapi.loadbalancer.server.port=8080"
 
   op-connect-sync:
-    image: 1password/connect-sync:latest
+    image: 1password/connect-sync:1.8.2
     container_name: op-connect-sync
     ports:
       - "8081:8080"
