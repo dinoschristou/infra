@@ -1,0 +1,137 @@
+services:
+  web:
+    init: true
+    image: ghcr.io/usetrmnl/terminus:0.61.0  # renovate: datasource=github-tags depName=usetrmnl/terminus
+    container_name: terminus-web
+    networks:
+      - proxy
+    env_file:
+      - .env
+    environment:
+      HANAMI_PORT: ${HANAMI_PORT}
+      API_URI: ${API_URI}
+      APP_SECRET: ${APP_SECRET}
+      APP_SETUP: "true"
+      DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@database:${DATABASE_PORT}/${DATABASE_NAME}
+      KEYVALUE_URL: redis://:${KEYVALUE_PASSWORD}@keyvalue:${KEYVALUE_PORT}/${KEYVALUE_DATABASE}
+    restart: unless-stopped
+    volumes:
+      - web-uploads:/app/public/uploads
+    depends_on:
+      database:
+        condition: service_healthy
+      keyvalue:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:${HANAMI_PORT}/up"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.terminus.rule=Host(`terminus.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.terminus.entrypoints=https"
+      - "traefik.http.routers.terminus.tls=true"
+      - "traefik.http.services.terminus.loadbalancer.server.port=2300"
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+
+  worker:
+    init: true
+    image: ghcr.io/usetrmnl/terminus:0.61.0  # renovate: datasource=github-tags depName=usetrmnl/terminus
+    container_name: terminus-worker
+    networks:
+      - proxy
+    env_file:
+      - .env
+    environment:
+      HANAMI_PORT: ${HANAMI_PORT}
+      API_URI: ${API_URI}
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@database:${DATABASE_PORT}/${DATABASE_NAME}
+      KEYVALUE_URL: redis://:${KEYVALUE_PASSWORD}@keyvalue:${KEYVALUE_PORT}/${KEYVALUE_DATABASE}
+    command: bundle exec sidekiq -r ./config/sidekiq.rb
+    restart: unless-stopped
+    volumes:
+      - web-uploads:/app/public/uploads
+    depends_on:
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "sidekiq"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+
+  database:
+    image: postgres:18.4-alpine  # renovate: datasource=docker depName=postgres
+    container_name: terminus-db
+    networks:
+      - proxy
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    command: -p ${DATABASE_PORT}
+    volumes:
+      - database-data:/var/lib/postgresql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --username ${DATABASE_USER} --dbname ${DATABASE_NAME} --port ${DATABASE_PORT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "1.0"
+
+  keyvalue:
+    image: valkey/valkey:9-alpine  # renovate: datasource=docker depName=valkey/valkey
+    container_name: terminus-keyvalue
+    networks:
+      - proxy
+    env_file:
+      - .env
+    command: >
+      valkey-server
+      --requirepass ${KEYVALUE_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy noeviction
+      --port ${KEYVALUE_PORT}
+    restart: unless-stopped
+    volumes:
+      - keyvalue-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -p ${KEYVALUE_PORT} ping || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 2s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+
+volumes:
+  database-data:
+  keyvalue-data:
+  web-uploads:
+
+networks:
+  proxy:
+    external: true
