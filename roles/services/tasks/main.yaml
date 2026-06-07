@@ -177,3 +177,82 @@
   loop: "{{ services_configs }}"
   loop_control:
     label: "Bringing up {{ item.name }}"
+
+# Selective push + hot-reload of prometheus/grafana/alertmanager config only.
+# Runs exclusively via `just reload-monitoring` (--tags monitoring-reload);
+# the `never` tag keeps it out of normal deploys.
+- name: Push and reload monitoring configs only
+  tags:
+    - monitoring-reload
+    - never
+  block:
+    - name: Set monitoring config source folders
+      ansible.builtin.set_fact:
+        monitoring_reload_src_dirs:
+          - "{{ services_configs_root }}/monitoring-server/prometheus"
+          - "{{ services_configs_root }}/monitoring-server/alertmanager"
+          - "{{ services_configs_root }}/monitoring-server/grafana"
+
+    - name: Find monitoring template files
+      become: false
+      ansible.builtin.find:
+        paths: "{{ monitoring_reload_src_dirs }}"
+        patterns: "*.j2"
+        recurse: true
+      register: monitoring_template_files
+      delegate_to: localhost
+
+    - name: Find monitoring non-template files
+      become: false
+      ansible.builtin.find:
+        paths: "{{ monitoring_reload_src_dirs }}"
+        recurse: true
+        file_type: file
+        excludes:
+          - "*.j2"
+      register: monitoring_plain_files
+      delegate_to: localhost
+
+    - name: Ensure monitoring destination folders exist
+      ansible.builtin.file:
+        path: "{{ item.path | regex_replace(services_configs_root, app_folder_root) | dirname }}"
+        state: directory
+        mode: "0755"
+        owner: "{{ main_username }}"
+        group: "{{ main_groupname }}"
+      loop: "{{ monitoring_template_files.files + monitoring_plain_files.files }}"
+      loop_control:
+        label: "{{ item.path | regex_replace(services_configs_root, app_folder_root) | dirname }}"
+
+    - name: Template monitoring config files
+      ansible.builtin.template:
+        src: "{{ item.path }}"
+        dest: "{{ item.path | regex_replace(services_configs_root, app_folder_root) | regex_replace('\\.j2$', '') }}"
+        owner: "{{ main_username }}"
+        group: "{{ main_groupname }}"
+        mode: "0755"
+      loop: "{{ monitoring_template_files.files }}"
+      loop_control:
+        label: "{{ item.path | regex_replace(services_configs_root, app_folder_root) | regex_replace('\\.j2$', '') }}"
+
+    - name: Copy monitoring non-template config files
+      ansible.builtin.copy:
+        src: "{{ item.path }}"
+        dest: "{{ item.path | regex_replace(services_configs_root, app_folder_root) }}"
+        owner: "{{ main_username }}"
+        group: "{{ main_groupname }}"
+        mode: "0755"
+      loop: "{{ monitoring_plain_files.files }}"
+      loop_control:
+        label: "{{ item.path | regex_replace(services_configs_root, app_folder_root) }}"
+
+    - name: Hot-reload Prometheus and Alertmanager via SIGHUP
+      ansible.builtin.command: "docker kill --signal=HUP {{ item }}"
+      loop:
+        - prometheus
+        - alertmanager
+      changed_when: true
+
+    - name: Restart Grafana to apply provisioning changes
+      ansible.builtin.command: "docker restart grafana"
+      changed_when: true

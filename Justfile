@@ -26,6 +26,10 @@ run-machine host:
 push-configs host:
     ansible-playbook -i inventory/hosts.yaml site.yaml --tags configs --limit {{host}}
 
+# Push only prometheus/grafana/alertmanager config and reload them (no full restart)
+reload-monitoring:
+    ansible-playbook -i inventory/hosts.yaml site.yaml --tags monitoring-reload --limit mon
+
 # Update DNS entries on Pi-holes
 update-dns:
     ansible-playbook -i inventory/hosts.yaml site.yaml --tags dns --limit piholes
