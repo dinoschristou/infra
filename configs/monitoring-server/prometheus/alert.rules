@@ -60,7 +60,7 @@ groups:
       description: "traefik CPU usage is {{ humanize $value}}% on {{ $labels.instance }}."
 
   - alert: traefik_high_memory
-    expr: sum(container_memory_usage_bytes{name="traefik"}) by (instance) > 1200000000
+    expr: sum(container_memory_usage_bytes{name="traefik"}) by (instance) > 2147483648
     for: 300s
     labels:
       severity: warning
