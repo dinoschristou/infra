@@ -96,7 +96,7 @@ The older `docker_services` role is deprecated.
 
 **infra** (infrastructure): traefik, op-connect (1Password API `opapi.infra.knxcloud.io` + sync `opsync.infra.knxcloud.io`), monitoring-client
 
-**apps** (applications): traefik, calibre (`calibre.apps.knxcloud.io`), audiobookshelf (`abs.apps.knxcloud.io`), mealie (`mealie.apps.knxcloud.io`), stirlingpdf (`pdf.apps.knxcloud.io`), atuin (`atuin.apps.knxcloud.io`), homepage (`home.apps.knxcloud.io`), monitoring-client
+**apps** (applications): traefik, calibre (`calibre.apps.knxcloud.io`), audiobookshelf (`abs.apps.knxcloud.io`), mealie (`mealie.apps.knxcloud.io`), stirlingpdf (`pdf.apps.knxcloud.io`), atuin (`atuin.apps.knxcloud.io`), homepage (`home.apps.knxcloud.io`), terminus (`terminus.apps.knxcloud.io`, TRMNL self-host server), monitoring-client
 - Smart home (commented out, configs exist): scrypted, homebridge, zigbee2mqtt (z2m-main, z2m-mancave)
 
 **mqtt** (broker): traefik, mosquitto (1883/9001), monitoring-client

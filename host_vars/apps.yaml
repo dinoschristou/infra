@@ -35,3 +35,4 @@ services_configs:
       - database
       - config
   - name: dozzle
+  - name: terminus
