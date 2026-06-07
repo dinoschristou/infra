@@ -1,0 +1,51 @@
+services:
+  z2m-main:
+    container_name: z2m-main
+    restart: unless-stopped
+    image: ghcr.io/koenkk/zigbee2mqtt:2.9
+    volumes:
+      - ./z2m-main:/app/data
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 8081:8080
+    env_file:
+      - .env
+    networks:
+      - proxy
+    environment:
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.z2m-main.rule=Host(`z2m-main.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.z2m-main.entrypoints=https"
+      - "traefik.http.routers.z2m-main.tls=true"
+      - "traefik.http.services.z2m-main.loadbalancer.server.port=8080"
+  z2m-mancave:
+    container_name: z2m-mancave
+    restart: unless-stopped
+    image: ghcr.io/koenkk/zigbee2mqtt:2.9
+    volumes:
+      - ./z2m-mancave:/app/data
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 8087:8080
+    env_file:
+      - .env
+    networks:
+      - proxy
+    environment:
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.z2m-mancave.rule=Host(`z2m-mancave.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.z2m-mancave.entrypoints=https"
+      - "traefik.http.routers.z2m-mancave.tls=true"
+      - "traefik.http.services.z2m-mancave.loadbalancer.server.port=8080"
+
+networks:
+  proxy:
+    external: true

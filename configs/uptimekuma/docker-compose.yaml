@@ -1,6 +1,6 @@
 services:
-  whoami:
-    image: louislam/uptime-kuma:2.0.2
+  uptimekuma:
+    image: louislam/uptime-kuma:2.2.0
     container_name: uptimekuma
     restart: unless-stopped
     env_file:
@@ -12,11 +12,18 @@ services:
       - PUID=1000
       - PGID=1000
     volumes:
-      - ./data:/app/data"
+      - uptimekuma_data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uptimekuma.rule=Host(`uptime-kuma.${FULL_DOMAIN}`)"
       - "traefik.http.routers.uptimekuma.entrypoints=https"
+      - "traefik.http.routers.uptimekuma.tls=true"
+
+volumes:
+  uptimekuma_data:
+    driver: local
+    name: uptimekuma_data
 
 networks:
   proxy:

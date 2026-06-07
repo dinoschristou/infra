@@ -1,0 +1,12 @@
+- datetime:
+    text_size: xl
+    format:
+      timeStyle: short
+      dateStyle: short
+      hourCycle: h23
+      hour12: false
+
+- search:
+    provider: google
+    target: _blank
+    focus: false

@@ -1,0 +1,21 @@
+- Infrastructure:
+  - Cloudflare:
+    - abbr: CF
+      href: https://dash.cloudflare.com
+  - GitHub:
+    - abbr: GH
+      href: https://github.com
+  - 1Password:
+    - abbr: 1P
+      href: https://my.1password.com
+  - Proxmox Docs:
+    - abbr: PD
+      href: https://pve.proxmox.com/pve-docs/
+
+- Networking:
+  - UniFi Console:
+    - abbr: UF
+      href: https://unifi.ui.com
+  - Renovate Dashboard:
+    - abbr: RN
+      href: https://developer.mend.io

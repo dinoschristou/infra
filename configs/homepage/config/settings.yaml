@@ -1,0 +1,28 @@
+title: KNXCloud
+description: Home Lab Dashboard
+theme: dark
+color: slate
+headerStyle: clean
+target: _blank
+hideVersion: true
+disableIndexing: true
+
+layout:
+  Infrastructure:
+    style: row
+    columns: 4
+  Monitoring:
+    style: row
+    columns: 5
+  Management:
+    style: row
+    columns: 4
+  Applications:
+    style: row
+    columns: 5
+  Smart Home:
+    style: row
+    columns: 4
+  External:
+    style: row
+    columns: 4

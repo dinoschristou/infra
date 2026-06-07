@@ -7,3 +7,8 @@ services_configs:
     touch_files:
       - acme.json
   - name: monitoring-client
+  - name: filebrowser
+    required_folders:
+      - database
+      - config
+  - name: dozzle

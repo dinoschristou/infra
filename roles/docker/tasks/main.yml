@@ -29,3 +29,12 @@
 - name: Create a network
   community.docker.docker_network:
     name: proxy
+
+- name: Copy daemon.json
+  ansible.builtin.copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Docker

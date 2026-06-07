@@ -1,0 +1,12 @@
+TZ={{ default_timezone }}
+FULL_DOMAIN={{ full_domain }}
+HANAMI_PORT=2300
+API_URI=https://terminus.{{ full_domain }}
+APP_SECRET={{ terminus_app_secret }}
+DATABASE_USER=terminus
+DATABASE_PASSWORD={{ terminus_db_password }}
+DATABASE_PORT=5432
+DATABASE_NAME=terminus
+KEYVALUE_PASSWORD={{ terminus_keyvalue_password }}
+KEYVALUE_PORT=6379
+KEYVALUE_DATABASE=0

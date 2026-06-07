@@ -4,46 +4,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-All operations use `task` command (Go Task):
+All operations use `just` command:
 
 ### Core Deployment
 
-- `task run` - Deploy all services except DNS to all hosts
-- `task run-machine -- <hostname>` - Deploy to specific machine (e.g., mon, infra, apps, mqtt)
-- `task run-ext` - Deploy only to cloud/external servers
-- `task config-only -- <hostname>` - Deploy only configurations without service restarts
+- `just run` - Deploy all services except DNS to all hosts
+- `just run-machine <hostname>` - Deploy to specific machine (e.g., mon, infra, apps, mqtt)
+- `just run-ext` - Deploy only to cloud/external servers
+- `just config-only <hostname>` - Deploy only configurations without service restarts
 
 ### DNS Management
 
-- `task update-dns` - Update Pi-hole configurations on both DNS servers
+- `just update-dns` - Update Pi-hole configurations on both DNS servers
 
 ### Vault & Security
 
-- `task encrypt` / `task decrypt` - Manage Ansible Vault encryption for vars/vault.yaml
-- `task setup-ssh -- <hostname>` - Configure SSH port changes
+- `just encrypt` / `just decrypt` - Manage Ansible Vault encryption for vars/vault.yaml
+- `just setup-ssh <hostname>` - Configure SSH port changes
 
 ### Dependencies
 
-- `task ansible-reqs` - Install Ansible Galaxy requirements
-- `task python-reqs` - Install Python dependencies
+- `just ansible-reqs` - Install Ansible Galaxy requirements
+- `just python-reqs` - Install Python dependencies
 
 ### Power Management (UPS)
 
-- `task nut-server` - Configure UPS server on pve1
-- `task nut-client` - Configure UPS clients on pve2
+- `just nut-server` - Configure UPS server on pve1
+- `just nut-client` - Configure UPS clients on pve2
 
 ### Kubernetes Cluster
 
-- `task cluster-up` - Deploy K3s cluster
-- `task cluster-down` - Tear down K3s cluster
+- `just cluster-up` - Deploy K3s cluster
+- `just cluster-down` - Tear down K3s cluster
 
 ### Testing
 
-- `task test-new-roles` - Test roles on designated test hosts
+- `just test-new-roles` - Test roles on designated test hosts
 
 ### Utilities
 
-- `task new-config -- <service-name>` - Generate new service config from template
+- `just new-config <service-name>` - Generate new service config from template
 
 ## Architecture
 
@@ -79,10 +79,32 @@ The older `docker_services` role is deprecated.
 
 - **Monitoring Stack**: Prometheus, Grafana, Loki, Alertmanager on mon
 - **Reverse Proxy**: Traefik with Cloudflare ACME SSL on every host
-- **Identity**: Authentik for SSO
-- **DNS**: Dual Pi-hole instances for redundancy
+- **Identity**: Authentik (config exists in `/configs/authentik/` but not deployed)
+- **DNS**: Dual Pi-hole instances for redundancy (192.168.1.202 primary, 192.168.3.254 backup)
 - **Power**: Network UPS Tools (NUT) for graceful shutdowns
 - **Kubernetes**: Optional K3s cluster support
+
+### Service URL Patterns
+
+- Local VMs: `<service>.<hostname>.knxcloud.io` (e.g. `grafana.mon.knxcloud.io`)
+- External cloud: `<service>.dinos.sh` (e.g. `freshrss.dinos.sh`)
+- Traefik dashboards: `traefik-dashboard.<hostname>.knxcloud.io` (basic auth protected)
+
+### Services by Host
+
+**mon** (monitoring): traefik, prometheus (`prometheus.mon.knxcloud.io`), grafana (`grafana.mon.knxcloud.io`), loki, alertmanager, pushgateway, portainer (`portainer.mon.knxcloud.io`), uptime-kuma (`uptime-kuma.mon.knxcloud.io`), glowprom, monitoring-client
+
+**infra** (infrastructure): traefik, op-connect (1Password API `opapi.infra.knxcloud.io` + sync `opsync.infra.knxcloud.io`), monitoring-client
+
+**apps** (applications): traefik, calibre (`calibre.apps.knxcloud.io`), audiobookshelf (`abs.apps.knxcloud.io`), mealie (`mealie.apps.knxcloud.io`), stirlingpdf (`pdf.apps.knxcloud.io`), atuin (`atuin.apps.knxcloud.io`), homepage (`home.apps.knxcloud.io`), terminus (`terminus.apps.knxcloud.io`, TRMNL self-host server), monitoring-client
+- Smart home (commented out, configs exist): scrypted, homebridge, zigbee2mqtt (z2m-main, z2m-mancave)
+
+**mqtt** (broker): traefik, mosquitto (1883/9001), monitoring-client
+
+**external-01** (dinos.sh, Cloudflare-proxied): traefik, cloudflared, littlelink (`links.dinos.sh`), karakeep (`hoarder.dinos.sh`), freshrss (`freshrss.dinos.sh`), linkwarden (`linkwarden.dinos.sh`), crowdsec, monitoring-client
+- Commented out (configs exist): ntfy (`notify.dinos.sh`), wallabag (`read.dinos.sh`)
+
+**pve1 / pve2**: Proxmox hypervisors at `pve1.knxcloud.io:8006` / `pve2.knxcloud.io:8006`
 
 ### Variable Structure
 
@@ -96,20 +118,12 @@ The older `docker_services` role is deprecated.
 
 Container versions are managed in two places:
 
-- Some versions in `group_vars/all.yaml` (referenced by templates)
 - Newer services have versions directly in docker-compose.yaml files in `/configs/`
 - Renovate is configured to automatically update container versions
 
-### Available Services (in /configs/)
-
-- **Monitoring**: monitoring-server, monitoring-client, uptimekuma, glowprom
-- **Infrastructure**: traefik, authentik, op-connect, cloudflared, crowdsec
-- **Applications**: calibre, audiobookshelf, mealie, stirlingpdf, atuin, freshrss, linkwarden, karakeep, littlelink, homepage
-- **Other**: mosquitto, ntfy, portainer, postgresql, homebridge, scrypted, wallabag
-
 ### Adding a New Service
 
-1. Run `task new-config -- <service-name>` to create from template
+1. Run `just new-config <service-name>` to create from template
 2. Edit `/configs/<service>/docker-compose.yaml` and `.env.st`
 3. Add the service to the appropriate `host_vars/<hostname>.yaml` under `services_configs`
-4. Deploy with `task run-machine -- <hostname>`
+4. Deploy with `just run-machine <hostname>`

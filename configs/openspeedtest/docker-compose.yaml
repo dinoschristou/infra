@@ -1,0 +1,25 @@
+services:
+  openspeedtest:
+    image: openspeedtest/latest:v2.0.6
+    container_name: openspeedtest
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - proxy
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    environment:
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.openspeedtest.rule=Host(`openspeedtest.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.openspeedtest.entrypoints=https"
+      - "traefik.http.routers.openspeedtest.tls=true"
+
+networks:
+  proxy:
+    external: true

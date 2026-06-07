@@ -1,0 +1,70 @@
+mqtt:
+  enabled: False
+
+go2rtc:
+  streams:
+    back_gazebo_side:
+      - { { back_gazebo_side_rtsp } }
+    front_dining_side:
+      - { { front_dining_side_rtsp } }
+    front_lounge_side:
+      - { { front_lounge_side_rtsp } }
+    back_conservatory_side:
+      - { { back_conservatory_side_rtsp } }
+    mancave_outside:
+      - { { mancave_outside_rtsp } }
+    mancave_inside:
+      - { { mancave_inside_rtsp } }
+    side_gate:
+      - { { side_gate_rtsp } }
+
+audio:
+  enabled: True
+
+cameras:
+  back_gazebo_side:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/back_gazebo_side
+          input_args: preset-rtsp-restream
+  front_dining_side:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/front_dining_side
+          input_args: preset-rtsp-restream
+  front_lounge_side:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/front_lounge_side
+          input_args: preset-rtsp-restream
+  back_conservatory_side:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/back_conservatory_side
+          input_args: preset-rtsp-restream
+  mancave_outside:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/mancave_outside
+          input_args: preset-rtsp-restream
+  mancave_inside:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.01:8554/mancave_inside
+          input_args: preset-rtsp-restream
+  side_gate:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/side_gate
+          input_args: preset-rtsp-restream
+
+ffmpeg:
+  output_args:
+    record: preset-record-ubiquiti
+
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+
+version: 0.17-0

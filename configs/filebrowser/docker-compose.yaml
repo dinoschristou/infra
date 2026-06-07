@@ -1,0 +1,32 @@
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:${FILEBROWSER_VERSION:-v2.63.5}
+    container_name: filebrowser
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TZ=${TZ}
+      - PUID=1000
+      - PGID=1000
+    networks:
+      - proxy
+    volumes:
+      - /opt/knxcloud:/srv
+      - ./database:/database
+      - ./config:/config
+    user: "1000:1000"
+    command:
+      - --database=/database/filebrowser.db
+      - --root=/srv
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.filebrowser.rule=Host(`files.${FULL_DOMAIN}`)"
+      - "traefik.http.routers.filebrowser.entrypoints=https"
+      - "traefik.http.routers.filebrowser.tls=true"
+      - "traefik.http.routers.filebrowser.middlewares=traefik-auth@docker"
+      - "traefik.http.services.filebrowser.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true
