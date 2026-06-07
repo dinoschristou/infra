@@ -1,17 +1,37 @@
-variable "ssh_public_key" {
+variable "proxmox_api_url" {
   type        = string
-  description = "The public SSH key to inject into the VMs via Cloud-Init"
-  default     = "~/.ssh/id_ed25519.pub"
+  description = "Proxmox API URL"
 }
 
-variable "dns_servers" {
-  type        = list(string)
-  description = "The DNS servers to configure in the VMs via Cloud-Init"
-  default     = ["192.168.1.202", "192.168.3.254"]
+variable "proxmox_api_token_id" {
+  type        = string
+  description = "Proxmox API Token ID"
+  sensitive   = true
 }
 
-variable "domain_name" {
+variable "unifi_username" {
   type        = string
-  description = "The DNS domain name for the VMs"
-  default     = "knxcloud.io"
+  description = "Unifi Username"
+}
+
+variable "unifi_password" {
+  type        = string
+  description = "Unifi Password"
+  sensitive   = true
+}
+
+variable "unifi_api_url" {
+  type        = string
+  description = "Unifi API URL"
+}
+
+variable "pihole_url" {
+  type        = string
+  description = "Pi-hole URL"
+}
+
+variable "pihole_password" {
+  type        = string
+  description = "Pi-hole Password"
+  sensitive   = true
 }

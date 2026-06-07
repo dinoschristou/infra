@@ -1,94 +1,64 @@
-# Download the Ubuntu 26.04 LTS (Resolute Raccoon) Cloud Image
-# We download this to the 'local' datastore on pve1.
-# By default, Proxmox's 'local' datastore supports 'iso' content types.
-resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
-  content_type = "iso"
-  datastore_id = "local"
-  node_name    = "pve1"
-  url          = "https://cloud-images.ubuntu.com/resolute/current/resolute-server-cloudimg-amd64.img"
-  file_name    = "ubuntu-26.04-resolute-cloudimg-amd64.img"
+variable "domain" {
+  type    = string
+  default = "lab.internal"
 }
 
-resource "proxmox_virtual_environment_file" "vendor_data" {
-  content_type = "snippets"
-  datastore_id = "local"
-  node_name    = "pve1"
+variable "unifi_network_id" {
+  type        = string
+  description = "Network ID in Unifi to bind fixed IPs"
+}
 
-  source_raw {
-    data = <<EOF
-#cloud-config
-packages:
-  - qemu-guest-agent
-runcmd:
-  - systemctl enable qemu-guest-agent
-  - systemctl start qemu-guest-agent
-EOF
-    file_name = "vendor-data.yaml"
+variable "pve_image" {
+  type        = string
+  description = "File ID of the Proxmox image to use"
+  default     = "local:iso/ubuntu-22.04-server-cloudimg-amd64.img"
+}
+
+variable "ssh_keys" {
+  type    = list(string)
+  default = []
+}
+
+locals {
+  vms = {
+    mon = {
+      pve_node   = "pve1"
+      ip_address = "192.168.60.44"
+      mac_address = "00:00:00:00:00:01" # Placeholders
+      vlan_id    = 60
+    }
+    infra = {
+      pve_node   = "pve1"
+      ip_address = "192.168.60.45"
+      mac_address = "00:00:00:00:00:02" # Placeholders
+      vlan_id    = 60
+    }
+    mqtt = {
+      pve_node   = "pve2"
+      ip_address = "192.168.42.122"
+      mac_address = "00:00:00:00:00:03" # Placeholders
+      vlan_id    = 42
+    }
+    apps = {
+      pve_node   = "pve2"
+      ip_address = "192.168.60.46"
+      mac_address = "00:00:00:00:00:04" # Placeholders
+      vlan_id    = 60
+    }
   }
 }
 
-resource "proxmox_virtual_environment_vm" "vms" {
+module "vm" {
+  source   = "./modules/vm"
   for_each = local.vms
 
-  name        = each.key
-  description = "Managed by Terraform"
-  tags        = ["terraform", "ubuntu"]
-  node_name   = each.value.target_node
-  vm_id       = each.value.vmid
-
-  # Stop the VM gracefully when destroying or updating
-  stop_on_destroy = true
-
-  agent {
-    # Ensure qemu-guest-agent is enabled
-    enabled = true
-  }
-
-  cpu {
-    cores = each.value.cores
-    type  = each.value.cpu_type
-  }
-
-  memory {
-    dedicated = each.value.memory
-  }
-
-  disk {
-    datastore_id = each.value.datastore
-    file_id      = proxmox_virtual_environment_download_file.ubuntu_cloud_image.id
-    interface    = "scsi0"
-    discard      = "on"
-    size         = each.value.disk_size
-  }
-
-  network_device {
-    bridge  = "vmbr1"
-    # vlan_id = each.value.vlan
-  }
-
-  initialization {
-    datastore_id = each.value.datastore
-    vendor_data_file_id = proxmox_virtual_environment_file.vendor_data.id
-    
-    ip_config {
-      ipv4 {
-        address = each.value.ip
-        gateway = "192.168.${each.value.vlan}.1"
-      }
-    }
-
-    dns {
-      servers = var.dns_servers
-    }
-
-    user_account {
-      username = each.value.username
-      keys     = [file(var.ssh_public_key)]
-    }
-  }
-
-  # Ensure the cloud image is downloaded before creating VMs
-  depends_on = [
-    proxmox_virtual_environment_download_file.ubuntu_cloud_image
-  ]
+  vm_name          = each.key
+  pve_node         = each.value.pve_node
+  ip_address       = each.value.ip_address
+  mac_address      = each.value.mac_address
+  vlan_id          = each.value.vlan_id
+  unifi_network_id = var.unifi_network_id
+  domain           = var.domain
+  image_file_id    = var.pve_image
+  ssh_keys         = var.ssh_keys
 }
