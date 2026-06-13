@@ -1,6 +1,6 @@
 services:
   freshrss:
-    image: lscr.io/linuxserver/freshrss:1.29.1
+    image: lscr.io/linuxserver/freshrss:1.29.1@sha256:b24ddde7d465f004847305b70d2479eb31c218e777bf2ab97d42dc75b54ed914
     networks:
       - proxy
     container_name: freshrss

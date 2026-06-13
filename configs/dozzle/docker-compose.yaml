@@ -1,6 +1,6 @@
 services:
   dozzle:
-    image: amir20/dozzle:v10.6.5
+    image: amir20/dozzle:v10.6.5@sha256:fa12525776bf665147d82bf031ff262ee89a0a12454122558a353ec38ada4aaf
     container_name: dozzle
     restart: unless-stopped
     env_file:
