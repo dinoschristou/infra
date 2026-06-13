@@ -62,6 +62,8 @@ services:
     volumes:
       - /var/log:/var/log
       - ./promtail:/etc/promtail
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${TRAEFIK_LOGS_DIR}:/var/log/traefik:ro
     command: -config.file=/etc/promtail/config.yaml
     networks:
       - proxy

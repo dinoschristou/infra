@@ -17,3 +17,40 @@ scrape_configs:
       job: varlogs
       host: {{ ansible_hostname }}
       __path__: /var/log/*log
+
+- job_name: docker
+  docker_sd_configs:
+    - host: unix:///var/run/docker.sock
+      refresh_interval: 15s
+  relabel_configs:
+    # Container name comes through as "/<name>"; strip the leading slash.
+    - source_labels: ['__meta_docker_container_name']
+      regex: '/(.*)'
+      target_label: 'container'
+    - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+      target_label: 'compose_service'
+    - target_label: 'host'
+      replacement: "{{ ansible_hostname }}"
+    - target_label: 'job'
+      replacement: 'docker'
+
+- job_name: traefik
+  static_configs:
+  - targets:
+      - localhost
+    labels:
+      job: traefik
+      host: {{ ansible_hostname }}
+      __path__: /var/log/traefik/*.log
+  pipeline_stages:
+    # Only the access log is JSON; parse its timestamp. The app log is plain text
+    # and falls back to ingestion time. Request fields stay as log content, not labels.
+    - match:
+        selector: '{filename="/var/log/traefik/access.log"}'
+        stages:
+          - json:
+              expressions:
+                start_utc: StartUTC
+          - timestamp:
+              source: start_utc
+              format: RFC3339Nano
