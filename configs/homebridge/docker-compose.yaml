@@ -1,6 +1,6 @@
 services:
   homebridge:
-    image: homebridge/homebridge:2026-06-05
+    image: homebridge/homebridge:2026-06-05@sha256:2bcdd4d1a30f4ed31f1720f52e4cbcf94ec8094cdf89530068a20b94789bd0e7
     container_name: homebridge
     restart: unless-stopped
     networks:

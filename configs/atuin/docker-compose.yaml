@@ -1,7 +1,7 @@
 services:
   atuin:
     restart: unless-stopped
-    image: ghcr.io/atuinsh/atuin:latest
+    image: ghcr.io/atuinsh/atuin:latest@sha256:9a3bf220acd36873004fe18a9abb2bcd2d74a8c3522e52d309ba7c53d971c01f
     command: server start
     container_name: atuin
     env_file:
@@ -29,7 +29,7 @@ services:
     depends_on:
       - atuin-db
   atuin-db:
-    image: postgres:14
+    image: postgres:14@sha256:d462928b1898dd74b749ef486797968828c1e7fc9befb5e5ca03a33bfbc32d64
     restart: unless-stopped
     container_name: atuin-db
     networks:

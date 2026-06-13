@@ -1,6 +1,6 @@
 services:
   linkwarden-postgres:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
     container_name: linkwarden-postgres
     networks:
       - proxy
@@ -24,7 +24,7 @@ services:
     restart: always
     networks:
       - proxy
-    image: ghcr.io/linkwarden/linkwarden:v2.14.1
+    image: ghcr.io/linkwarden/linkwarden:v2.14.1@sha256:31cf4bd2a2e111991fa5c9de03174c8698869c83722105c6ce529e4c911e6861
     ports:
       - 3001:3000
     volumes:
@@ -38,7 +38,7 @@ services:
       - "traefik.http.routers.linkwarden.entrypoints=https"
       - "traefik.http.routers.linkwarden.tls=true"
   linkwarden-meilisearch:
-    image: getmeili/meilisearch:v1.45.2
+    image: getmeili/meilisearch:v1.45.2@sha256:271ee84030a77cfa8e60358138bb34260f69110795c2441437b44832fe865618
     container_name: linkwarden-meilisearch
     restart: always
     env_file:
