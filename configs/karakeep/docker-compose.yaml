@@ -40,7 +40,7 @@ services:
       - --remote-debugging-port=9222
       - --hide-scrollbars
   meilisearch:
-    image: getmeili/meilisearch:v1.45.2
+    image: getmeili/meilisearch:v1.46.1@sha256:cbe0e500a5fc04397dfe0245cf143fee40658b26470daaf549f0a6927c5c08dc
     restart: unless-stopped
     container_name: meilisearch
     networks:

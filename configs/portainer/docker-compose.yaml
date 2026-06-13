@@ -1,6 +1,6 @@
 services:
   portainer:
-    image: portainer/portainer-ce:2.39.3
+    image: portainer/portainer-ce:2.42.0@sha256:c3c919ec68d130cbcb837693420592b91afd320b28b492c16c84ec5561bbf095
     container_name: portainer
     volumes:
       - /etc/localtime:/etc/localtime:ro

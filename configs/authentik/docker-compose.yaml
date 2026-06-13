@@ -23,7 +23,7 @@ services:
     env_file:
       - .env
   authentik-redis:
-    image: docker.io/library/redis:8.6-alpine
+    image: docker.io/library/redis:8.8-alpine@sha256:09160599abd229764c0fb44cb6be640294e1d360a54b19985ab4843dcf2d90f1
     container_name: authentik-redis
     networks:
       - authentik
@@ -41,7 +41,7 @@ services:
     volumes:
       - authentik_redis:/data
   authentik-server:
-    image: ghcr.io/goauthentik/server:2026.5.2
+    image: ghcr.io/goauthentik/server:2026.5.3@sha256:377ee38726785f98aafc3665202ad198a366fa979b0f61c0660a9c05e3a9b1b3
     container_name: authentik-server
     restart: unless-stopped
     networks:
@@ -75,7 +75,7 @@ services:
       - "traefik.http.services.authentik.loadbalancer.server.port=9000"
       - "traefik.http.routers.authentik.entrypoints=https"
   authentik-worker:
-    image: ghcr.io/goauthentik/server:2026.5.2
+    image: ghcr.io/goauthentik/server:2026.5.3@sha256:377ee38726785f98aafc3665202ad198a366fa979b0f61c0660a9c05e3a9b1b3
     container_name: authentik-worker
     networks:
       - authentik
