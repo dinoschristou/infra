@@ -11,8 +11,9 @@ Per-repo secret scanning across all non-archived, non-fork repos owned by
 ## What the workflow does
 - **push / pull_request:** scans only the new commits (fast feedback).
 - **weekly schedule + manual dispatch:** scans the full git history.
-- Fails the run **only on verified-live secrets** (`--results=verified --fail`),
-  which sends GitHub's native failure email. Findings appear in the job summary.
+- Fails the run **only on verified-live secrets** (`--results=verified`; the
+  TruffleHog action injects `--fail` itself), which sends GitHub's native
+  failure email. Findings appear in the job summary.
 
 ## Rolling out
 ```bash

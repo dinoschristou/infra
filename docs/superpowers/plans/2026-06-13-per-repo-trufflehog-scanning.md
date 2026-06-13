@@ -58,7 +58,8 @@ jobs:
         if: github.event_name == 'push' || github.event_name == 'pull_request'
         uses: trufflesecurity/trufflehog@main
         with:
-          extra_args: --results=verified --fail
+          # The action injects --fail itself; do not add it here (it errors if repeated).
+          extra_args: --results=verified
 
       # Schedule / manual: scan the entire git history (base="" disables diff).
       - name: TruffleHog full-history scan
@@ -67,12 +68,13 @@ jobs:
         with:
           base: ""
           head: ${{ github.ref_name }}
-          extra_args: --results=verified --fail
+          # The action injects --fail itself; do not add it here (it errors if repeated).
+          extra_args: --results=verified
 ```
 
 Notes baked into this file:
 - `--results=verified` → reports only secrets TruffleHog confirms are live.
-- `--fail` → the run exits non-zero (red) when such a secret is found, which triggers GitHub's native failure email. Recent action versions also write findings to the job summary.
+- The run exits non-zero (red) when such a secret is found, which triggers GitHub's native failure email. Recent action versions also write findings to the job summary. NOTE: the action's entrypoint already passes `--fail`, so adding `--fail` to `extra_args` causes `flag 'fail' cannot be repeated` — do not include it.
 - `fetch-depth: 0` is required so the scheduled full-history scan sees all commits.
 
 - [ ] **Step 2: Validate the YAML syntax**
