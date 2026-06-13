@@ -26,7 +26,8 @@ jobs:
         if: github.event_name == 'push' || github.event_name == 'pull_request'
         uses: trufflesecurity/trufflehog@main
         with:
-          extra_args: --results=verified --fail
+          # The action injects --fail itself; do not add it here (it errors if repeated).
+          extra_args: --results=verified
 
       # Schedule / manual: scan the entire git history (base="" disables diff).
       - name: TruffleHog full-history scan
@@ -35,4 +36,5 @@ jobs:
         with:
           base: ""
           head: ${{ github.ref_name }}
-          extra_args: --results=verified --fail
+          # The action injects --fail itself; do not add it here (it errors if repeated).
+          extra_args: --results=verified
