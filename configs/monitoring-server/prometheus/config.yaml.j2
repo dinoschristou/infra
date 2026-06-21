@@ -49,7 +49,11 @@ scrape_configs:
       - targets: ['pushgateway:9091']
 
   - job_name: 'pihole'
-    scrape_interval: 5s
+    # pihole-exporter does a full Pi-hole v6 auth + several API calls per scrape,
+    # which takes >5s. Give it a longer interval and an explicit timeout so the
+    # scrape does not hit the deadline (was causing monitor_service_down alerts).
+    scrape_interval: 30s
+    scrape_timeout: 15s
     static_configs:
       - targets: ['pihole-exporter1:9617', 'pihole-exporter2:9618']
 
