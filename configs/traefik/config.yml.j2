@@ -1,6 +1,7 @@
 http:
-{% if cloudflare_proxied %}
+{% if cloudflare_proxied or authentik_enabled | default(false) %}
   middlewares:
+{% if cloudflare_proxied %}
     crowdsec:
       plugin:
         bouncer:
@@ -25,6 +26,30 @@ http:
             - 10.0.0.0/8
             - 172.16.0.0/12
             - 192.168.0.0/16
+{% endif %}
+{% if authentik_enabled | default(false) %}
+    # Reusable forwardAuth middleware backed by Authentik's embedded outpost.
+    # Reference it from any router on this host as "authentik@file".
+    # Only valid on hosts running the authentik-server container on the
+    # "proxy" docker network (see configs/authentik).
+    authentik:
+      forwardAuth:
+        address: "http://authentik-server:9000/outpost.goauthentik.io/auth/traefik"
+        trustForwardHeader: true
+        authResponseHeaders:
+          - X-authentik-username
+          - X-authentik-groups
+          - X-authentik-entitlements
+          - X-authentik-email
+          - X-authentik-name
+          - X-authentik-uid
+          - X-authentik-jwt
+          - X-authentik-meta-jwks
+          - X-authentik-meta-outpost
+          - X-authentik-meta-provider
+          - X-authentik-meta-app
+          - X-authentik-meta-version
+{% endif %}
 {% endif %}
   routers:
     metrics:

@@ -1,5 +1,7 @@
 full_domain: "infra.{{ hostname_root }}"
 
+authentik_enabled: true
+
 services_configs:
   - name: traefik
     required_folders:
@@ -13,8 +15,8 @@ services_configs:
       - database
       - config
   - name: dozzle
-  # - name: authentik
-  #   required_folders:
-  #     - media
-  #     - custom-templates
-  #     - certs
+  - name: authentik
+    required_folders:
+      - media
+      - custom-templates
+      - certs

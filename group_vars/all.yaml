@@ -65,6 +65,11 @@ services:
 
 cloudflare_proxied: false
 
+# Set to true only on the host that runs the authentik service stack
+# (configs/authentik). Enables the reusable "authentik@file" forwardAuth
+# Traefik middleware and switches that host's dashboard auth to it.
+authentik_enabled: false
+
 # K3s cluster settings
 k3s_version: v1.33.3+k3s1
 systemd_dir: /etc/systemd/system
