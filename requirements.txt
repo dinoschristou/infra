@@ -1,5 +1,5 @@
 ansible-compat==26.3.0
-ansible-core==2.21.0
+ansible-core==2.21.2
 ansible-lint==26.4.0
 attrs==26.1.0
 black==26.5.1
