@@ -1,11 +1,19 @@
-- name: Add Docker GPG key
-  ansible.builtin.apt_key:
+- name: Ensure apt keyrings directory exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Add Docker GPG key (keyring method; apt-key is removed on modern Ubuntu)
+  ansible.builtin.get_url:
     url: "https://download.docker.com/linux/ubuntu/gpg"
-    state: present
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
 
 - name: Add Docker repository
   ansible.builtin.apt_repository:
     repo: "{{ docker_apt_repository }}"
+    filename: docker
     state: present
 
 - name: Install Docker CE
