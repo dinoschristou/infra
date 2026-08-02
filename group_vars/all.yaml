@@ -15,7 +15,6 @@ package_list:
   - name: nfs-common
   - name: zsh
   - name: htop
-  - name: neofetch
   - name: net-tools
   - name: speedtest-cli
   - name: git
