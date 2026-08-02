@@ -63,12 +63,12 @@
   loop: ["9100", "8082"]
   notify: Reload ufw
 
-- name: UFW allow admin SSH over tailscale (from the admin device only)
+- name: UFW allow admin SSH over tailscale (any of your tailnet devices; identity gated by TS ACL)
   community.general.ufw:
     rule: allow
     direction: in
     interface: tailscale0
-    src: "{{ admin_tailscale_ip }}"
+    src: "{{ tailscale_cgnat_cidr }}"
     to_port: "{{ ansible_port }}"
     proto: tcp
   notify: Reload ufw

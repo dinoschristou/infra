@@ -55,7 +55,9 @@ pihole_main_host: 192.168.1.202
 pihole_backup_host: 192.168.3.254
 
 mon_tailscale_ip: "100.64.0.10"   # PLACEHOLDER: mon's tailscale IP; confirm in Task 18
-admin_tailscale_ip: "100.64.0.20" # PLACEHOLDER: your admin device's tailscale IP (SSH source into vps-01)
+# Tailscale CGNAT range — ufw allows SSH on tailscale0 from any of YOUR devices in
+# this range; which devices/users may actually connect is enforced by the Tailscale ACL.
+tailscale_cgnat_cidr: "100.64.0.0/10"
 
 mqtt_server: 192.168.42.122
 mqtt_port: 1883

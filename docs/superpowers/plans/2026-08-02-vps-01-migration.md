@@ -969,9 +969,17 @@ Expected: `vps-01` present with `tag:vps-edge`.
 "tagOwners": { "tag:vps-edge": ["autogroup:admin"] },
 "acls": [
   { "action": "accept", "src": ["tag:mon"], "dst": ["tag:vps-edge:9100,8082"] },
-  { "action": "accept", "src": ["<your-admin-device>"], "dst": ["tag:vps-edge:4322"] }
+  // SSH from ALL of your own devices — your user owns them all, so this covers
+  // every current/future device without editing the host. (Use a group like
+  // "group:admins" if you prefer, or "autogroup:member" for any tailnet member.)
+  { "action": "accept", "src": ["your-login@example.com"], "dst": ["tag:vps-edge:4322"] }
 ]
 ```
+
+> The ufw rule on the host allows SSH from the whole Tailscale range
+> (`100.64.0.0/10`), so it never needs per-device edits; THIS ACL is where you
+> control which devices/users may connect. `vps-edge` is never a `src`, so the
+> VPS still cannot initiate to any other node.
 
 - [ ] **Step 5: Prove egress is blocked.**
 
