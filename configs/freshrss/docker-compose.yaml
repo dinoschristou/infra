@@ -11,6 +11,7 @@ services:
       - "traefik.http.routers.freshrss.rule=Host(`freshrss.${FULL_DOMAIN}`)"
       - "traefik.http.routers.freshrss.entrypoints=https"
       - "traefik.http.routers.freshrss.tls=true"
+      - "traefik.http.routers.freshrss.middlewares=authentik@file"
     environment:
       - "PUID=1000"
       - "PGID=1000"
