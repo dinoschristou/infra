@@ -517,50 +517,71 @@ git commit -m "feat(vps-01): dedicated site.yaml play (services before hardening
 
 ### Task 5: Docker daemon log rotation + journald cap
 
+**IMPORTANT — reconciled with existing code:** `roles/docker` ALREADY deploys `daemon.json`
+from a **static** `roles/docker/files/daemon.json` (currently `max-size: 100m`, `max-file: 3`)
+via an existing task named **"Copy daemon.json"** that notifies the handler **`Restart Docker`**
+(capital D). The docker role also **already creates the `proxy` network**. Do NOT add a second
+daemon.json task. Instead, convert the existing static file to a template driven by a variable
+whose **default preserves 100m** for the 5 other hosts, overridden to `10m` only on `vps-01`.
+Role files use the `.yml` extension.
+
 **Files:**
-- Modify: `roles/docker/tasks/main.yaml` (+ `Restart docker` handler)
+- Create: `roles/docker/templates/daemon.json.j2`
+- Delete: `roles/docker/files/daemon.json`
+- Modify: `roles/docker/tasks/main.yml` (change the existing "Copy daemon.json" task from `copy`→`template`)
 - Modify: `roles/base/tasks/main.yaml` (+ `Restart journald` handler in `roles/base/handlers/main.yaml`)
-- Modify: `group_vars/all.yaml`
+- Modify: `group_vars/all.yaml` (defaults; 100m preserves current behavior)
+- Modify: `host_vars/vps-01.yaml` (override to 10m)
 
 **Interfaces:**
-- Produces: global container log caps + bounded journald. Behavior-preserving defaults for other hosts.
+- Produces: templated docker log caps (default 100m, vps-01 = 10m, adds `live-restore`); bounded journald.
 
-> These two roles are shared. The changes are standard hardening and additive; other hosts pick them up on their next deploy. If you'd rather keep them strictly vps-only, move both tasks into `roles/hardening` — but the defaults make them safe everywhere.
-
-- [ ] **Step 1: Add defaults** to `group_vars/all.yaml`:
+- [ ] **Step 1: Add defaults** to `group_vars/all.yaml` (default 100m keeps the 5 production hosts identical):
 
 ```yaml
-docker_log_max_size: "10m"
+docker_log_max_size: "100m"
 docker_log_max_file: "3"
 journald_system_max_use: "500M"
 ```
 
-- [ ] **Step 2: Add daemon.json task** to `roles/docker/tasks/main.yaml`:
+- [ ] **Step 2: Override for vps-01** — add to `host_vars/vps-01.yaml`:
 
 ```yaml
-- name: Configure Docker daemon log rotation
-  ansible.builtin.copy:
+docker_log_max_size: "10m"
+```
+
+- [ ] **Step 3: Create `roles/docker/templates/daemon.json.j2`:**
+
+```jinja
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "{{ docker_log_max_size }}",
+    "max-file": "{{ docker_log_max_file }}"
+  },
+  "live-restore": true
+}
+```
+
+- [ ] **Step 4: Delete the static file and switch the existing task to a template.**
+
+`git rm roles/docker/files/daemon.json`. In `roles/docker/tasks/main.yml`, change the existing
+**"Copy daemon.json"** task from `ansible.builtin.copy: { src: daemon.json, ... }` to:
+
+```yaml
+- name: Copy daemon.json
+  ansible.builtin.template:
+    src: daemon.json.j2
     dest: /etc/docker/daemon.json
-    mode: "0644"
-    content: |
-      {
-        "log-driver": "json-file",
-        "log-opts": { "max-size": "{{ docker_log_max_size }}", "max-file": "{{ docker_log_max_file }}" },
-        "live-restore": true
-      }
-  notify: Restart docker
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Docker
 ```
 
-Ensure a handler exists (add to the docker role's handlers file if missing):
+(Keep the handler name `Restart Docker` exactly — it already exists in `roles/docker/handlers/main.yml`. Do NOT add a new handler.)
 
-```yaml
-- name: Restart docker
-  ansible.builtin.systemd:
-    name: docker
-    state: restarted
-```
-
-- [ ] **Step 3: Cap journald** — add to `roles/base/tasks/main.yaml`:
+- [ ] **Step 5: Cap journald** — add to `roles/base/tasks/main.yaml` (ungated, so it applies to vps-01; benign on other hosts):
 
 ```yaml
 - name: Cap journald disk usage
@@ -575,18 +596,20 @@ Add to `roles/base/handlers/main.yaml`:
 
 ```yaml
 - name: Restart journald
+  become: true
   ansible.builtin.systemd:
     name: systemd-journald
     state: restarted
 ```
 
-- [ ] **Step 4: Syntax-check + commit.**
+- [ ] **Step 6: Verify template renders 100m by default and 10m for vps-01, then commit.**
 
 Run: `ansible-playbook -i inventory/hosts.yaml site.yaml --syntax-check`
+Sanity: `git grep -n "src: daemon.json" roles/docker` should return NOTHING (task now uses the template).
 
 ```bash
-git add roles/docker roles/base group_vars/all.yaml
-git commit -m "feat(docker/base): json-file log caps + journald SystemMaxUse"
+git add roles/docker roles/base group_vars/all.yaml host_vars/vps-01.yaml
+git commit -m "feat(docker/base): template daemon.json log caps (100m default, 10m vps-01) + journald cap"
 ```
 
 ---
