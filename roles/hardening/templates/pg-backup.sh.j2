@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+BACKUP_DIR="{{ app_folder_root }}/backups"
+mkdir -p "$BACKUP_DIR"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+for c in authentik-postgresql {{ wallabag_db_container | default('wallabag-db') }} {{ freshrss_db_container | default('freshrss-db') }}; do
+  if docker ps --format '{{ "{{.Names}}" }}' | grep -qx "$c"; then
+    docker exec "$c" pg_dumpall -U postgres 2>/dev/null | gzip > "$BACKUP_DIR/${c}-${STAMP}.sql.gz" || true
+  fi
+done
+find "$BACKUP_DIR" -name '*.sql.gz' -mtime +7 -delete
