@@ -6,12 +6,7 @@ services:
     security_opt:
       - no-new-privileges:true
     networks:
-      proxy:
-        # Internal alias so proxy-network containers (e.g. FreshRSS mod_auth_openidc)
-        # resolve auth.<domain> to Traefik's current IP via Docker's embedded DNS —
-        # no hardcoded IP, valid cert, no Cloudflare hairpin.
-        aliases:
-          - "auth.${FULL_DOMAIN}"
+      - proxy
     ports:
       - 80:80
       - 443:443
