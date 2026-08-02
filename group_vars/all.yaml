@@ -53,7 +53,7 @@ grafana_user: dinos
 pihole_main_host: 192.168.1.202
 pihole_backup_host: 192.168.3.254
 
-mon_tailscale_ip: "100.64.0.10"   # PLACEHOLDER: mon's tailscale IP; confirm in Task 18
+mon_tailscale_ip: "100.65.167.29"   # mon's tailscale IP (tag:lab), scrapes vps-01 metrics
 # Tailscale CGNAT range — ufw allows SSH on tailscale0 from any of YOUR devices in
 # this range; which devices/users may actually connect is enforced by the Tailscale ACL.
 tailscale_cgnat_cidr: "100.64.0.0/10"
