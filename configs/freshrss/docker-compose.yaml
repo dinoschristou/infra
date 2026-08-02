@@ -8,16 +8,13 @@ services:
     networks:
       - proxy
     restart: unless-stopped
-    # Resolve auth.<domain> to Traefik internally (valid cert, no Cloudflare hairpin).
-    # extra_hosts (not a network alias) is required: Docker's embedded DNS treats it as
-    # authoritative and returns NO AAAA, so c-ares (which ignores /etc/hosts and prefers
-    # IPv6) can't grab an unroutable Cloudflare IPv6.
-    # NOTE: 172.18.0.2 is Traefik's address on the proxy network. Stable in practice
-    # (Traefik is the long-running first container); if the proxy network is ever
-    # rebuilt and Traefik's IP changes, update this one line. See docker network
-    # inspect proxy | grep traefik.
-    extra_hosts:
-      - "auth.${FULL_DOMAIN}:172.18.0.2"
+    # OIDC metadata fetch (mod_auth_openidc/libcurl uses c-ares, which ignores /etc/hosts
+    # and queries Docker's embedded DNS directly):
+    #  - Traefik's network alias makes the embedded DNS return Traefik's IP for the A record.
+    #  - no-aaaa stops c-ares requesting the AAAA (which the embedded DNS forwards to the
+    #    unroutable Cloudflare IPv6). Together: c-ares reaches Authentik via Traefik locally.
+    dns_opt:
+      - "no-aaaa"
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=1
     volumes:
