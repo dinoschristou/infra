@@ -21,8 +21,11 @@ cloudflare_proxied: true
 tailscale_hostname: vps-01
 tailscale_tags: "tag:vps-edge"
 
-# Break-glass SSH port (also used by hardening role)
-ansible_port: 4322
+# Hardened SSH port the hardening role configures sshd + ufw + fail2ban to use.
+# NOTE: this is deliberately NOT ansible_port. The live connection port lives in
+# inventory (22 during bootstrap, 4322 after hardening) so the port switch can't
+# lock Ansible out mid-run.
+ssh_port: 4322
 
 services_configs:
   - name: docker-socket-proxy

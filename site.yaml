@@ -33,9 +33,11 @@
    - role: base
    - role: docker
    - role: tailscale
+     tags: tailscale
    - role: services
      tags: configs
    - role: hardening
+     tags: hardening
 
 - name: Setup cloud servers
   hosts: external-01

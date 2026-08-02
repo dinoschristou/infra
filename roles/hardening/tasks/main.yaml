@@ -8,7 +8,7 @@
   loop:
     - { regexp: "^.*PasswordAuthentication", line: "PasswordAuthentication no" }
     - { regexp: "^.*PermitRootLogin", line: "PermitRootLogin no" }
-    - { regexp: "^#?Port ", line: "Port {{ ansible_port }}" }
+    - { regexp: "^#?Port ", line: "Port {{ ssh_port }}" }
   notify: Restart ssh service
 
 - name: Fetch Cloudflare IPv4 ranges
@@ -37,7 +37,7 @@
   community.general.ufw:
     rule: limit
     direction: in
-    to_port: "{{ ansible_port }}"
+    to_port: "{{ ssh_port }}"
     proto: tcp
   notify: Reload ufw
 
@@ -69,7 +69,7 @@
     direction: in
     interface: tailscale0
     src: "{{ tailscale_cgnat_cidr }}"
-    to_port: "{{ ansible_port }}"
+    to_port: "{{ ssh_port }}"
     proto: tcp
   notify: Reload ufw
 

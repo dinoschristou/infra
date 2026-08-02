@@ -28,9 +28,11 @@ all:
           ansible_host: 192.168.92.60
           ansible_port: 4322
         vps-01:
-          ansible_host: 100.64.0.0
-          ansible_port: 4322
-          ansible_user: dinos
+          # Bootstrap: public IP + default port/user. After hardening we switch
+          # ansible_host to the tailscale IP and ansible_port to 4322 (ssh_port).
+          ansible_host: 57.129.137.137
+          ansible_port: 22
+          ansible_user: ubuntu
     proxmox_hosts:
       hosts:
         pve1:
