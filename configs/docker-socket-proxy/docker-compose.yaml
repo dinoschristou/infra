@@ -19,7 +19,9 @@ services:
       - proxy
     read_only: true
     tmpfs:
+      # haproxy entrypoint regenerates its config here at startup
       - /run
+      - /usr/local/etc/haproxy
 
 networks:
   proxy:
