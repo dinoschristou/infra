@@ -27,6 +27,10 @@ all:
         external-01:
           ansible_host: 192.168.92.60
           ansible_port: 4322
+        vps-01:
+          ansible_host: 100.64.0.0
+          ansible_port: 4322
+          ansible_user: dinos
     proxmox_hosts:
       hosts:
         pve1:
