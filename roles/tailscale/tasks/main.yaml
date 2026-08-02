@@ -31,6 +31,7 @@
       --hostname {{ tailscale_hostname }}
       --advertise-tags {{ tailscale_tags }}
       --accept-routes=false
+      --accept-dns=false
       --ssh=false
   register: ts_up
   changed_when: ts_up.rc == 0
