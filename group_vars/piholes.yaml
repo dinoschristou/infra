@@ -6,4 +6,5 @@ dnsmasq_config_dir: /etc/dnsmasq.d
 dns_extra:
   - { ip: 192.168.42.238, custom_dns: "main.knxcloud.io" }
   - { ip: 192.168.1.217, custom_dns: "nas.knxcloud.io" }
-  - { ip: 192.168.92.60, custom_dns: "dinos.sh" }
+  # dinos.sh override removed after migration to OVH vps-01; LAN now resolves
+  # dinos.sh via Cloudflare -> vps-01 (origin only accepts Cloudflare IPs).
