@@ -1,5 +1,5 @@
 ---
-- name: Harden sshd (key-only, no root, custom port)
+- name: Harden sshd (key-only, no root; Port also set for non-socket systems)
   ansible.builtin.lineinfile:
     dest: /etc/ssh/sshd_config
     regexp: "{{ item.regexp }}"
@@ -9,7 +9,37 @@
     - { regexp: "^.*PasswordAuthentication", line: "PasswordAuthentication no" }
     - { regexp: "^.*PermitRootLogin", line: "PermitRootLogin no" }
     - { regexp: "^#?Port ", line: "Port {{ ssh_port }}" }
-  notify: Restart ssh service
+  # No restart notify: modern Ubuntu uses socket activation (below); auth changes
+  # apply to new connections automatically as each connection spawns a fresh sshd.
+
+- name: Detect socket-activated SSH
+  ansible.builtin.command: systemctl is-enabled ssh.socket
+  register: vps_ssh_socket
+  changed_when: false
+  failed_when: false
+
+- name: Move SSH to the hardened port via ssh.socket (socket-activated systems)
+  when: vps_ssh_socket.stdout == "enabled"
+  block:
+    - name: Ensure ssh.socket.d override dir exists
+      ansible.builtin.file:
+        path: /etc/systemd/system/ssh.socket.d
+        state: directory
+        mode: "0755"
+
+    - name: Set ssh.socket ListenStream to the hardened port
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/ssh.socket.d/override.conf
+        mode: "0644"
+        content: |
+          [Socket]
+          ListenStream=
+          ListenStream=0.0.0.0:{{ ssh_port }}
+          ListenStream=[::]:{{ ssh_port }}
+      notify: Restart ssh socket
+
+- name: Apply SSH port change before touching the firewall (avoid lockout window)
+  ansible.builtin.meta: flush_handlers
 
 - name: Fetch Cloudflare IPv4 ranges
   ansible.builtin.uri: { url: https://www.cloudflare.com/ips-v4, return_content: true }
