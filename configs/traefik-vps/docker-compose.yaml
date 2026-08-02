@@ -14,7 +14,6 @@ services:
       # - 443:443/udp # Uncomment if you want HTTP3
     environment:
       CF_DNS_API_TOKEN: ${CF_DNS_API_TOKEN} # if using .env
-      TRAEFIK_DASHBOARD_CREDENTIALS: ${TRAEFIK_DASHBOARD_CREDENTIALS}
       CF_API_EMAIL: ${CF_API_EMAIL}
       PUID: 1000
       PGID: 1000

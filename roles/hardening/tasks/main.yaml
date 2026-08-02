@@ -63,11 +63,12 @@
   loop: ["9100", "8082"]
   notify: Reload ufw
 
-- name: UFW allow admin SSH over tailscale
+- name: UFW allow admin SSH over tailscale (from the admin device only)
   community.general.ufw:
     rule: allow
     direction: in
     interface: tailscale0
+    src: "{{ admin_tailscale_ip }}"
     to_port: "{{ ansible_port }}"
     proto: tcp
   notify: Reload ufw
