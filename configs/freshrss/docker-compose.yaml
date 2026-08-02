@@ -8,14 +8,11 @@ services:
     networks:
       - proxy
     restart: unless-stopped
-    # Resolve auth.<domain> to Traefik internally so mod_auth_openidc fetches the
-    # OIDC metadata over the local proxy network (valid cert, no Cloudflare hairpin,
-    # avoids broken IPv6 egress). Traefik proxies it to authentik-server.
-    extra_hosts:
-      - "auth.${FULL_DOMAIN}:172.18.0.2"
-    # mod_auth_openidc's libcurl uses c-ares (ignores /etc/hosts) and prefers IPv6.
-    # vps-01 has no IPv6 egress, so disable IPv6 in-container: c-ares then uses only
-    # the A record (auth.<domain> -> Traefik via extra_hosts / embedded DNS).
+    # auth.<domain> resolves to Traefik via its Docker network alias (embedded DNS),
+    # so mod_auth_openidc fetches OIDC metadata over the local proxy network — valid
+    # cert, no Cloudflare hairpin, no hardcoded IP.
+    # IPv6 disabled because mod_auth_openidc's libcurl uses c-ares (prefers IPv6) and
+    # vps-01 has no IPv6 egress; with IPv6 off it uses the alias's A record.
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=1
     volumes:
