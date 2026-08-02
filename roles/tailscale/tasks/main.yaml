@@ -1,0 +1,45 @@
+---
+- name: Add Tailscale apt signing key
+  ansible.builtin.get_url:
+    url: "https://pkgs.tailscale.com/stable/debian/{{ ansible_distribution_release }}.noarmor.gpg"
+    dest: /usr/share/keyrings/tailscale-archive-keyring.gpg
+    mode: "0644"
+
+- name: Add Tailscale apt repo
+  ansible.builtin.get_url:
+    url: "https://pkgs.tailscale.com/stable/debian/{{ ansible_distribution_release }}.tailscale-keyring.list"
+    dest: /etc/apt/sources.list.d/tailscale.list
+    mode: "0644"
+
+- name: Install Tailscale
+  ansible.builtin.apt:
+    name: tailscale
+    state: present
+    update_cache: true
+
+- name: Enable and start tailscaled
+  ansible.builtin.systemd:
+    name: tailscaled
+    state: started
+    enabled: true
+
+- name: Bring up Tailscale with tag, no subnet acceptance
+  ansible.builtin.command:
+    cmd: >-
+      tailscale up
+      --authkey {{ tailscale_authkey }}
+      --hostname {{ tailscale_hostname }}
+      --advertise-tags {{ tailscale_tags }}
+      --accept-routes=false
+      --ssh=false
+  register: ts_up
+  changed_when: ts_up.rc == 0
+
+- name: Get Tailscale IPv4
+  ansible.builtin.command: tailscale ip -4
+  register: ts_ip
+  changed_when: false
+
+- name: Store tailscale IP fact
+  ansible.builtin.set_fact:
+    tailscale_ip: "{{ ts_ip.stdout | trim }}"
