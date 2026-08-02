@@ -1,51 +1,33 @@
 services:
   freshrss:
-    # Official image (Apache + mod_auth_openidc) for native OIDC SSO.
-    # NOTE: switched from lscr.io/linuxserver/freshrss (nginx, no OIDC support).
+    # Official image (kept from the OIDC attempt; data lives in freshrss_oidc_data).
+    # Auth is via Traefik forward-auth (Authentik), same as wallabag/dozzle — reliable.
+    # (Native OIDC was attempted but mod_auth_openidc's c-ares resolver on this image
+    # couldn't reliably reach the Cloudflare-proxied Authentik for metadata.)
     image: freshrss/freshrss:1.29.1
     container_name: freshrss
     hostname: freshrss
     networks:
       - proxy
     restart: unless-stopped
-    # OIDC metadata fetch (mod_auth_openidc/libcurl uses c-ares, which ignores /etc/hosts
-    # and queries Docker's embedded DNS directly):
-    #  - Traefik's network alias makes the embedded DNS return Traefik's IP for the A record.
-    #  - no-aaaa stops c-ares requesting the AAAA (which the embedded DNS forwards to the
-    #    unroutable Cloudflare IPv6). Together: c-ares reaches Authentik via Traefik locally.
-    dns_opt:
-      - "no-aaaa"
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=1
     volumes:
       - freshrss_oidc_data:/var/www/FreshRSS/data
       - freshrss_oidc_extensions:/var/www/FreshRSS/extensions
     environment:
       - "TZ=${TIMEZONE}"
       - "CRON_MIN=5,25,45"
-      # Trust the Docker proxy network so mod_auth_openidc builds correct return URLs
-      - "TRUSTED_PROXY=172.18.0.0/16"
-      # --- OIDC (Authentik) ---
-      - "OIDC_ENABLED=1"
-      - "OIDC_PROVIDER_METADATA_URL=https://auth.${FULL_DOMAIN}/application/o/freshrss/.well-known/openid-configuration"
-      - "OIDC_CLIENT_ID=${OIDC_CLIENT_ID}"
-      - "OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET}"
-      - "OIDC_CLIENT_CRYPTO_KEY=${OIDC_CLIENT_CRYPTO_KEY}"
-      - "OIDC_REMOTE_USER_CLAIM=preferred_username"
-      - "OIDC_SCOPES=openid email profile"
-      - "OIDC_X_FORWARDED_HEADERS=X-Forwarded-Host X-Forwarded-Port X-Forwarded-Proto"
     env_file:
       - .env
     labels:
       - traefik.enable=true
       - "traefik.http.services.freshrss.loadbalancer.server.port=80"
-      # UI: auth handled INSIDE the container by mod_auth_openidc (no Traefik forward-auth)
+      # UI: Authentik forward-auth (perimeter SSO); FreshRSS keeps its own login.
       - "traefik.http.routers.freshrss.rule=Host(`freshrss.${FULL_DOMAIN}`)"
       - "traefik.http.routers.freshrss.entrypoints=https"
       - "traefik.http.routers.freshrss.tls=true"
       - "traefik.http.routers.freshrss.service=freshrss"
-      # API (greader/fever): excluded from OIDC by FreshRSS's own Apache config;
-      # kept on its own higher-priority router for per-client-IP rate limiting.
+      - "traefik.http.routers.freshrss.middlewares=authentik@file"
+      # API (greader/fever): excluded from forward-auth (mobile clients), rate-limited.
       - "traefik.http.routers.freshrss-api.rule=Host(`freshrss.${FULL_DOMAIN}`) && PathPrefix(`/api/`)"
       - "traefik.http.routers.freshrss-api.entrypoints=https"
       - "traefik.http.routers.freshrss-api.tls=true"
