@@ -8,6 +8,11 @@ services:
     networks:
       - proxy
     restart: unless-stopped
+    # Resolve auth.<domain> to Traefik internally so mod_auth_openidc fetches the
+    # OIDC metadata over the local proxy network (valid cert, no Cloudflare hairpin,
+    # avoids broken IPv6 egress). Traefik proxies it to authentik-server.
+    extra_hosts:
+      - "auth.${FULL_DOMAIN}:172.18.0.2"
     volumes:
       - freshrss_oidc_data:/var/www/FreshRSS/data
       - freshrss_oidc_extensions:/var/www/FreshRSS/extensions
