@@ -1,7 +1,7 @@
 ---
-- name: Ensure docker-compose is installed
+- name: Ensure Docker Compose v2 plugin is installed
   ansible.builtin.package:
-    name: docker-compose
+    name: docker-compose-plugin
     state: present
 
 - name: Ensure Docker service is running
