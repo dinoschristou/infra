@@ -1,0 +1,13 @@
+{{ app_folder_root }}/traefik-vps/logs/*.log {
+  size 20M
+  daily
+  rotate 14
+  missingok
+  notifempty
+  compress
+  delaycompress
+  copytruncate
+  postrotate
+    docker kill --signal="USR1" traefik 2>/dev/null || true
+  endscript
+}

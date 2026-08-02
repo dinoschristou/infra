@@ -1,0 +1,49 @@
+is_local_vm: false
+
+docker_log_max_size: "10m"
+
+enable_proxy: true
+enable_rss: true
+enable_crowdsec: false
+enable_cloudflare_tunnel: false
+enable_hoarder: false
+
+# Folder structure
+app_folder_root: /opt/stacks
+
+# Domain
+hostname_root: "dinos.sh"
+acme_provider: "cloudflare"
+full_domain: "dinos.sh"
+cloudflare_proxied: true
+
+# Tailscale isolation
+tailscale_hostname: vps-01
+tailscale_tags: "tag:vps-edge"
+
+# Hardened SSH port the hardening role configures sshd + ufw + fail2ban to use.
+# NOTE: this is deliberately NOT ansible_port. The live connection port lives in
+# inventory (22 during bootstrap, 4322 after hardening) so the port switch can't
+# lock Ansible out mid-run.
+ssh_port: 4322
+
+services_configs:
+  - name: docker-socket-proxy
+  - name: traefik-vps
+    required_folders:
+      - logs
+    touch_files:
+      - acme.json
+  - name: authentik
+    required_folders:
+      - media
+      - custom-templates
+      - certs
+  - name: littlelink
+  - name: freshrss
+  - name: wallabag
+    required_folders:
+      - images
+      - data
+  - name: monitoring-client-vps
+  - name: dozzle-vps

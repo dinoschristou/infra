@@ -1,0 +1,6 @@
+[Unit]
+Description=Nightly Postgres logical backup
+
+[Service]
+Type=oneshot
+ExecStart={{ app_folder_root }}/backups/pg-backup.sh

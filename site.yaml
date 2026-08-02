@@ -23,17 +23,21 @@
    - role: pihole
      tags: dns
 
-- name: Setup cloud servers
-  hosts: cloud
+- name: Setup OVH public VPS
+  hosts: vps-01
   become: true
   vars_files:
    - vars/vault.yaml
   roles:
-  #  - grog.package
-  #  - base
-  #  - docker
-  #  - docker_services
-   - services
+   - role: grog.package
+   - role: base
+   - role: docker
+   - role: tailscale
+     tags: tailscale
+   - role: services
+     tags: configs
+   - role: hardening
+     tags: hardening
 
 - name: Setup nut server
   hosts: pve1

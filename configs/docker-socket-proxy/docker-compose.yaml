@@ -1,0 +1,27 @@
+services:
+  docker-socket-proxy:
+    image: ghcr.io/tecnativa/docker-socket-proxy:0.3.0
+    container_name: docker-socket-proxy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      CONTAINERS: 1
+      IMAGES: 1
+      NETWORKS: 1
+      SERVICES: 0
+      TASKS: 0
+      POST: 0
+      EVENTS: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - proxy
+    # NOTE: read_only rootfs is not used — this haproxy-based image regenerates
+    # its config on the rootfs at startup. The security that matters (read-only
+    # Docker API) comes from POST:0 + the per-endpoint perms above and the :ro
+    # socket mount, not from a read-only container filesystem.
+
+networks:
+  proxy:
+    external: true

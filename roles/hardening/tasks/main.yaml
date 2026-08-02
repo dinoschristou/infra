@@ -1,0 +1,153 @@
+---
+- name: Harden sshd (key-only, no root; Port also set for non-socket systems)
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    validate: "sshd -t -f %s"
+  loop:
+    - { regexp: "^.*PasswordAuthentication", line: "PasswordAuthentication no" }
+    - { regexp: "^.*PermitRootLogin", line: "PermitRootLogin no" }
+    - { regexp: "^#?Port ", line: "Port {{ ssh_port }}" }
+  # No restart notify: modern Ubuntu uses socket activation (below); auth changes
+  # apply to new connections automatically as each connection spawns a fresh sshd.
+
+- name: Detect socket-activated SSH
+  ansible.builtin.command: systemctl is-enabled ssh.socket
+  register: vps_ssh_socket
+  changed_when: false
+  failed_when: false
+
+- name: Move SSH to the hardened port via ssh.socket (socket-activated systems)
+  when: vps_ssh_socket.stdout == "enabled"
+  block:
+    - name: Ensure ssh.socket.d override dir exists
+      ansible.builtin.file:
+        path: /etc/systemd/system/ssh.socket.d
+        state: directory
+        mode: "0755"
+
+    - name: Set ssh.socket ListenStream to the hardened port
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/ssh.socket.d/override.conf
+        mode: "0644"
+        content: |
+          [Socket]
+          ListenStream=
+          ListenStream=0.0.0.0:{{ ssh_port }}
+          ListenStream=[::]:{{ ssh_port }}
+      notify: Restart ssh socket
+
+- name: Apply SSH port change before touching the firewall (avoid lockout window)
+  ansible.builtin.meta: flush_handlers
+
+- name: Fetch Cloudflare IPv4 ranges
+  ansible.builtin.uri: { url: https://www.cloudflare.com/ips-v4, return_content: true }
+  register: cf_v4
+  delegate_to: localhost
+  become: false
+
+- name: Fetch Cloudflare IPv6 ranges
+  ansible.builtin.uri: { url: https://www.cloudflare.com/ips-v6, return_content: true }
+  register: cf_v6
+  delegate_to: localhost
+  become: false
+
+- name: Set Cloudflare CIDR facts
+  ansible.builtin.set_fact:
+    cloudflare_cidrs: "{{ (cf_v4.content.splitlines() + cf_v6.content.splitlines()) | select | list }}"
+
+- name: UFW default deny incoming
+  community.general.ufw: { direction: incoming, policy: deny }
+
+- name: UFW default allow outgoing
+  community.general.ufw: { direction: outgoing, policy: allow }
+
+- name: UFW allow break-glass SSH (rate-limited)
+  community.general.ufw:
+    rule: limit
+    direction: in
+    to_port: "{{ ssh_port }}"
+    proto: tcp
+  notify: Reload ufw
+
+- name: UFW allow 80/443 from Cloudflare ranges only
+  community.general.ufw:
+    rule: allow
+    direction: in
+    src: "{{ item.0 }}"
+    to_port: "{{ item.1 }}"
+    proto: tcp
+  loop: "{{ cloudflare_cidrs | product(['80', '443']) | list }}"
+  loop_control: { label: "{{ item.0 }}:{{ item.1 }}" }
+  notify: Reload ufw
+
+- name: UFW allow metrics scrape from mon over tailscale
+  community.general.ufw:
+    rule: allow
+    direction: in
+    interface: tailscale0
+    src: "{{ mon_tailscale_ip }}"
+    to_port: "{{ item }}"
+    proto: tcp
+  loop: ["9100", "8082"]
+  notify: Reload ufw
+
+- name: UFW allow admin SSH over tailscale (any of your tailnet devices; identity gated by TS ACL)
+  community.general.ufw:
+    rule: allow
+    direction: in
+    interface: tailscale0
+    src: "{{ tailscale_cgnat_cidr }}"
+    to_port: "{{ ssh_port }}"
+    proto: tcp
+  notify: Reload ufw
+
+- name: Enable UFW
+  community.general.ufw: { state: enabled, logging: "on" }
+
+- name: Deploy fail2ban jail
+  ansible.builtin.template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    mode: "0644"
+  notify: Restart fail2ban
+
+- name: Enable fail2ban
+  ansible.builtin.systemd: { name: fail2ban, state: started, enabled: true }
+
+- name: Install Traefik logrotate config
+  ansible.builtin.template:
+    src: logrotate-traefik.j2
+    dest: /etc/logrotate.d/traefik
+    mode: "0644"
+
+- name: Ensure backups dir exists
+  ansible.builtin.file:
+    path: "{{ app_folder_root }}/backups"
+    state: directory
+    mode: "0700"
+
+- name: Install pg-backup script
+  ansible.builtin.template:
+    src: pg-backup.sh.j2
+    dest: "{{ app_folder_root }}/backups/pg-backup.sh"
+    mode: "0750"
+
+- name: Install pg-backup systemd units
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    mode: "0644"
+  loop: [pg-backup.service, pg-backup.timer]
+
+- name: Enable pg-backup timer
+  ansible.builtin.systemd: { name: pg-backup.timer, state: started, enabled: true, daemon_reload: true }
+
+- name: Tighten service directory permissions to 0700
+  ansible.builtin.file:
+    path: "{{ app_folder_root }}/{{ item.name }}"
+    state: directory
+    mode: "0700"
+  loop: "{{ services_configs }}"
+  loop_control: { label: "{{ item.name }}" }

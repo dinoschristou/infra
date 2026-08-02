@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+BACKUP_DIR="{{ app_folder_root }}/backups"
+mkdir -p "$BACKUP_DIR"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+
+running() { docker ps --format '{{ "{{.Names}}" }}' | grep -qx "$1"; }
+
+# Authentik — PostgreSQL (superuser is 'authentik')
+if running authentik-postgresql; then
+  docker exec authentik-postgresql pg_dumpall -U authentik 2>/dev/null \
+    | gzip > "$BACKUP_DIR/authentik-postgresql-${STAMP}.sql.gz" || true
+fi
+
+# Wallabag — MariaDB (root password read from the container's own env)
+if running wallabag-db; then
+  docker exec wallabag-db sh -c 'exec mariadb-dump -u root -p"$MYSQL_ROOT_PASSWORD" --all-databases' 2>/dev/null \
+    | gzip > "$BACKUP_DIR/wallabag-db-${STAMP}.sql.gz" || true
+fi
+
+# FreshRSS stores data in SQLite inside its data volume — captured by the OVH
+# snapshot / volume backup; no logical dump is taken here.
+
+find "$BACKUP_DIR" -name '*.sql.gz' -mtime +7 -delete

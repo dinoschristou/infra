@@ -1,30 +1,52 @@
 services:
   freshrss:
-    image: lscr.io/linuxserver/freshrss:1.29.1
+    # Official image (kept from the OIDC attempt; data lives in freshrss_oidc_data).
+    # Auth is via Traefik forward-auth (Authentik), same as wallabag/dozzle — reliable.
+    # (Native OIDC was attempted but mod_auth_openidc's c-ares resolver on this image
+    # couldn't reliably reach the Cloudflare-proxied Authentik for metadata.)
+    image: freshrss/freshrss:1.29.1
+    container_name: freshrss
+    hostname: freshrss
     networks:
       - proxy
-    container_name: freshrss
+    restart: unless-stopped
     volumes:
-      - freshrss_data:/config
+      - freshrss_oidc_data:/var/www/FreshRSS/data
+      - freshrss_oidc_extensions:/var/www/FreshRSS/extensions
+    environment:
+      - "TZ=${TIMEZONE}"
+      - "CRON_MIN=5,25,45"
+    env_file:
+      - .env
     labels:
       - traefik.enable=true
+      - "traefik.http.services.freshrss.loadbalancer.server.port=80"
+      # UI: Authentik forward-auth (perimeter SSO); FreshRSS keeps its own login.
       - "traefik.http.routers.freshrss.rule=Host(`freshrss.${FULL_DOMAIN}`)"
       - "traefik.http.routers.freshrss.entrypoints=https"
       - "traefik.http.routers.freshrss.tls=true"
-    environment:
-      - "PUID=1000"
-      - "PGID=1000"
-      - "TZ=${TIMEZONE}"
-      - "CRON_MIN=5,25,45"
-    restart: unless-stopped
-    env_file:
-      - .env
+      - "traefik.http.routers.freshrss.service=freshrss"
+      - "traefik.http.routers.freshrss.middlewares=authentik@file"
+      # API (greader/fever): excluded from forward-auth (mobile clients), rate-limited.
+      - "traefik.http.routers.freshrss-api.rule=Host(`freshrss.${FULL_DOMAIN}`) && PathPrefix(`/api/`)"
+      - "traefik.http.routers.freshrss-api.entrypoints=https"
+      - "traefik.http.routers.freshrss-api.tls=true"
+      - "traefik.http.routers.freshrss-api.priority=100"
+      - "traefik.http.routers.freshrss-api.service=freshrss"
+      - "traefik.http.routers.freshrss-api.middlewares=freshrss-api-ratelimit@docker"
+      - "traefik.http.middlewares.freshrss-api-ratelimit.ratelimit.average=60"
+      - "traefik.http.middlewares.freshrss-api-ratelimit.ratelimit.period=1m"
+      - "traefik.http.middlewares.freshrss-api-ratelimit.ratelimit.burst=30"
+      - "traefik.http.middlewares.freshrss-api-ratelimit.ratelimit.sourceCriterion.requestHeaderName=Cf-Connecting-Ip"
 
 networks:
   proxy:
     external: true
 
 volumes:
-  freshrss_data:
-    name: freshrss_data
+  freshrss_oidc_data:
+    name: freshrss_oidc_data
+    driver: local
+  freshrss_oidc_extensions:
+    name: freshrss_oidc_extensions
     driver: local

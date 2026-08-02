@@ -1,3 +1,7 @@
+docker_log_max_size: "100m"
+docker_log_max_file: "3"
+journald_system_max_use: "500M"
+
 package_list:
   - name: apt-transport-https
   - name: ca-certificates
@@ -11,7 +15,6 @@ package_list:
   - name: nfs-common
   - name: zsh
   - name: htop
-  - name: neofetch
   - name: net-tools
   - name: speedtest-cli
   - name: git
@@ -49,6 +52,11 @@ postgres_db: core
 grafana_user: dinos
 pihole_main_host: 192.168.1.202
 pihole_backup_host: 192.168.3.254
+
+mon_tailscale_ip: "100.65.167.29"   # mon's tailscale IP (tag:lab), scrapes vps-01 metrics
+# Tailscale CGNAT range — ufw allows SSH on tailscale0 from any of YOUR devices in
+# this range; which devices/users may actually connect is enforced by the Tailscale ACL.
+tailscale_cgnat_cidr: "100.64.0.0/10"
 
 mqtt_server: 192.168.42.122
 mqtt_port: 1883
