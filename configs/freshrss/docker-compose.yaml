@@ -13,6 +13,11 @@ services:
     # avoids broken IPv6 egress). Traefik proxies it to authentik-server.
     extra_hosts:
       - "auth.${FULL_DOMAIN}:172.18.0.2"
+    # mod_auth_openidc's libcurl uses c-ares (ignores /etc/hosts) and prefers IPv6.
+    # vps-01 has no IPv6 egress, so disable IPv6 in-container: c-ares then uses only
+    # the A record (auth.<domain> -> Traefik via extra_hosts / embedded DNS).
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
     volumes:
       - freshrss_oidc_data:/var/www/FreshRSS/data
       - freshrss_oidc_extensions:/var/www/FreshRSS/extensions
