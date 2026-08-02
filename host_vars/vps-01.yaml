@@ -1,5 +1,7 @@
 is_local_vm: false
 
+docker_log_max_size: "10m"
+
 enable_proxy: true
 enable_rss: true
 enable_crowdsec: false

@@ -16,3 +16,9 @@
   ansible.builtin.systemd:
     name: ssh
     state: restarted
+
+- name: Restart journald
+  become: true
+  ansible.builtin.systemd:
+    name: systemd-journald
+    state: restarted
