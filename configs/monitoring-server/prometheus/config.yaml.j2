@@ -21,7 +21,8 @@ scrape_configs:
         - node-exporter.ts.knxcloud.io
         - node-exporter.mqtt.knxcloud.io
         - node-exporter.infra.knxcloud.io
-        - node-exporter.dinos.sh
+        # vps-01 (dinos.sh) scraped over tailscale, not public DNS
+        - {{ vps_tailscale_ip }}:9100
 
   - job_name: plex
     static_configs:
@@ -35,7 +36,8 @@ scrape_configs:
         - cadvisor.ts.knxcloud.io
         - cadvisor.mqtt.knxcloud.io
         - cadvisor.infra.knxcloud.io
-        - cadvisor.dinos.sh
+        # vps-01 (dinos.sh) scraped over tailscale, not public DNS
+        - {{ vps_tailscale_ip }}:8082
 
   - job_name: 'prometheus'
     scrape_interval: 10s
