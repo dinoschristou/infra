@@ -49,6 +49,33 @@ Two facts from this table drive the design:
   reach the protected services. Introducing groups therefore changes access control;
   it is not merely describing what already exists. See Risks.
 
+### The FreshRSS API is outside the SSO boundary
+
+Verified live on 2026-08-06:
+
+| Path | Result |
+| --- | --- |
+| `/api/greader.php/accounts/ClientLogin` | `400` — reached FreshRSS itself |
+| `/api/fever.php` | `200` — reached FreshRSS itself |
+| `/` (UI) | `302` → `auth.dinos.sh/application/o/authorize/…` |
+
+The API never consults Authentik. The bypass is the higher-priority `freshrss-api`
+Traefik router, which omits the `authentik@file` middleware and applies a rate limit
+keyed on `Cf-Connecting-Ip`.
+
+Two consequences, both load-bearing for this design:
+
+1. Nothing in this work touches API access — not the blueprint adoption, and not the
+   provider's `skip_path_regex` (which is empty and unused).
+2. **Adding groups cannot break mobile RSS sync.** A policy binding gates the Authentik
+   *application*, and the API path never reaches it. The lockout risk in Risks applies
+   to the browser UI only.
+
+The corollary is that the API is protected solely by FreshRSS's own API password plus
+that rate limit — SSO contributes nothing to it. That is a deliberate, pre-existing
+tradeoff to keep mobile sync working, unchanged by this work. It also means groups can
+never be used to restrict API access; that would require a different mechanism.
+
 ## Findings from the manuals
 
 Checked against the official Authentik documentation and `/blueprints/schema.json`
