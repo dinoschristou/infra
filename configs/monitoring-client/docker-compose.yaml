@@ -1,6 +1,6 @@
 services:
   node-exporter:
-    image: prom/node-exporter:v1.11.1
+    image: prom/node-exporter:v1.11.1@sha256:e9cff4fc67b1818f8c97adb115b9f12c9a54b533de86765d4a0effc01b357205
     container_name: node-exporter
     restart: unless-stopped
     volumes:
@@ -30,7 +30,7 @@ services:
       - "traefik.http.routers.node-exporter.tls=true"
       - "traefik.http.services.node-exporter.loadbalancer.server.port=9100"
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.55.1
+    image: gcr.io/cadvisor/cadvisor:v0.55.1@sha256:3de2bd5203120b866d74a9b283b2ffb8ec382fbf9dc321814700c6ea6f44ec57
     restart: unless-stopped
     container_name: cadvisor
     volumes:
@@ -57,7 +57,7 @@ services:
       - "traefik.http.routers.cadvisor.tls=true"
       - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
   promtail:
-    image: grafana/promtail:3.6.11
+    image: grafana/promtail:3.6.11@sha256:a761cb834cfaeee29745440d4884d6748f0a08d8f68928db1d707018c1dcfbe9
     container_name: promtail
     volumes:
       - /var/log:/var/log

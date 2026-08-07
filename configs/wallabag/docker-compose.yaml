@@ -1,6 +1,6 @@
 services:
   wallabag:
-    image: wallabag/wallabag:2.6.14
+    image: wallabag/wallabag:2.6.14@sha256:4a527e027e0d59e87c14225ef11e005af3d4890374202ad319ce5e63dfc66709
     restart: unless-stopped
     container_name: wallabag
     networks:
@@ -40,7 +40,7 @@ services:
       - "traefik.http.routers.wallabag.middlewares=authentik@file"
       - "traefik.http.services.wallabag.loadbalancer.server.port=80"
   wallabag-db:
-    image: mariadb:11
+    image: mariadb:11@sha256:d9f7eb2637296652f24b484afd5d246f759f49f5babcadc6a9e344c9acb75fbf
     restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_PASS}
@@ -60,7 +60,7 @@ services:
       retries: 5
     container_name: wallabag-db
   wallabag-redis:
-    image: redis:8.6-alpine
+    image: redis:8.6-alpine@sha256:cd218f4b106a332c5c992e38a9480bfb9d7e9f8f7b0ec9a0023bfa36d9a408f9
     restart: unless-stopped
     networks:
       - proxy
