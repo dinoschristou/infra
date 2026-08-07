@@ -1,0 +1,17 @@
+---
+# Removes the dead objects from the abandoned FreshRSS OIDC attempt (2026-08-02).
+# FreshRSS is protected by forward-auth via the `dinos-sh` application instead.
+# These entries stay in git as no-ops so a rebuilt instance never recreates them.
+version: 1
+metadata:
+  name: cleanup - abandoned freshrss OIDC
+entries:
+  - model: authentik_core.application
+    state: absent
+    identifiers:
+      slug: freshrss
+
+  - model: authentik_providers_oauth2.oauth2provider
+    state: absent
+    identifiers:
+      name: freshrss
