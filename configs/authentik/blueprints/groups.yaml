@@ -15,3 +15,17 @@ entries:
     attrs:
       users:
         - !Find [authentik_core.user, [username, dinos]]
+
+  # Restricts the dinos.sh application to members of dinos-sh-users.
+  # Rollback: set state to absent (or delete in the UI *and* push that change —
+  # a UI-only deletion is re-created by this blueprint within 60 minutes).
+  - model: authentik_policies.policybinding
+    state: present
+    identifiers:
+      target: !Find [authentik_core.application, [slug, dinos-sh]]
+      group: !Find [authentik_core.group, [name, dinos-sh-users]]
+      order: 0
+    attrs:
+      enabled: true
+      negate: false
+      timeout: 30
