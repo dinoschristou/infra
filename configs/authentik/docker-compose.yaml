@@ -95,6 +95,7 @@ services:
       - ./media:/media
       - ./certs:/certs
       - ./custom-templates:/templates
+      - ./blueprints:/blueprints/custom:ro
     depends_on:
       authentik-postgresql:
         condition: service_healthy
