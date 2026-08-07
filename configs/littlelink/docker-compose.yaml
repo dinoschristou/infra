@@ -1,6 +1,6 @@
 services:
   littlelink:
-    image: ghcr.io/techno-tim/littlelink-server:latest
+    image: ghcr.io/techno-tim/littlelink-server:latest@sha256:e84ea9d93b60362cf9e292dba43adb604e375d9206d5fcf1de6bb766a20aabd1
     container_name: littlelink
     restart: unless-stopped
     networks:

@@ -1,7 +1,7 @@
 services:
   web:
     init: true
-    image: ghcr.io/usetrmnl/terminus:0.61.0  # renovate: datasource=github-tags depName=usetrmnl/terminus
+    image: ghcr.io/usetrmnl/terminus:0.61.0@sha256:0fb94fecc0227458e011e2c7c8e740b540b44fd389b0fc52db8749e38e37b00f  # renovate: datasource=github-tags depName=usetrmnl/terminus
     container_name: terminus-web
     networks:
       - proxy
@@ -42,7 +42,7 @@ services:
 
   worker:
     init: true
-    image: ghcr.io/usetrmnl/terminus:0.61.0  # renovate: datasource=github-tags depName=usetrmnl/terminus
+    image: ghcr.io/usetrmnl/terminus:0.61.0@sha256:0fb94fecc0227458e011e2c7c8e740b540b44fd389b0fc52db8749e38e37b00f  # renovate: datasource=github-tags depName=usetrmnl/terminus
     container_name: terminus-worker
     networks:
       - proxy
@@ -74,7 +74,7 @@ services:
           cpus: "1.0"
 
   database:
-    image: postgres:18.4-alpine  # renovate: datasource=docker depName=postgres
+    image: postgres:18.4-alpine@sha256:9a8afca54e7861fd90fab5fdf4c42477a6b1cb7d293595148e674e0a3181de15  # renovate: datasource=docker depName=postgres
     container_name: terminus-db
     networks:
       - proxy
@@ -100,7 +100,7 @@ services:
           cpus: "1.0"
 
   keyvalue:
-    image: valkey/valkey:9.1-alpine  # renovate: datasource=docker depName=valkey/valkey
+    image: valkey/valkey:9.1-alpine@sha256:ee91f7a174ac4d6a6b0685b3a60e321f0a9dbbb691f9b0e285be2ba1d1be8328  # renovate: datasource=docker depName=valkey/valkey
     container_name: terminus-keyvalue
     networks:
       - proxy

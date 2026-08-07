@@ -1,6 +1,6 @@
 services:
   prometheus:
-    image: prom/prometheus:v3.12.0
+    image: prom/prometheus:v3.12.0@sha256:69f5241418838263316593f7274a304b095c40bcf22e57272865da91bd60a8ac
     container_name: prometheus
     volumes:
       - ./prometheus:/etc/prometheus
@@ -29,7 +29,7 @@ services:
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
   alertmanager:
-    image: prom/alertmanager:v0.32.2
+    image: prom/alertmanager:v0.32.2@sha256:b85533a2eb45865835315810315f6951331b2dbc8c93a6cf9a51e156a006a706
     container_name: alertmanager
     volumes:
       - ./alertmanager:/etc/alertmanager
@@ -52,7 +52,7 @@ services:
       - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
 
   loki:
-    image: grafana/loki:3.7.2
+    image: grafana/loki:3.7.2@sha256:191d4fdfb7264f16989f0a57f320872620a5a7c2ceeec6229212c4190ec49b86
     container_name: loki
     restart: unless-stopped
     ports:
@@ -73,7 +73,7 @@ services:
       - "traefik.http.services.loki.loadbalancer.server.port=3100"
 
   grafana:
-    image: grafana/grafana:13.0.1
+    image: grafana/grafana:13.0.1@sha256:0f86bada30d65ef9d0183b90c1e2682ac92d53d95da8bed322b984ea78a4a73a
     container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
@@ -98,7 +98,7 @@ services:
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
   pushgateway:
-    image: prom/pushgateway:v1.11.3
+    image: prom/pushgateway:v1.11.3@sha256:74fa117cef2d7e383112d25139ff1c2d2e309c35389a9e0554a47136a1482e48
     container_name: pushgateway
     restart: unless-stopped
     expose:
@@ -116,7 +116,7 @@ services:
       - "traefik.http.services.pushgateway.loadbalancer.server.port=9091"
 
   pihole-exporter1:
-    image: ekofr/pihole-exporter:v1.2.0
+    image: ekofr/pihole-exporter:v1.2.0@sha256:242c53ef3c24b88fcbe8184390b456d05604bd50de5732ca3fd3eb24395585b3
     container_name: pihole-exporter1
     environment:
       - PIHOLE_PROTOCOL=http
@@ -132,7 +132,7 @@ services:
       - .env
     
   pihole-exporter2:
-    image: ekofr/pihole-exporter:v1.2.0
+    image: ekofr/pihole-exporter:v1.2.0@sha256:242c53ef3c24b88fcbe8184390b456d05604bd50de5732ca3fd3eb24395585b3
     container_name: pihole-exporter2
     environment:
       - PIHOLE_PROTOCOL=http
@@ -148,7 +148,7 @@ services:
       - .env
 
   proxmox-exporter:
-    image: prompve/prometheus-pve-exporter:3.9.0
+    image: prompve/prometheus-pve-exporter:3.9.0@sha256:78a58df7a31c9fbee94962cd06422672668529de6421892df9aed4b6cee0757f
     container_name: proxmox-exporter
     volumes:
       - ./pve:/etc/pve_exporter
@@ -164,7 +164,7 @@ services:
 
   prometheus-plex-exporter:
     container_name: prometheus-plex-exporter
-    image: ghcr.io/timothystewart6/prometheus-plex-exporter:latest
+    image: ghcr.io/timothystewart6/prometheus-plex-exporter:latest@sha256:90dc0799601c334f2945a3d5b4b552a06352b208a8ce88a428cf90d6c9aa51cd
     pull_policy: always
     restart: unless-stopped
     networks:
@@ -177,7 +177,7 @@ services:
       - no-new-privileges:true
 
   unpoller:
-    image: ghcr.io/unpoller/unpoller:v3.2.0
+    image: ghcr.io/unpoller/unpoller:v3.2.0@sha256:bf7bdcc59fcdaa4699687007aa3ec24ddb3c9d9521f392d8c7aa2bea1bdb781a
     restart: unless-stopped
     networks:
       - proxy

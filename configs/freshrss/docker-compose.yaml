@@ -4,7 +4,7 @@ services:
     # Auth is via Traefik forward-auth (Authentik), same as wallabag/dozzle — reliable.
     # (Native OIDC was attempted but mod_auth_openidc's c-ares resolver on this image
     # couldn't reliably reach the Cloudflare-proxied Authentik for metadata.)
-    image: freshrss/freshrss:1.29.1
+    image: freshrss/freshrss:1.29.1@sha256:ab6b363102ccdbc39f6a62db926f567c61a5289bf25ba460f1c34423d8cc1a4d
     container_name: freshrss
     hostname: freshrss
     networks:

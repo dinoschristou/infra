@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:15-alpine@sha256:3d0f7584ed7d04e27fa050d6683a74746608faf21f202be78460d679cc56461f
     container_name: postgres
     networks:
       - proxy
@@ -15,7 +15,7 @@ services:
     labels:
 
   adminer:
-    image: adminer:5.4.2
+    image: adminer:5.4.2@sha256:983261ecc40a4aaf11e25aeda8ef821f5a43a9f024b3967c81cbcc0e6ce43ba3
     container_name: adminer
     restart: unless-stopped
     networks:
