@@ -179,9 +179,19 @@
     label: "Bringing up {{ item.name }}"
 
 # Selective push + hot-reload of prometheus/grafana/alertmanager config only.
-# Runs exclusively via `just reload-monitoring` (--tags monitoring-reload);
-# the `never` tag keeps it out of normal deploys.
+# Runs exclusively via `just reload-monitoring`.
+#
+# The `never` tag alone does NOT keep this out of normal deploys: site.yaml includes
+# this role with `tags: configs`, and role tags propagate to every task in the role,
+# so this block also carries `configs`. Running `--tags configs` therefore explicitly
+# names a tag the block has, and an explicitly-named tag overrides `never`. The result
+# was that every `just push-configs` ran this block — aborting the play on hosts with
+# no prometheus/alertmanager container, and silently restarting grafana on mon.
+#
+# The `monitoring_reload` guard below is the real gate; it cannot be switched on by
+# tag selection. The tags are kept so `--tags monitoring-reload` still narrows the run.
 - name: Push and reload monitoring configs only
+  when: monitoring_reload | default(false) | bool
   tags:
     - monitoring-reload
     - never

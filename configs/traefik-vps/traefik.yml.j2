@@ -42,8 +42,12 @@ entryPoints:
           scheme: https
   https:
     address: ":443"
-    http3:
-      advertisedPort = 443
+    # NOTE: http3 intentionally not enabled. It was previously declared here as
+    # `http3: {advertisedPort = 443}` — TOML syntax inside a YAML file, so the value
+    # parsed as a plain string and http3 never actually switched on (no Alt-Svc
+    # header was ever served). Enabling it properly also needs 443/udp published in
+    # docker-compose.yaml, which it is not; advertising Alt-Svc without that port
+    # open makes clients attempt h3, fail, and fall back on every connection.
 {% if cloudflare_proxied %}
     forwardedHeaders:
       # Reuse the list of Cloudflare's public IPs from above

@@ -28,7 +28,7 @@ push-configs host:
 
 # Push only prometheus/grafana/alertmanager config and reload them (no full restart)
 reload-monitoring:
-    ansible-playbook -i inventory/hosts.yaml site.yaml --tags monitoring-reload --limit mon
+    ansible-playbook -i inventory/hosts.yaml site.yaml --tags monitoring-reload -e monitoring_reload=true --limit mon
 
 # Update DNS entries on Pi-holes
 update-dns:
@@ -52,7 +52,7 @@ nut-client:
 
 # Run only configs on a specified host
 config-only host:
-    ansible-playbook -i inventory/hosts.yaml site.yaml --tags config --limit {{host}}
+    ansible-playbook -i inventory/hosts.yaml site.yaml --tags configs --limit {{host}}
 
 # Test new roles on test_hosts
 test-new-roles:

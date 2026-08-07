@@ -22,9 +22,18 @@ http:
       rule: "Host(`traefik.{{ full_domain }}`) && PathPrefix(`/metrics`)"
       service: prometheus@internal
       tls: {}
-    authentik-outpost:
-      entryPoints:
-        - https
-      rule: "HostRegexp(`{subdomain:[a-z0-9-]+}.{{ full_domain }}`) && PathPrefix(`/outpost.goauthentik.io/`)"
-      service: authentik@file
-      tls: {}
+    # NOTE: an `authentik-outpost` router used to sit here, matching
+    # HostRegexp(`{subdomain:[a-z0-9-]+}.<domain>`) && PathPrefix(`/outpost.goauthentik.io/`).
+    # That is traefik v2 named-group syntax; on v3 it is not a valid regexp, so the
+    # router never matched (traefik logged "No domain found in rule", and an
+    # otherwise-unrouted *.dinos.sh host returned 404 on that path rather than being
+    # served by it). It was dead config, so it has been removed rather than translated.
+    #
+    # Nothing needs it: the proxy provider runs in `forward_domain` mode, so auth is
+    # centralised on auth.dinos.sh — handled by authentik-server's own
+    # Host(`auth.<domain>`) docker router — and per-subdomain /outpost.goauthentik.io/
+    # paths are only required by single-application proxy mode.
+    #
+    # Do NOT reinstate it by mechanically porting the regexp to v3: a working version
+    # would intercept /outpost.goauthentik.io/* on EVERY *.dinos.sh subdomain, which is
+    # a routing change that needs deliberate design, not a syntax fix.
