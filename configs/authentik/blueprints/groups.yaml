@@ -1,0 +1,17 @@
+---
+# Access group for the dinos.sh protected application.
+# Users are referenced by !Find, never declared here — passwords and MFA state
+# must not enter git.
+# NOTE: this group does not gate anything until the policy binding is added.
+version: 1
+metadata:
+  name: dinos.sh access groups
+entries:
+  - model: authentik_core.group
+    id: dinos-sh-users
+    state: present
+    identifiers:
+      name: dinos-sh-users
+    attrs:
+      users:
+        - !Find [authentik_core.user, [username, dinos]]
