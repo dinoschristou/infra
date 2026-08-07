@@ -79,7 +79,7 @@ The older `docker_services` role is deprecated.
 
 - **Monitoring Stack**: Prometheus, Grafana, Loki, Alertmanager on mon
 - **Reverse Proxy**: Traefik with Cloudflare ACME SSL on every host
-- **Identity**: Authentik (config exists in `/configs/authentik/` but not deployed)
+- **Identity**: Authentik on vps-01 (`auth.dinos.sh`), providing forward-auth SSO for the dinos.sh services. Application-layer config (providers, applications, groups, policies) is declared in `configs/authentik/blueprints/` and applied by the worker — see that directory's README.
 - **DNS**: Dual Pi-hole instances for redundancy (192.168.1.202 primary, 192.168.3.254 backup)
 - **Power**: Network UPS Tools (NUT) for graceful shutdowns
 - **Kubernetes**: Optional K3s cluster support
