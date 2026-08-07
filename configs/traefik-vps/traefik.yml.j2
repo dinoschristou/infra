@@ -85,6 +85,12 @@ providers:
   docker:
     endpoint: "tcp://docker-socket-proxy:2375"
     exposedByDefault: false
+    # Containers attached to more than one docker network (authentik-server is on
+    # both `proxy` and its own compose network) otherwise leave traefik to pick an
+    # arbitrary one. When it picked the compose network it dialled an address it
+    # has no route to, hanging 30s and returning 504 for auth.dinos.sh. traefik
+    # only ever joins `proxy`, so pin resolution to it.
+    network: proxy
   file:
     filename: /config.yml
     watch: true
