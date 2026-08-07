@@ -32,3 +32,20 @@ within the hour. Change these files instead.
   (`providers.docker.network` in `configs/traefik-vps/traefik.yml.j2`), it can dial the
   unreachable network and `auth.dinos.sh` hangs 30s and 504s — while forward-auth
   redirects still appear to work, which misleadingly looks like an authentik fault.
+
+## Rebuilding from scratch
+
+If the Authentik DB is lost, these blueprints can rebuild the SSO config — but not
+unattended, and not cleanly on the first pass:
+
+- Create the `dinos` user by hand (in the admin UI) before anything else. `groups.yaml`
+  looks it up with `!Find` and errors the whole file — group and policy binding both —
+  if the user doesn't exist yet.
+- Expect the first apply to fail regardless. `groups.yaml` also `!Find`s the `dinos-sh`
+  application, which is created by `sso-forward-auth.yaml`. Blueprints apply as
+  independent instances with no ordering guarantee, and `groups.yaml` sorts first
+  alphabetically, so it can run before the application exists.
+- After creating the user, check blueprint status with the query above until
+  `groups.yaml` shows `success`. Worst case it self-heals on the 60-minute re-apply.
+- Until `groups.yaml` applies, `dinos-sh` has no policy binding and is unrestricted —
+  don't treat the rebuild as done until that file is confirmed applied.

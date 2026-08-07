@@ -23,7 +23,7 @@ entries:
     state: present
     identifiers:
       target: !Find [authentik_core.application, [slug, dinos-sh]]
-      group: !Find [authentik_core.group, [name, dinos-sh-users]]
+      group: !KeyOf dinos-sh-users
       order: 0
     attrs:
       enabled: true
