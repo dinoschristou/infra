@@ -10,11 +10,10 @@ http:
           - X-authentik-email
           - X-authentik-name
           - X-authentik-uid
-  services:
-    authentik:
-      loadBalancer:
-        servers:
-          - url: "http://authentik-server:9000/"
+  # NOTE: there is deliberately no `services:` block here. An `authentik` service
+  # pointing at http://authentik-server:9000/ used to exist, but its only consumer was
+  # the dead `authentik-outpost` router removed below. The forwardAuth middleware above
+  # dials that address directly and does not go through a traefik service.
   routers:
     metrics:
       entryPoints:

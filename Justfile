@@ -52,7 +52,7 @@ nut-client:
 
 # Run only configs on a specified host
 config-only host:
-    ansible-playbook -i inventory/hosts.yaml site.yaml --tags configs --limit {{host}}
+    ansible-playbook -i inventory/hosts.yaml site.yaml --tags configs --skip-tags compose-up --limit {{host}}
 
 # Test new roles on test_hosts
 test-new-roles:

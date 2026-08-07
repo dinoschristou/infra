@@ -11,7 +11,10 @@ All operations use `just` command:
 - `just run` - Deploy all services except DNS to all hosts
 - `just run-machine <hostname>` - Deploy to specific machine (e.g., mon, infra, apps, mqtt)
 - `just run-ext` - Deploy only to cloud/external servers
-- `just config-only <hostname>` - Deploy only configurations without service restarts
+- `just config-only <hostname>` - Push config files only, skipping `docker compose up` (`--skip-tags compose-up`), so running containers are left alone
+- `just push-configs <hostname>` - Push configs *and* bring containers up
+
+Note: pushing Prometheus/Alertmanager/Grafana config does not apply it — the containers keep their old in-memory config. Run `just reload-monitoring` to SIGHUP Prometheus/Alertmanager and restart Grafana.
 
 ### DNS Management
 

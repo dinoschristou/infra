@@ -177,6 +177,10 @@
   loop: "{{ services_configs }}"
   loop_control:
     label: "Bringing up {{ item.name }}"
+  # Tagged so `just config-only` can push config files with --skip-tags compose-up
+  # and genuinely leave running containers alone, as its docs promise.
+  tags:
+    - compose-up
 
 # Selective push + hot-reload of prometheus/grafana/alertmanager config only.
 # Runs exclusively via `just reload-monitoring`.
@@ -188,13 +192,14 @@
 # was that every `just push-configs` ran this block — aborting the play on hosts with
 # no prometheus/alertmanager container, and silently restarting grafana on mon.
 #
-# The `monitoring_reload` guard below is the real gate; it cannot be switched on by
-# tag selection. The tags are kept so `--tags monitoring-reload` still narrows the run.
+# The `monitoring_reload` variable below is now the only gate, and it cannot be
+# switched on by tag selection. `never` has been dropped deliberately: keeping it
+# meant a direct `--tags monitoring-reload` run without the variable selected the
+# block and then silently skipped it, with no hint as to why.
 - name: Push and reload monitoring configs only
   when: monitoring_reload | default(false) | bool
   tags:
     - monitoring-reload
-    - never
   block:
     - name: Set monitoring config source folders
       ansible.builtin.set_fact:
