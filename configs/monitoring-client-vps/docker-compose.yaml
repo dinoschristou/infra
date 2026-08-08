@@ -1,6 +1,12 @@
 # Exporters here are scraped by mon over Tailscale (vps_tailscale_ip:9100 / :8082),
 # so they are deliberately NOT routed through Traefik — no traefik.* labels, no
 # proxy network. Adding a router would publish unauthenticated metrics on dinos.sh.
+#
+# Ports are published on METRICS_BIND_IP (vps-01's tailscale IP) rather than
+# 0.0.0.0: Docker's port publishing inserts its own DOCKER chain rules ahead of
+# ufw's INPUT chain, so the ufw "allow 9100/8082 on tailscale0 from mon" rules in
+# roles/hardening do NOT keep a 0.0.0.0 bind off the public interface. Binding the
+# listener itself is what makes these unreachable from the internet.
 services:
   node-exporter:
     image: prom/node-exporter:v1.11.1
@@ -23,7 +29,7 @@ services:
     env_file:
       - .env
     ports:
-      - "9100:9100"
+      - "${METRICS_BIND_IP}:9100:9100"
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.55.1
     restart: unless-stopped
@@ -42,4 +48,4 @@ services:
     env_file:
       - .env
     ports:
-      - "8082:8080"
+      - "${METRICS_BIND_IP}:8082:8080"
