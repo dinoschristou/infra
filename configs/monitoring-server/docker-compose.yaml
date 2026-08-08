@@ -1,6 +1,6 @@
 services:
   prometheus:
-    image: prom/prometheus:v3.12.0
+    image: prom/prometheus:v3.13.2@sha256:508729e0e2d18e11fd742a5a5ca70e557b940a93948c3c95fd0123a6fd538b69
     container_name: prometheus
     volumes:
       - ./prometheus:/etc/prometheus
@@ -29,7 +29,7 @@ services:
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
   alertmanager:
-    image: prom/alertmanager:v0.32.2
+    image: prom/alertmanager:v0.33.1@sha256:9e082985f56f4c8c9f724e18f2288c6708f472e56a5286b8863d080434ea065d
     container_name: alertmanager
     volumes:
       - ./alertmanager:/etc/alertmanager
@@ -52,7 +52,7 @@ services:
       - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
 
   loki:
-    image: grafana/loki:3.7.2
+    image: grafana/loki:3.7.6@sha256:efd47c67f9bac88ca29bcf8cb997d9ab29d1848bd0aff579282295542a745952
     container_name: loki
     restart: unless-stopped
     ports:
@@ -73,7 +73,7 @@ services:
       - "traefik.http.services.loki.loadbalancer.server.port=3100"
 
   grafana:
-    image: grafana/grafana:13.0.1
+    image: grafana/grafana:13.1.3@sha256:ab5cb380e3ff3172d6c8bd2e7cfd31cce977d2881b260e1f5bc089bf0b759b43
     container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
@@ -177,7 +177,7 @@ services:
       - no-new-privileges:true
 
   unpoller:
-    image: ghcr.io/unpoller/unpoller:v3.2.0
+    image: ghcr.io/unpoller/unpoller:v3.4.1@sha256:87e5bdca854b2fc2a1c6d73525c81bf541078e70db0059473a3c024fa3e69c97
     restart: unless-stopped
     networks:
       - proxy
