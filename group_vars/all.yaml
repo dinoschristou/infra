@@ -56,7 +56,9 @@ pihole_backup_host: 192.168.3.254
 mon_tailscale_ip: "100.65.167.29"   # mon's tailscale IP (tag:lab), scrapes vps-01 metrics
 # vps-01's tailscale IP (tag:vps-edge). mon scrapes its node-exporter (9100) and
 # cadvisor (8082) over tailscale — vps-01 is Cloudflare-proxied with no public
-# exporter DNS, and its ufw only opens these ports to mon_tailscale_ip on tailscale0.
+# exporter DNS. Also the address those exporters publish their ports on: docker's
+# own iptables rules run ahead of ufw's INPUT chain, so the ufw tailscale0 rules in
+# roles/hardening are not sufficient on their own to keep a 0.0.0.0 bind private.
 vps_tailscale_ip: "100.77.144.78"
 # Tailscale CGNAT range — ufw allows SSH on tailscale0 from any of YOUR devices in
 # this range; which devices/users may actually connect is enforced by the Tailscale ACL.

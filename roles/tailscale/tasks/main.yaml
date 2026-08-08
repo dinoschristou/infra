@@ -36,6 +36,20 @@
   register: ts_up
   changed_when: ts_up.rc == 0
 
+# Containers publish ports on the tailscale IP (see configs/monitoring-client-vps).
+# At boot docker can restore those containers before tailscaled has configured
+# tailscale0, and docker does not retry a failed port allocation — the container
+# just stays down until someone restarts it. Allowing non-local binds removes that
+# race: the listener binds regardless of whether the address is up yet.
+- name: Allow binding to not-yet-configured addresses (tailscale IP at boot)
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_nonlocal_bind
+    value: "1"
+    sysctl_file: /etc/sysctl.d/99-tailscale-nonlocal-bind.conf
+    sysctl_set: true
+    state: present
+    reload: true
+
 - name: Get Tailscale IPv4
   ansible.builtin.command: tailscale ip -4
   register: ts_ip
