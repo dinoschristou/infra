@@ -42,8 +42,12 @@ entryPoints:
           scheme: https
   https:
     address: ":443"
-    http3:
-      advertisedPort = 443
+    # NOTE: http3 intentionally not enabled. It was previously declared here as
+    # `http3: {advertisedPort = 443}` — TOML syntax inside a YAML file, so the value
+    # parsed as a plain string and http3 never actually switched on (no Alt-Svc
+    # header was ever served). Enabling it properly also needs 443/udp published in
+    # docker-compose.yaml, which it is not; advertising Alt-Svc without that port
+    # open makes clients attempt h3, fail, and fall back on every connection.
 {% if cloudflare_proxied %}
     forwardedHeaders:
       # Reuse the list of Cloudflare's public IPs from above
@@ -85,6 +89,12 @@ providers:
   docker:
     endpoint: "tcp://docker-socket-proxy:2375"
     exposedByDefault: false
+    # Containers attached to more than one docker network (authentik-server is on
+    # both `proxy` and its own compose network) otherwise leave traefik to pick an
+    # arbitrary one. When it picked the compose network it dialled an address it
+    # has no route to, hanging 30s and returning 504 for auth.dinos.sh. traefik
+    # only ever joins `proxy`, so pin resolution to it.
+    network: proxy
   file:
     filename: /config.yml
     watch: true

@@ -1,0 +1,31 @@
+---
+# Access group for the dinos.sh protected application.
+# Users are referenced by !Find, never declared here — passwords and MFA state
+# must not enter git.
+# NOTE: this group does not gate anything until the policy binding is added.
+version: 1
+metadata:
+  name: dinos.sh access groups
+entries:
+  - model: authentik_core.group
+    id: dinos-sh-users
+    state: present
+    identifiers:
+      name: dinos-sh-users
+    attrs:
+      users:
+        - !Find [authentik_core.user, [username, dinos]]
+
+  # Restricts the dinos.sh application to members of dinos-sh-users.
+  # Rollback: set state to absent (or delete in the UI *and* push that change —
+  # a UI-only deletion is re-created by this blueprint within 60 minutes).
+  - model: authentik_policies.policybinding
+    state: present
+    identifiers:
+      target: !Find [authentik_core.application, [slug, dinos-sh]]
+      group: !KeyOf dinos-sh-users
+      order: 0
+    attrs:
+      enabled: true
+      negate: false
+      timeout: 30

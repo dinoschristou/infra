@@ -11,7 +11,10 @@ All operations use `just` command:
 - `just run` - Deploy all services except DNS to all hosts
 - `just run-machine <hostname>` - Deploy to specific machine (e.g., mon, infra, apps, mqtt)
 - `just run-ext` - Deploy only to cloud/external servers
-- `just config-only <hostname>` - Deploy only configurations without service restarts
+- `just config-only <hostname>` - Push config files only, skipping `docker compose up` (`--skip-tags compose-up`), so running containers are left alone
+- `just push-configs <hostname>` - Push configs *and* bring containers up
+
+Note: pushing Prometheus/Alertmanager/Grafana config does not apply it — the containers keep their old in-memory config. Run `just reload-monitoring` to SIGHUP Prometheus/Alertmanager and restart Grafana.
 
 ### DNS Management
 
@@ -55,7 +58,7 @@ This manages a home lab with 4 Proxmox VMs (mon, infra, apps, mqtt), 2 Proxmox h
 
 - **proxmox_vms**: mon (monitoring), infra (infrastructure), apps (applications), mqtt (message broker)
 - **piholes**: pihole-primary, pihole-backup (DNS redundancy)
-- **cloud**: external-01 (cloud server)
+- **cloud**: vps-01 (cloud server)
 - **proxmox_hosts**: pve1, pve2 (Proxmox nodes for UPS management)
 
 ### Service Management
@@ -79,7 +82,7 @@ The older `docker_services` role is deprecated.
 
 - **Monitoring Stack**: Prometheus, Grafana, Loki, Alertmanager on mon
 - **Reverse Proxy**: Traefik with Cloudflare ACME SSL on every host
-- **Identity**: Authentik (config exists in `/configs/authentik/` but not deployed)
+- **Identity**: Authentik on vps-01 (`auth.dinos.sh`), providing forward-auth SSO for the dinos.sh services. Application-layer config (providers, applications, groups, policies) is declared in `configs/authentik/blueprints/` and applied by the worker — see that directory's README.
 - **DNS**: Dual Pi-hole instances for redundancy (192.168.1.202 primary, 192.168.3.254 backup)
 - **Power**: Network UPS Tools (NUT) for graceful shutdowns
 - **Kubernetes**: Optional K3s cluster support
@@ -101,8 +104,7 @@ The older `docker_services` role is deprecated.
 
 **mqtt** (broker): traefik, mosquitto (1883/9001), monitoring-client
 
-**external-01** (dinos.sh, Cloudflare-proxied): traefik, cloudflared, littlelink (`links.dinos.sh`), karakeep (`hoarder.dinos.sh`), freshrss (`freshrss.dinos.sh`), linkwarden (`linkwarden.dinos.sh`), crowdsec, monitoring-client
-- Commented out (configs exist): ntfy (`notify.dinos.sh`), wallabag (`read.dinos.sh`)
+**vps-01** (dinos.sh, Cloudflare-proxied): docker-socket-proxy, traefik-vps, authentik (`auth.dinos.sh`, see Identity above), littlelink (`links.dinos.sh`), freshrss (`freshrss.dinos.sh`), wallabag (`read.dinos.sh`), monitoring-client-vps, dozzle-vps (`dozzle.dinos.sh`)
 
 **pve1 / pve2**: Proxmox hypervisors at `pve1.knxcloud.io:8006` / `pve2.knxcloud.io:8006`
 
