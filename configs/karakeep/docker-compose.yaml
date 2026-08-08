@@ -1,6 +1,6 @@
 services:
   hoarder:
-    image: ghcr.io/karakeep-app/karakeep:0.32.0
+    image: ghcr.io/karakeep-app/karakeep:0.33.1@sha256:5467873df817ab3aa837f2b06bd7f2b0974132ba1ae5bce0b7e2fd134abc269b
     restart: unless-stopped
     container_name: hoarder
     networks:
@@ -40,7 +40,7 @@ services:
       - --remote-debugging-port=9222
       - --hide-scrollbars
   meilisearch:
-    image: getmeili/meilisearch:v1.45.2
+    image: getmeili/meilisearch:v1.52.0@sha256:d36e713e8f89483af1ab0d72011bbd503f5ab100b68ccbfad51c39e3f0a0567d
     restart: unless-stopped
     container_name: meilisearch
     networks:
